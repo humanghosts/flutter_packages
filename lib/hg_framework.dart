@@ -1,7 +1,5 @@
 library hg_framework;
 
-/// A Calculator.
-class Calculator {
-  /// Returns [value] plus 1.
-  int addOne(int value) => value + 1;
-}
+export 'initialize/initialize.dart';
+export 'util/export.dart';
+export 'view/export.dart';

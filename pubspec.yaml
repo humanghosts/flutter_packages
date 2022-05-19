@@ -11,33 +11,12 @@ dependencies:
   flutter:
     sdk: flutter
 
-  ## 自己的库
-  # 实体模型
-  hg_entity:
-    hosted:
-      name: hg_entity
-      url: http://localhost:8080
-    version: ^1.0.0+2
   # 本地存储 包括文档型和kv型数据库
   hg_orm:
-    hosted:
-      name: hg_orm
-      url: http://localhost:8080
-    version: ^1.0.0
+    path: ../hg_orm
+  hg_entity:
+    path: ../hg_entity
 
-  ## fork的别人的库
-  # 新拟态界面
-  flutter_neumorphic:
-    hosted:
-      name: flutter_neumorphic
-      url: http://localhost:8080
-    version: ^3.2.0+2
-  # icloud存储
-  icloud_storage:
-    hosted:
-      name: icloud_storage
-      url: http://localhost:8080
-    version: ^0.2.3+2
   # 前台定时任务
   scheduled_timer:
     hosted:
@@ -51,10 +30,9 @@ dependencies:
   # 异常处理 暂时不需要，是上报服务器的异常
   # sentry_flutter: ^6.2.2
 
-
-  ## 存储的库
-  # kv存储
-  get_storage: ^2.0.3
+  # 主题
+  flex_color_scheme: ^5.0.1
+  google_fonts:
 
   ## 设备功能的库
   # 路径
@@ -64,16 +42,12 @@ dependencies:
   flutter_native_timezone: ^2.0.0
   # 打开链接
   url_launcher: ^6.0.20
-  # 系统状态栏明暗修改
-  statusbarz: ^1.0.6
   # 权限请求
   permission_handler: ^8.3.0
   # 屏幕方向监听
   orientation: ^1.3.0
   # 提示音播放
   soundpool: ^2.3.0
-  # 后台任务
-  #  background_fetch: ^1.0.3
   # 应用角标
   flutter_app_badger: ^1.3.0
   # 打开商店、应用打分评论
@@ -83,91 +57,21 @@ dependencies:
   ## 其它功能的库
   # 日志
   logger: ^1.1.0
-  # 日期格式化
-  date_format: ^2.0.4
-  # 农历
-  lunar: ^1.2.19
-  # 汉字转拼音
-  lpinyin: ^2.0.3
-  # 富文本编辑器
-  zefyr: ^1.0.0-rc.5
-  # quill bug太多，暂时不用
-  #  flutter_quill: ^4.0.4
   # 提示
   fluttertoast: ^8.0.9
 
   ## 布局的库
-  # 暂时没用到 自适应布局
-  #  sizer: ^2.0.15
-  #  responsive_framework: ^0.1.7
-  # 简单手势监听 暂时没用到
-  # simple_gesture_detector: ^0.2.0
   # 底部弹框
   modal_bottom_sheet: ^2.0.1
-  sliding_up_panel: ^2.0.0+1
-  snapping_sheet: ^3.1.0
-  # 滑块
-  flutter_slidable: ^1.1.0
-  # 交错布局
-  flutter_staggered_grid_view: ^0.6.1
-  # sliver_appbar用到，自定义flexibleSpace
-  customizable_space_bar: ^0.2.0
-  # 数字选择
-  numberpicker: ^2.1.1
-  # 拖拽重排序
-  reorderables: ^0.4.3
-  # 时间线
-  timeline_tile: ^2.0.0
-  # 下拉刷新
-  pull_to_refresh: ^2.0.0
-  # 粘性标题
-  #flutter_sticky_header: ^0.6.0
-  # 时间表 暂时没用到
-  # time_planner: ^0.0.4
-  # 角标
-  badges: ^2.0.2
-  # 堆叠卡片
-  swipable_stack: ^1.2.0
 
-  ## 图标、动画、字体的库
-  flutter_svg: ^1.0.3
-  # 图标
-  cupertino_icons: ^1.0.4
-  font_awesome_flutter: ^9.2.0
-  # 动画效果
-  #  animations: ^2.0.2
-  animate_do: ^2.0.0
-  # 字体
-  # google_fonts: ^2.3.1
-  # 文字效果
-  # auto_size_text: 3.0.0
-  # animated_text_kit: ^4.2.1
-  # 加载动画
-  flutter_spinkit: ^5.1.0
-
-  # 家谱树
-  #  graphview: ^1.1.1
   # 屏幕自适应
   # flutter_screenutil: ^5.5.2
-  # 选择器
-  #  flutter_picker: ^2.0.3
-  # 向量计算
-  #  vector_math: ^2.1.2
-  # 倒计时
-  #  circular_countdown_timer: ^0.2.1
-  # 人性化时间
-  #  timeago: ^3.2.2
-  # 调试工具
-  #  flutter_ume: ^0.3.0+1
-  # 组件包裹
-  # styled_widget: ^0.4.0+3
+
   # 介绍页
   introduction_screen: ^3.0.0
   # 新手指导
   tutorial_coach_mark: ^1.2.1
 
-  # 拓展
-#  styled_widget: ^0.4.0+3
 
 dev_dependencies:
   flutter_test:

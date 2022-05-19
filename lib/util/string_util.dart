@@ -1,5 +1,8 @@
+/// 字符串工具类
 class StringUtils {
   StringUtils._();
+
+  /// 比较大小
   static int compare(String? a, String? b) {
     if (a == null) {
       if (b == null) {

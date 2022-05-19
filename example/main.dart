@@ -57,7 +57,7 @@ class MainLogic extends GetxController with PageBuilder, OrientationListener, Th
   void onWidgetBuild(BuildContext context) {
     initThemeListener();
     initOrientationListener();
-    isShowIntro.value = SharedPreferencesHelper.sharedPreferences.getBool(SharedPreferencesKeys.isShowIntro) ?? true;
+    isShowIntro.value = SharedPreferencesHelper.prefs.getBool(SharedPreferencesKeys.isShowIntro) ?? true;
   }
 
   @override
@@ -99,7 +99,7 @@ class MainLogic extends GetxController with PageBuilder, OrientationListener, Th
 
   /// 介绍页关闭调用
   void onIntroEnd() async {
-    SharedPreferencesHelper.sharedPreferences.setBool(SharedPreferencesKeys.isShowIntro, false);
+    SharedPreferencesHelper.prefs.setBool(SharedPreferencesKeys.isShowIntro, false);
     isShowIntro.value = false;
   }
 

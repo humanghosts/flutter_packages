@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 /// 主程序
 class App extends StatelessWidget with WidgetsBindingObserver {
   MainLogic get logic => MainLogic.instance;
@@ -63,6 +65,8 @@ class App extends StatelessWidget with WidgetsBindingObserver {
     NeumorphicThemeTemplateData templateData = themeDataValue.themeData as NeumorphicThemeTemplateData;
     NeumorphicThemeData neumorphicThemeData = templateData.toNeumorphicThemeData();
     ThemeData themeData = templateData.toThemeData(brightness: logic.brightness);
+    ThemeData.from(colorScheme: colorScheme)
+    
     return NeumorphicTheme(
       theme: neumorphicThemeData,
       darkTheme: neumorphicThemeData,

@@ -1,9 +1,4 @@
 import 'package:get/get.dart';
-import 'package:hg_logger/entity/entities.dart';
-import 'package:hg_logger/main.dart';
-import 'package:hg_logger/service/services.dart';
-import 'package:hg_logger/view/export.dart';
-import 'package:hg_logger/view/page/event/list/origin_list.dart';
 import 'package:hg_orm/hg_orm.dart';
 
 /// 通知类型，枚举类

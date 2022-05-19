@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hg_framework/hg_framework.dart';
+import 'package:hg_orm/hg_orm.dart';
 
 import '../ability/log/log.dart';
 
@@ -13,6 +15,8 @@ class AppHelper {
   static run({
     required Widget app,
     List<DeviceOrientation> orientations = const [DeviceOrientation.portraitUp],
+    DatabaseConfig? databaseConfig,
+    PresetData? presetData,
   }) {
     WidgetsFlutterBinding.ensureInitialized();
     // 设置允许的屏幕方向
@@ -20,9 +24,11 @@ class AppHelper {
     // 监控应用
     runZonedGuarded(
       () async {
-        // TODO
-        // await init();
-        // await MainLogic.instance.findThemeConfig();
+        await InitializeHelper.init(databaseConfig: databaseConfig, presetData: presetData);
+        final ThemeService themeService = ThemeServiceHive('flex_color_scheme_v5_box_4');
+        await themeService.init();
+        final ThemeController themeController = ThemeController(themeService);
+        await themeController.loadAll();
         runApp(app);
       },
       (error, stackTrace) {

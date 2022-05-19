@@ -6,9 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:get/get.dart';
-import 'package:hg_logger/ability/export.dart';
-import 'package:hg_logger/config.dart';
-import 'package:hg_logger/main.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:scheduled_timer/scheduled_timer.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -307,7 +304,7 @@ class NotificationHelper {
       oldDbCache.add(cacheNode.encode());
       // 时间缓存
       oldDateTimeIdCache.putIfAbsent(dateTime, () => {}).add(id);
-      await SharedPreferencesHelper.sharedPreferences.setStringList(SharedPreferencesKeys.oldNotificationCache, oldDbCache.toList());
+      await SharedPreferencesHelper.prefs.setStringList(SharedPreferencesKeys.oldNotificationCache, oldDbCache.toList());
       _log("通知{id:$id}放入通知历史完成");
     } else {
       _log("通知{id:$id}的通知时间{$dateTime}晚于此刻{$now}，放入通知缓存");
@@ -315,7 +312,7 @@ class NotificationHelper {
       dbCache.add(cacheNode.encode());
       // 时间缓存
       dateTimeIdCache.putIfAbsent(dateTime, () => {}).add(id);
-      await SharedPreferencesHelper.sharedPreferences.setStringList(SharedPreferencesKeys.notificationCache, dbCache.toList());
+      await SharedPreferencesHelper.prefs.setStringList(SharedPreferencesKeys.notificationCache, dbCache.toList());
       _log("通知{id:$id}放入通知缓存完成");
     }
   }
@@ -325,7 +322,7 @@ class NotificationHelper {
     _log("检查缓存是否存在");
     if (oldDbCache.isEmpty) {
       _log("通知历史内存缓存不存在，查询数据库并处理数据到内存缓存");
-      oldDbCache.addAll(SharedPreferencesHelper.sharedPreferences.getStringList(SharedPreferencesKeys.oldNotificationCache) ?? []);
+      oldDbCache.addAll(SharedPreferencesHelper.prefs.getStringList(SharedPreferencesKeys.oldNotificationCache) ?? []);
       for (String oneDbCache in oldDbCache) {
         NotificationCacheNode? oneDbCacheNode = NotificationCacheNode.decode(oneDbCache);
         if (null == oneDbCacheNode) {
@@ -344,7 +341,7 @@ class NotificationHelper {
       // 此刻
       DateTime now = DateTime.now();
       // 存储的数据
-      List<String> cloneDbCache = SharedPreferencesHelper.sharedPreferences.getStringList(SharedPreferencesKeys.notificationCache) ?? [];
+      List<String> cloneDbCache = SharedPreferencesHelper.prefs.getStringList(SharedPreferencesKeys.notificationCache) ?? [];
       for (int i = 0; i < cloneDbCache.length; i++) {
         String oneDbCache = cloneDbCache[i];
         NotificationCacheNode? oneDbCacheNode = NotificationCacheNode.decode(oneDbCache);
@@ -366,8 +363,8 @@ class NotificationHelper {
         }
       }
       // 刷新缓存
-      await SharedPreferencesHelper.sharedPreferences.setStringList(SharedPreferencesKeys.notificationCache, dbCache.toList());
-      await SharedPreferencesHelper.sharedPreferences.setStringList(SharedPreferencesKeys.oldNotificationCache, oldDbCache.toList());
+      await SharedPreferencesHelper.prefs.setStringList(SharedPreferencesKeys.notificationCache, dbCache.toList());
+      await SharedPreferencesHelper.prefs.setStringList(SharedPreferencesKeys.oldNotificationCache, oldDbCache.toList());
       _log("通知缓存处理完成");
     }
     _log("检查缓存是否存在完成");
@@ -482,8 +479,8 @@ class NotificationHelper {
     }
     _log("通知处理完成，刷新数据库缓存数据");
     // 刷新缓存
-    await SharedPreferencesHelper.sharedPreferences.setStringList(SharedPreferencesKeys.notificationCache, dbCache.toList());
-    await SharedPreferencesHelper.sharedPreferences.setStringList(SharedPreferencesKeys.oldNotificationCache, oldDbCache.toList());
+    await SharedPreferencesHelper.prefs.setStringList(SharedPreferencesKeys.notificationCache, dbCache.toList());
+    await SharedPreferencesHelper.prefs.setStringList(SharedPreferencesKeys.oldNotificationCache, oldDbCache.toList());
     List<PendingNotificationRequest> pendingList = await LocalNotificationHelper.checkPendingNotificationRequests();
     _log("检查待发送通知队列，通知数量${pendingList.length}");
     if (pendingList.isEmpty) return _log("通知队列为空，发送通知完成");
@@ -808,8 +805,8 @@ class NotificationHelper {
     dateTimeIdCache[dateTime]?.remove(id);
     oldDateTimeIdCache[dateTime]?.remove(id);
     _log("清除缓存完成，更新数据库存储");
-    await SharedPreferencesHelper.sharedPreferences.setStringList(SharedPreferencesKeys.notificationCache, dbCache.toList());
-    await SharedPreferencesHelper.sharedPreferences.setStringList(SharedPreferencesKeys.oldNotificationCache, oldDbCache.toList());
+    await SharedPreferencesHelper.prefs.setStringList(SharedPreferencesKeys.notificationCache, dbCache.toList());
+    await SharedPreferencesHelper.prefs.setStringList(SharedPreferencesKeys.oldNotificationCache, oldDbCache.toList());
     _log("更新数据库存储完成，删除通知{id:$id}完成");
   }
 
@@ -827,8 +824,8 @@ class NotificationHelper {
     dateTimeIdCache.clear();
     oldDateTimeIdCache.clear();
     _log("清除缓存完成，更新数据库存储");
-    await SharedPreferencesHelper.sharedPreferences.setStringList(SharedPreferencesKeys.notificationCache, dbCache.toList());
-    await SharedPreferencesHelper.sharedPreferences.setStringList(SharedPreferencesKeys.oldNotificationCache, oldDbCache.toList());
+    await SharedPreferencesHelper.prefs.setStringList(SharedPreferencesKeys.notificationCache, dbCache.toList());
+    await SharedPreferencesHelper.prefs.setStringList(SharedPreferencesKeys.oldNotificationCache, oldDbCache.toList());
     _log("更新数据库存储完成，删除所有完成");
   }
 }

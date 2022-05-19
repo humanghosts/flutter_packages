@@ -11,18 +11,18 @@ class TutorialHelper {
 
   /// 是否强制关闭所有用户引导
   static bool getForceCloseAll() {
-    return SharedPreferencesHelper.sharedPreferences.getBool(SharedPreferencesKeys.isCloseAllTutorial) ?? false;
+    return SharedPreferencesHelper.prefs.getBool(SharedPreferencesKeys.isCloseAllTutorial) ?? false;
   }
 
   /// 是否强制关闭所有用户引导
   static Future<void> setForceCloseAll(bool forceClose) async {
-    await SharedPreferencesHelper.sharedPreferences.setBool(SharedPreferencesKeys.isCloseAllTutorial, forceClose);
+    await SharedPreferencesHelper.prefs.setBool(SharedPreferencesKeys.isCloseAllTutorial, forceClose);
   }
 
   /// 设置页面是否显示
   static Future<void> setIsTutorial(HomePages homePage, bool isShow, [String? subKey, bool withSub = false]) async {
     String key = _getKey(homePage, subKey);
-    await SharedPreferencesHelper.sharedPreferences.setBool(key, isShow);
+    await SharedPreferencesHelper.prefs.setBool(key, isShow);
     Set<String> storedSubPageList = getSubPageSet(homePage);
     if (null != subKey) {
       if (!storedSubPageList.contains(subKey)) {
@@ -32,14 +32,14 @@ class TutorialHelper {
     } else {
       if (!withSub) return;
       for (String storedSubKey in storedSubPageList) {
-        await SharedPreferencesHelper.sharedPreferences.setBool(storedSubKey, isShow);
+        await SharedPreferencesHelper.prefs.setBool(storedSubKey, isShow);
       }
     }
   }
 
   /// 获取页面是否显示
   static bool getIsTutorial(HomePages homePage, [String? subKey]) {
-    return SharedPreferencesHelper.sharedPreferences.getBool(_getKey(homePage, subKey)) ?? true;
+    return SharedPreferencesHelper.prefs.getBool(_getKey(homePage, subKey)) ?? true;
   }
 
   /// 获取页面key
@@ -49,12 +49,12 @@ class TutorialHelper {
 
   /// 获取已经存储的素有子页面key
   static Set<String> getSubPageSet(HomePages homePage) {
-    return SharedPreferencesHelper.sharedPreferences.getStringList(getSubPageListKey(homePage))?.toSet() ?? {};
+    return SharedPreferencesHelper.prefs.getStringList(getSubPageListKey(homePage))?.toSet() ?? {};
   }
 
   /// 存储的所有子页面key
   static Future<void> setSubPageSet(HomePages homePage, Set<String> subPageKeyList) async {
-    await SharedPreferencesHelper.sharedPreferences.setStringList(getSubPageListKey(homePage), subPageKeyList.toList());
+    await SharedPreferencesHelper.prefs.setStringList(getSubPageListKey(homePage), subPageKeyList.toList());
   }
 
   /// 获取子页面存储的的key
