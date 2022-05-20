@@ -5,12 +5,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:hg_framework/entity/theme_template.dart';
+import 'package:hg_framework/ability/toast/toast.dart';
 import 'package:hg_framework/hg_framework.dart';
 import 'package:hg_framework/service/theme.dart';
 import 'package:orientation/orientation.dart';
-
-import '../entity/theme_config.dart';
 
 /// 屏幕方向监听器
 abstract class OrientationListener {
@@ -58,7 +56,7 @@ abstract class ThemeListener {
   Brightness brightness = Brightness.light;
 
   /// 获取主题
-  ThemeTemplate get neumorphicThemeData => themeConfig.templateInUse.value;
+  ThemeTemplate get themeTemplate => themeConfig.templateInUse.value;
 
   ThemeData get themeData => Theme.of(Get.context!);
 
@@ -73,9 +71,42 @@ abstract class ThemeListener {
   }
 
   /// 更新主题
-  void updateTheme(ThemeConfig config) {
-    themeConfig = config;
+  Future<void> updateThemeTemplate(ThemeTemplate template) async {
+    String id = template.id.value;
+    String inUseId = themeConfig.templateInUse.value.id.value;
+    await ThemeTemplateService.instance.dao.save(template);
+    if (id == inUseId) themeChangedReRender();
+  }
+
+  /// 删除主题
+  Future<void> removeThemeTemplate(ThemeTemplate template) async {
+    String id = template.id.value;
+    String inUseId = themeConfig.templateInUse.value.id.value;
+    if (id == inUseId) {
+      ToastHelper.toast(msg: "主题正在使用中，无法删除");
+    }
+    await ThemeTemplateService.instance.dao.remove(template);
+  }
+
+  /// 使用主题
+  Future<void> useThemeTemplate(ThemeTemplate template) async {
+    themeConfig.templateInUse.value = template;
+    await ThemeConfigService.instance.dao.save(themeConfig);
     themeChangedReRender();
+  }
+
+  /// 添加一个主题
+  /// [addToUse] 表示是否同时使用这个主题
+  void addThemeTemplate(ThemeTemplate template, {bool addToUse = false}) async {
+    Set<String> templateIdMap = themeConfig.templateList.value.map((e) => e.id.value).toSet();
+    String id = template.id.value;
+    if (templateIdMap.contains(id)) return;
+    themeConfig.templateList.add(template);
+    if (addToUse) {
+      await useThemeTemplate(template);
+    } else {
+      await ThemeConfigService.instance.dao.save(themeConfig);
+    }
   }
 
   /// 重新构建
@@ -151,6 +182,8 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
 
   static AppConfig get appConfig => instance.config;
 
+  static ThemeTemplate get currentThemeTemplate => instance.themeTemplate;
+
   /// 应用构建完回调函数
   /// 调用点为[onReady]
   final Map<String, VoidCallback> _onReadyCallback = {};
@@ -186,7 +219,7 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
 
   /// 重新根据主题渲染
   @override
-  void themeChangedReRender() => notifyChildrens();
+  void themeChangedReRender() => update();
 
   /// 生命周期改变回调
   @override

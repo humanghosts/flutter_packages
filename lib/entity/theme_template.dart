@@ -3,12 +3,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hg_entity/hg_entity.dart';
 
+import '../app/app_logic.dart';
 import 'theme_custom_value.dart';
 
 class ThemeTemplate extends DataModel {
   /// 模板名称
   late final Attribute<String?> name;
-  late final Attribute<String> fontFamily;
+  late final Attribute<String?> fontFamily;
+
   // GENERAL SETTINGS.
   // ThemeMode, use FlexColorScheme and sub-themes, current scheme, view, etc.
   // ===========================================================================
@@ -18,7 +20,6 @@ class ThemeTemplate extends DataModel {
   late final Attribute<bool> isLargeGridView;
   late final Attribute<int> viewIndex;
   late final Attribute<bool> useTextTheme;
-  late final Attribute<bool> useAppFont;
   late final Attribute<FlexSchemeValue> usedScheme;
   late final Attribute<bool> interactionEffects;
   late final Attribute<double?> defaultRadius;
@@ -194,15 +195,13 @@ class ThemeTemplate extends DataModel {
 
   ThemeTemplate() {
     name = attributes.stringNullable(name: "name", title: "名称");
-
+    fontFamily = attributes.stringNullable(name: "fontFamily", title: "字体");
     themeMode = attributes.custom(name: "themeMode", title: "主题模式");
     useSubThemes = attributes.boolean(name: "useSubThemes", title: "使用子主题", dvalue: true);
     useFlutterDefaults = attributes.boolean(name: "useFlutterDefaults", title: "使用 Flutter 默认值", dvalue: false);
     isLargeGridView = attributes.boolean(name: "isLargeGridView", title: "是大网格视图", dvalue: false);
     viewIndex = attributes.integer(name: "viewIndex", title: "索引", dvalue: 0);
     useTextTheme = attributes.boolean(name: "useTextTheme", title: "使用文本主题", dvalue: true);
-    useAppFont = attributes.boolean(name: "useAppFont", title: "使用应用字体", dvalue: true);
-    useAppFont = attributes.boolean(name: "useAppFont", title: "使用应用字体", dvalue: true);
     usedScheme = attributes.custom(name: "usedScheme", title: "使用的方案");
     interactionEffects = attributes.boolean(name: "interactionEffects", title: "交互效果", dvalue: true);
     defaultRadius = attributes.floatNullable(name: "defaultRadius", title: "默认半径");
@@ -351,11 +350,183 @@ class ThemeTemplate extends DataModel {
       ThemeTemplate()
         ..id.value = "default"
         ..name.value = "默认模板",
+      ThemeTemplate().withFlexScheme(FlexScheme.material)
+        ..id.value = "material"
+        ..name.value = "material",
+      ThemeTemplate().withFlexScheme(FlexScheme.materialHc)
+        ..id.value = "materialHc"
+        ..name.value = "高对比度",
+      ThemeTemplate().withFlexScheme(FlexScheme.blue)
+        ..id.value = "blue"
+        ..name.value = "蓝",
+      ThemeTemplate().withFlexScheme(FlexScheme.indigo)
+        ..id.value = "indigo"
+        ..name.value = "青",
+      ThemeTemplate().withFlexScheme(FlexScheme.hippieBlue)
+        ..id.value = "hippieBlue"
+        ..name.value = "嬉皮蓝",
+      ThemeTemplate().withFlexScheme(FlexScheme.aquaBlue)
+        ..id.value = "aquaBlue"
+        ..name.value = "水蓝",
+      ThemeTemplate().withFlexScheme(FlexScheme.brandBlue)
+        ..id.value = "brandBlue"
+        ..name.value = "品牌蓝",
+      ThemeTemplate().withFlexScheme(FlexScheme.deepBlue)
+        ..id.value = "deepBlue"
+        ..name.value = "深蓝",
+      ThemeTemplate().withFlexScheme(FlexScheme.sakura)
+        ..id.value = "sakura"
+        ..name.value = "樱",
+      ThemeTemplate().withFlexScheme(FlexScheme.mandyRed)
+        ..id.value = "mandyRed"
+        ..name.value = "曼迪红",
+      ThemeTemplate().withFlexScheme(FlexScheme.red)
+        ..id.value = "red"
+        ..name.value = "红",
+      ThemeTemplate().withFlexScheme(FlexScheme.redWine)
+        ..id.value = "redWine"
+        ..name.value = "酒红",
+      ThemeTemplate().withFlexScheme(FlexScheme.purpleBrown)
+        ..id.value = "purpleBrown"
+        ..name.value = "紫棕",
+      ThemeTemplate().withFlexScheme(FlexScheme.green)
+        ..id.value = "green"
+        ..name.value = "绿",
+      ThemeTemplate().withFlexScheme(FlexScheme.money)
+        ..id.value = "money"
+        ..name.value = "美元绿",
+      ThemeTemplate().withFlexScheme(FlexScheme.jungle)
+        ..id.value = "jungle"
+        ..name.value = "野绿",
+      ThemeTemplate().withFlexScheme(FlexScheme.greyLaw)
+        ..id.value = "greyLaw"
+        ..name.value = "蓝灰",
+      ThemeTemplate().withFlexScheme(FlexScheme.wasabi)
+        ..id.value = "wasabi"
+        ..name.value = "芥末绿",
+      ThemeTemplate().withFlexScheme(FlexScheme.gold)
+        ..id.value = "gold"
+        ..name.value = "金",
+      ThemeTemplate().withFlexScheme(FlexScheme.mango)
+        ..id.value = "mango"
+        ..name.value = "芒",
+      ThemeTemplate().withFlexScheme(FlexScheme.amber)
+        ..id.value = "amber"
+        ..name.value = "琥珀",
+      ThemeTemplate().withFlexScheme(FlexScheme.vesuviusBurn)
+        ..id.value = "vesuviusBurn"
+        ..name.value = "火山灰",
+      ThemeTemplate().withFlexScheme(FlexScheme.deepPurple)
+        ..id.value = "deepPurple"
+        ..name.value = "深紫",
+      ThemeTemplate().withFlexScheme(FlexScheme.ebonyClay)
+        ..id.value = "ebonyClay"
+        ..name.value = "深蓝灰",
+      ThemeTemplate().withFlexScheme(FlexScheme.barossa)
+        ..id.value = "barossa"
+        ..name.value = "巴罗莎",
+      ThemeTemplate().withFlexScheme(FlexScheme.shark)
+        ..id.value = "shark"
+        ..name.value = "鲨鱼",
+      ThemeTemplate().withFlexScheme(FlexScheme.bigStone)
+        ..id.value = "bigStone"
+        ..name.value = "石",
+      ThemeTemplate().withFlexScheme(FlexScheme.damask)
+        ..id.value = "damask"
+        ..name.value = "锦",
+      ThemeTemplate().withFlexScheme(FlexScheme.bahamaBlue)
+        ..id.value = "bahamaBlue"
+        ..name.value = "巴哈马蓝",
+      ThemeTemplate().withFlexScheme(FlexScheme.mallardGreen)
+        ..id.value = "mallardGreen"
+        ..name.value = "鸭头绿",
+      ThemeTemplate().withFlexScheme(FlexScheme.espresso)
+        ..id.value = "espresso"
+        ..name.value = "咖啡",
+      ThemeTemplate().withFlexScheme(FlexScheme.outerSpace)
+        ..id.value = "outerSpace"
+        ..name.value = "外太空",
+      ThemeTemplate().withFlexScheme(FlexScheme.blueWhale)
+        ..id.value = "blueWhale"
+        ..name.value = "蓝鲸",
+      ThemeTemplate().withFlexScheme(FlexScheme.sanJuanBlue)
+        ..id.value = "sanJuanBlue"
+        ..name.value = "圣胡安蓝",
+      ThemeTemplate().withFlexScheme(FlexScheme.rosewood)
+        ..id.value = "rosewood"
+        ..name.value = "红木",
+      ThemeTemplate().withFlexScheme(FlexScheme.blumineBlue)
+        ..id.value = "blumineBlue"
+        ..name.value = "蓝光",
+      ThemeTemplate().withFlexScheme(FlexScheme.flutterDash)
+        ..id.value = "flutterDash"
+        ..name.value = "flutter",
+      ThemeTemplate().withFlexScheme(FlexScheme.materialBaseline)
+        ..id.value = "materialBaseline"
+        ..name.value = "material基础色",
+      ThemeTemplate().withFlexScheme(FlexScheme.verdunHemlock)
+        ..id.value = "verdunHemlock"
+        ..name.value = "凡尔登铁杉",
+      ThemeTemplate().withFlexScheme(FlexScheme.dellGenoa)
+        ..id.value = "dellGenoa"
+        ..name.value = "热那亚",
     ];
   }
 }
 
 extension FlexColorSchemeConvert on ThemeTemplate {
+  /// 使用FlexScheme来覆盖ThemeTemplate的设置
+  ThemeTemplate withFlexScheme(FlexScheme flexScheme) {
+    FlexSchemeData? flexSchemeData = FlexColor.schemes[flexScheme];
+    if (null == flexSchemeData) return this;
+    FlexSchemeColor light = flexSchemeData.light;
+    FlexSchemeColor dark = flexSchemeData.dark;
+    primaryLight.value.color = light.primary;
+    primaryContainerLight.value.color = light.primaryContainer;
+    secondaryLight.value.color = light.secondary;
+    secondaryContainerLight.value.color = light.secondaryContainer;
+    tertiaryLight.value.color = light.tertiary;
+    tertiaryContainerLight.value.color = light.tertiaryContainer;
+
+    primaryDark.value.color = dark.primary;
+    primaryContainerDark.value.color = dark.primaryContainer;
+    secondaryDark.value.color = dark.secondary;
+    secondaryContainerDark.value.color = dark.secondaryContainer;
+    tertiaryDark.value.color = dark.tertiary;
+    tertiaryContainerDark.value.color = dark.tertiaryContainer;
+    return this;
+  }
+
+  FlexSchemeColor toFlexSchemeColorLight() {
+    return FlexSchemeColor(
+      primary: primaryLight.value.color,
+      primaryContainer: primaryContainerLight.value.color,
+      secondary: secondaryLight.value.color,
+      secondaryContainer: secondaryContainerLight.value.color,
+      tertiary: tertiaryLight.value.color,
+      tertiaryContainer: tertiaryContainerLight.value.color,
+    );
+  }
+
+  FlexSchemeColor toFlexSchemeColorDark() {
+    return FlexSchemeColor(
+      primary: primaryDark.value.color,
+      primaryContainer: primaryContainerDark.value.color,
+      secondary: secondaryDark.value.color,
+      secondaryContainer: secondaryContainerDark.value.color,
+      tertiary: tertiaryDark.value.color,
+      tertiaryContainer: tertiaryContainerDark.value.color,
+    );
+  }
+
+  FlexSchemeColor toFlexSchemeColor() {
+    return AppLogic.instance.brightness == Brightness.light ? toFlexSchemeColorLight() : toFlexSchemeColorDark();
+  }
+
+  FlexColorScheme toFlexColorTheme() {
+    return AppLogic.instance.brightness == Brightness.light ? toFlexColorThemeLight() : toFlexColorThemeDark();
+  }
+
   FlexColorScheme toFlexColorThemeLight() {
     return FlexColorScheme.light(
       // Used number of colors from the selected input FlexColorScheme based theme
@@ -550,6 +721,12 @@ extension FlexColorSchemeConvert on ThemeTemplate {
       // with FlexColorScheme too, and in this demo we can see its
       // impact easily.
       useMaterial3: useMaterial3.value,
+      primary: primaryLight.value.color,
+      primaryContainer: primaryContainerLight.value.color,
+      secondary: secondaryLight.value.color,
+      secondaryContainer: secondaryContainerLight.value.color,
+      tertiary: tertiaryLight.value.color,
+      tertiaryContainer: tertiaryContainerLight.value.color,
     );
   }
 
@@ -676,6 +853,12 @@ extension FlexColorSchemeConvert on ThemeTemplate {
       fontFamily: fontFamily.value,
       platform: defaultTargetPlatform,
       useMaterial3: useMaterial3.value,
+      primary: primaryDark.value.color,
+      primaryContainer: primaryContainerDark.value.color,
+      secondary: secondaryDark.value.color,
+      secondaryContainer: secondaryContainerDark.value.color,
+      tertiary: tertiaryDark.value.color,
+      tertiaryContainer: tertiaryContainerDark.value.color,
     );
   }
 

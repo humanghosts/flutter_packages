@@ -6,7 +6,8 @@ import 'package:get/get.dart';
 import 'package:hg_framework/ability/export.dart';
 import 'package:hg_framework/app/app_logic.dart';
 import 'package:hg_framework/entity/theme_template.dart';
-import 'package:hg_framework/view/util/app_scroll_behavior.dart';
+
+import '../view/util/app_scroll_behavior.dart';
 
 /// 主程序
 abstract class App extends StatelessWidget with WidgetsBindingObserver {
@@ -45,31 +46,26 @@ abstract class App extends StatelessWidget with WidgetsBindingObserver {
       },
       builder: (logic) {
         logic.onWidgetBuild(context);
-        return AnimatedBuilder(
-          animation: logic,
-          builder: (BuildContext context, Widget? child) {
-            ThemeTemplate template = logic.themeConfig.templateInUse.value;
-            return GetMaterialApp(
-              scrollBehavior: const AppScrollBehavior(),
-              debugShowCheckedModeBanner: false,
-              title: logic.config.appName,
-              theme: template.toFlexColorThemeLight().toTheme,
-              darkTheme: template.toFlexColorThemeDark().toTheme,
-              themeMode: template.themeMode.value.mode,
-              navigatorObservers: [
-                Observer(RouteHelper.observer, ObserverRouting()),
-              ],
-              home: buildHome(),
-              locale: const Locale('zh', 'CN'),
-              supportedLocales: const <Locale>[Locale('zh', 'CN')],
-              localizationsDelegates: const [
-                // 本地化的代理类
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-            );
-          },
+        ThemeTemplate template = logic.themeConfig.templateInUse.value;
+        return GetMaterialApp(
+          // scrollBehavior: const AppScrollBehavior(),
+          debugShowCheckedModeBanner: false,
+          title: logic.config.appName,
+          theme: template.toFlexColorThemeLight().toTheme,
+          darkTheme: template.toFlexColorThemeDark().toTheme,
+          themeMode: template.themeMode.value.mode,
+          navigatorObservers: [
+            Observer(RouteHelper.observer, ObserverRouting()),
+          ],
+          home: buildHome(),
+          locale: const Locale('zh', 'CN'),
+          supportedLocales: const <Locale>[Locale('zh', 'CN')],
+          localizationsDelegates: const [
+            // 本地化的代理类
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
         );
       },
     );

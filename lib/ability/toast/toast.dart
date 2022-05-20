@@ -111,6 +111,43 @@ class ToastHelper {
     );
   }
 
+  /// 双选提示框
+  /// TODO 安卓等其他平台处理
+  static Future<T?> showRequest<T>(
+    BuildContext context, {
+    Widget? message,
+    required List<T> valueList,
+    required Widget Function(T value) childBuilder,
+    List<T> defaultValue = const [],
+    List<T> destructiveValue = const [],
+  }) async {
+    return await showCupertinoModalPopup<T>(
+      context: context,
+      builder: (context) {
+        List<CupertinoActionSheetAction> actions = valueList.map((value) {
+          return CupertinoActionSheetAction(
+            onPressed: () {
+              RouteHelper.back(result: value);
+            },
+            isDefaultAction: defaultValue.contains(value),
+            isDestructiveAction: destructiveValue.contains(value),
+            child: childBuilder(value),
+          );
+        }).toList();
+        return CupertinoActionSheet(
+          message: message,
+          actions: actions,
+          cancelButton: CupertinoActionSheetAction(
+            child: const Text("取消"),
+            onPressed: () {
+              RouteHelper.back(result: null);
+            },
+          ),
+        );
+      },
+    );
+  }
+
   /// 显示蒙版
   static void overlay(Widget widget, {Color? backgroundColor, bool Function()? canClose, VoidCallback? onClose}) {
     ThemeData themeData = AppLogic.instance.themeData;

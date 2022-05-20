@@ -13,7 +13,7 @@ class AppHelper {
   /// [app]是要运行的应用
   /// [orientations]应用支持的屏幕方法，默认为仅支持竖屏
   static run({
-    required Widget app,
+    required App app,
     required AppConfig appConfig,
     List<DeviceOrientation> orientations = const [DeviceOrientation.portraitUp],
   }) {
