@@ -1,15 +1,18 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:hg_entity/hg_entity.dart';
 
-import 'app_color.dart';
 import 'theme_custom_value.dart';
 
 class ThemeTemplate extends DataModel {
+  /// 模板名称
+  late final Attribute<String?> name;
+  late final Attribute<String> fontFamily;
   // GENERAL SETTINGS.
   // ThemeMode, use FlexColorScheme and sub-themes, current scheme, view, etc.
   // ===========================================================================
   late final Attribute<ThemeModeValue> themeMode;
-  late final Attribute<bool> useFlexColorScheme;
   late final Attribute<bool> useSubThemes;
   late final Attribute<bool> useFlutterDefaults;
   late final Attribute<bool> isLargeGridView;
@@ -17,7 +20,6 @@ class ThemeTemplate extends DataModel {
   late final Attribute<bool> useTextTheme;
   late final Attribute<bool> useAppFont;
   late final Attribute<FlexSchemeValue> usedScheme;
-  late final Attribute<int> schemeIndex;
   late final Attribute<bool> interactionEffects;
   late final Attribute<double?> defaultRadius;
   late final Attribute<bool> tooltipsMatchBackground;
@@ -191,8 +193,9 @@ class ThemeTemplate extends DataModel {
   late final Attribute<ColorValue> tertiaryContainerDark;
 
   ThemeTemplate() {
+    name = attributes.stringNullable(name: "name", title: "名称");
+
     themeMode = attributes.custom(name: "themeMode", title: "主题模式");
-    useFlexColorScheme = attributes.boolean(name: "useFlexColorScheme", title: "使用Flex色彩方案", dvalue: true);
     useSubThemes = attributes.boolean(name: "useSubThemes", title: "使用子主题", dvalue: true);
     useFlutterDefaults = attributes.boolean(name: "useFlutterDefaults", title: "使用 Flutter 默认值", dvalue: false);
     isLargeGridView = attributes.boolean(name: "isLargeGridView", title: "是大网格视图", dvalue: false);
@@ -201,7 +204,6 @@ class ThemeTemplate extends DataModel {
     useAppFont = attributes.boolean(name: "useAppFont", title: "使用应用字体", dvalue: true);
     useAppFont = attributes.boolean(name: "useAppFont", title: "使用应用字体", dvalue: true);
     usedScheme = attributes.custom(name: "usedScheme", title: "使用的方案");
-    schemeIndex = attributes.integer(name: "schemeIndex", title: "方案索引", dvalue: 39);
     interactionEffects = attributes.boolean(name: "interactionEffects", title: "交互效果", dvalue: true);
     defaultRadius = attributes.floatNullable(name: "defaultRadius", title: "默认半径");
     tooltipsMatchBackground = attributes.boolean(name: "tooltipsMatchBackground", title: "工具提示匹配背景", dvalue: false);
@@ -329,20 +331,366 @@ class ThemeTemplate extends DataModel {
     dialogBackgroundSchemeColor = attributes.custom(name: "dialogBackgroundSchemeColor", title: "对话框背景方");
     dialogBorderRadius = attributes.floatNullable(name: "dialogBorderRadius", title: "对话框边框半径");
 
-    primaryLight = attributes.custom(name: "primaryLight", title: "主要色彩", dvalue: ColorValue(color: AppColor.customPrimaryLight));
-    primaryContainerLight = attributes.custom(name: "primaryContainerLight", title: "主要容器色彩", dvalue: ColorValue(color: AppColor.customPrimaryContainerLight));
-    secondaryLight = attributes.custom(name: "secondaryLight", title: "二级色彩", dvalue: ColorValue(color: AppColor.customSecondaryLight));
-    secondaryContainerLight =
-        attributes.custom(name: "secondaryContainerLight", title: "二级容器色彩", dvalue: ColorValue(color: AppColor.customSecondaryContainerLight));
-    tertiaryLight = attributes.custom(name: "tertiaryLight", title: "三级色彩", dvalue: ColorValue(color: AppColor.customTertiaryLight));
-    tertiaryContainerLight =
-        attributes.custom(name: "tertiaryContainerLight", title: "三级容器色彩", dvalue: ColorValue(color: AppColor.customTertiaryContainerLight));
-    primaryDark = attributes.custom(name: "primaryDark", title: "主要暗色", dvalue: ColorValue(color: AppColor.customPrimaryDark));
-    primaryContainerDark = attributes.custom(name: "primaryContainerDark", title: "主要暗色容器", dvalue: ColorValue(color: AppColor.customPrimaryContainerDark));
-    secondaryDark = attributes.custom(name: "secondaryDark", title: "二级暗色", dvalue: ColorValue(color: AppColor.customSecondaryDark));
-    secondaryContainerDark =
-        attributes.custom(name: "secondaryContainerDark", title: "二级暗色容器", dvalue: ColorValue(color: AppColor.customSecondaryContainerDark));
-    tertiaryDark = attributes.custom(name: "tertiaryDark", title: "三级暗色", dvalue: ColorValue(color: AppColor.customTertiaryDark));
-    tertiaryContainerDark = attributes.custom(name: "tertiaryContainerDark", title: "三级暗色容器", dvalue: ColorValue(color: AppColor.customTertiaryContainerDark));
+    primaryLight = attributes.custom(name: "primaryLight", title: "主要色彩", dvalue: ColorValue(color: const Color(0xFF004881)));
+    primaryContainerLight = attributes.custom(name: "primaryContainerLight", title: "主要容器色彩", dvalue: ColorValue(color: const Color(0xFFD0E4FF)));
+    secondaryLight = attributes.custom(name: "secondaryLight", title: "二级色彩", dvalue: ColorValue(color: const Color(0xFFAC3306)));
+    secondaryContainerLight = attributes.custom(name: "secondaryContainerLight", title: "二级容器色彩", dvalue: ColorValue(color: const Color(0xFFFFDBCF)));
+    tertiaryLight = attributes.custom(name: "tertiaryLight", title: "三级色彩", dvalue: ColorValue(color: const Color(0xFF006875)));
+    tertiaryContainerLight = attributes.custom(name: "tertiaryContainerLight", title: "三级容器色彩", dvalue: ColorValue(color: const Color(0xFF95F0FF)));
+    primaryDark = attributes.custom(name: "primaryDark", title: "主要暗色", dvalue: ColorValue(color: const Color(0xFF9FC9FF)));
+    primaryContainerDark = attributes.custom(name: "primaryContainerDark", title: "主要暗色容器", dvalue: ColorValue(color: const Color(0xFF00325B)));
+    secondaryDark = attributes.custom(name: "secondaryDark", title: "二级暗色", dvalue: ColorValue(color: const Color(0xFFFFB59D)));
+    secondaryContainerDark = attributes.custom(name: "secondaryContainerDark", title: "二级暗色容器", dvalue: ColorValue(color: const Color(0xFF872100)));
+    tertiaryDark = attributes.custom(name: "tertiaryDark", title: "三级暗色", dvalue: ColorValue(color: const Color(0xFF872100)));
+    tertiaryContainerDark = attributes.custom(name: "tertiaryContainerDark", title: "三级暗色容器", dvalue: ColorValue(color: const Color(0xFF004E59)));
+  }
+
+  /// 预制数据
+  static List<ThemeTemplate> get initData {
+    return [
+      ThemeTemplate()
+        ..id.value = "default"
+        ..name.value = "默认模板",
+    ];
+  }
+}
+
+extension FlexColorSchemeConvert on ThemeTemplate {
+  FlexColorScheme toFlexColorThemeLight() {
+    return FlexColorScheme.light(
+      // Used number of colors from the selected input FlexColorScheme based theme
+      usedColors: usedColors.value,
+      // Use controller to select surface mode
+      surfaceMode: surfaceModeLight.value.mode,
+      // Integer used to control the level of primary color
+      // surface blends applied to surfaces and backgrounds.
+      blendLevel: blendLevel.value,
+      // Enum used to select what AppBar style we use.
+      appBarStyle: appBarStyleLight.value.style,
+      // Set background opacity on app bar.
+      appBarOpacity: appBarOpacityLight.value,
+      // Used to control if we use one or two toned status bar.
+      transparentStatusBar: transparentStatusBar.value,
+      // Used to modify the themed AppBar elevation.
+      appBarElevation: appBarElevationLight.value,
+      // Enum used to select what TabBar style we use.
+      tabBarStyle: tabBarStyle.value.style,
+      // Keep scaffold plain white in all blend modes.
+      lightIsWhite: lightIsWhite.value,
+      // Swap primary and secondary colors.
+      swapColors: swapLightColors.value,
+      // If true, tooltip theme background will be light in light
+      // theme, and dark in dark themes. The Flutter and Material
+      // default and standard is the other way, tooltip background
+      // color is inverted compared to app background.
+      // Set to true, to mimic e.g. the look of Windows desktop
+      // tooltips. You could tie this to the active platform and
+      // have different style of tooltips on different platforms.
+      tooltipsMatchBackground: tooltipsMatchBackground.value,
+      //
+      // Opt in/out of using opinionated sub-themes.
+      subThemesData: FlexSubThemesData(
+        // Want color themed disable hover, focus, highlight and
+        // splash colors? Then keep this one on.
+        interactionEffects: interactionEffects.value,
+        // Blend level for on colors for on colors, primary
+        // secondary and tertiary and their containers.
+        blendOnLevel: blendOnLevel.value,
+        // Use blend level values also with main on colors, not
+        // only with container and on surfaces.
+        blendOnColors: blendLightOnColors.value,
+        // By default sub themes mode also opts in on using colored text for
+        // the themed text. If you plan to put text on surfaces that are not
+        // primary color tinted or primary colored, then you may need to
+        // turn this off, or make custom text themes for those surfaces.
+        // Material3 has containers with matching colors too, they work
+        // great for contrast colored text, do use them too.
+        blendTextTheme: blendLightTextTheme.value,
+        // Opt in/out of the Material 3 style matched TextTheme geometry, or
+        // Typography, as it is called in Flutter SDK. The M3 Typography is
+        // not yet natively available in Flutter SDK 2.10.3 or earlier,
+        // this offers it as a way to use it already now.
+        useTextTheme: useTextTheme.value,
+        // Prefer Flutter SDK null default behavior for sub-themes, when
+        // possible.
+        useFlutterDefaults: useFlutterDefaults.value,
+        // Value to adjust themed border radius on widgets with
+        // an adjustable corner rounding, this one is very handy.
+        // If null, it defaults to Material3 (You) design
+        // guide values, when available: https://m3.material.io/
+        // If you give it value, "all" Flutter built-in widgets
+        // supporting border radius will use the give radius.
+        defaultRadius: defaultRadius.value,
+        // Border radius can be customized per widget too, here are
+        // examples, it overrides M3 default and global default setting.
+        bottomSheetRadius: bottomSheetBorderRadius.value,
+        elevatedButtonRadius: elevatedButtonBorderRadius.value,
+        outlinedButtonRadius: outlinedButtonBorderRadius.value,
+        textButtonRadius: textButtonBorderRadius.value,
+        toggleButtonsRadius: toggleButtonsBorderRadius.value,
+        // SchemeColor based ColorScheme color used on buttons & toggles.
+        textButtonSchemeColor: textButtonSchemeColor.value.scheme,
+        elevatedButtonSchemeColor: elevatedButtonSchemeColor.value.scheme,
+        outlinedButtonSchemeColor: outlinedButtonSchemeColor.value.scheme,
+        toggleButtonsSchemeColor: toggleButtonsSchemeColor.value.scheme,
+        switchSchemeColor: switchSchemeColor.value.scheme,
+        checkboxSchemeColor: checkboxSchemeColor.value.scheme,
+        radioSchemeColor: radioSchemeColor.value.scheme,
+        // Style of unselected switch/checkbox/radio.
+        unselectedToggleIsColored: unselectedToggleIsColored.value,
+        //
+        // Base ColorScheme used by TextField InputDecorator.
+        inputDecoratorSchemeColor: inputDecoratorSchemeColorLight.value.scheme,
+        // Text input field uses a themed fill color.
+        inputDecoratorIsFilled: inputDecoratorIsFilled.value,
+        // Underline or outline border type?
+        inputDecoratorBorderType: inputDecoratorBorderType.value.type,
+        inputDecoratorRadius: inputDecoratorBorderRadius.value,
+        // Only want a border when the text input has focus
+        // or error, then set this to false. By default it always
+        // has a border of selected style, but thinner.
+        inputDecoratorUnfocusedHasBorder: inputDecoratorUnfocusedHasBorder.value,
+        // Want to use uncolored border/underline when unfocused,
+        // set this to false
+        inputDecoratorUnfocusedBorderIsColored: inputDecoratorUnfocusedBorderIsColored.value,
+        // Set to false to keep using M2 style FAB and ignore
+        // M3 type default and global radius on the FAB, it thus
+        // remains circular or stadium shaped in extended mode.
+        fabUseShape: fabUseShape.value,
+        fabRadius: fabBorderRadius.value,
+        fabSchemeColor: fabSchemeColor.value.scheme,
+        snackBarBackgroundSchemeColor: snackBarSchemeColor.value.scheme,
+        chipSchemeColor: chipSchemeColor.value.scheme,
+        chipRadius: chipBorderRadius.value,
+        cardRadius: cardBorderRadius.value,
+        popupMenuOpacity: popupMenuOpacity.value,
+        popupMenuRadius: popupMenuBorderRadius.value,
+        // ColorScheme used on various widgets.
+        dialogBackgroundSchemeColor: dialogBackgroundSchemeColor.value.scheme,
+        dialogRadius: dialogBorderRadius.value,
+        timePickerDialogRadius: dialogBorderRadius.value,
+        appBarBackgroundSchemeColor: appBarBackgroundSchemeColorLight.value.scheme,
+        tabBarItemSchemeColor: tabBarItemSchemeColorLight.value.scheme,
+        tabBarIndicatorSchemeColor: tabBarIndicatorLight.value.scheme,
+        // BottomNavigationBar settings
+        bottomNavigationBarSelectedLabelSchemeColor: bottomNavBarSelectedSchemeColor.value.scheme,
+        bottomNavigationBarUnselectedLabelSchemeColor: bottomNavBarUnselectedSchemeColor.value.scheme,
+        bottomNavigationBarMutedUnselectedLabel: bottomNavBarMuteUnselected.value,
+        bottomNavigationBarSelectedIconSchemeColor: bottomNavBarSelectedSchemeColor.value.scheme,
+        bottomNavigationBarUnselectedIconSchemeColor: bottomNavBarUnselectedSchemeColor.value.scheme,
+        bottomNavigationBarMutedUnselectedIcon: bottomNavBarMuteUnselected.value,
+        bottomNavigationBarBackgroundSchemeColor: bottomNavBarBackgroundSchemeColor.value.scheme,
+        bottomNavigationBarOpacity: bottomNavigationBarOpacity.value,
+        bottomNavigationBarElevation: bottomNavigationBarElevation.value,
+        bottomNavigationBarShowSelectedLabels: bottomNavShowSelectedLabels.value,
+        bottomNavigationBarShowUnselectedLabels: bottomNavShowUnselectedLabels.value,
+        // NavigationBar settings
+        navigationBarSelectedLabelSchemeColor: navBarSelectedSchemeColor.value.scheme,
+        navigationBarUnselectedLabelSchemeColor: navBarUnselectedSchemeColor.value.scheme,
+        navigationBarMutedUnselectedLabel: navBarMuteUnselected.value,
+        navigationBarSelectedIconSchemeColor: navBarSelectedSchemeColor.value.scheme,
+        navigationBarUnselectedIconSchemeColor: navBarUnselectedSchemeColor.value.scheme,
+        navigationBarMutedUnselectedIcon: navBarMuteUnselected.value,
+        navigationBarIndicatorSchemeColor: navBarIndicatorSchemeColor.value.scheme,
+        navigationBarIndicatorOpacity: navBarIndicatorOpacity.value,
+        navigationBarBackgroundSchemeColor: navBarBackgroundSchemeColor.value.scheme,
+        navigationBarOpacity: navBarOpacity.value,
+        navigationBarHeight: navBarHeight.value,
+        navigationBarLabelBehavior: navBarLabelBehavior.value.behavior,
+        // NavigationRail settings
+        navigationRailSelectedLabelSchemeColor: navRailSelectedSchemeColor.value.scheme,
+        navigationRailUnselectedLabelSchemeColor: navRailUnselectedSchemeColor.value.scheme,
+        navigationRailMutedUnselectedLabel: navRailMuteUnselected.value,
+        navigationRailSelectedIconSchemeColor: navRailSelectedSchemeColor.value.scheme,
+        navigationRailUnselectedIconSchemeColor: navRailUnselectedSchemeColor.value.scheme,
+        navigationRailMutedUnselectedIcon: navRailMuteUnselected.value,
+        navigationRailUseIndicator: navRailUseIndicator.value,
+        navigationRailIndicatorSchemeColor: navRailIndicatorSchemeColor.value.scheme,
+        navigationRailIndicatorOpacity: navRailIndicatorOpacity.value,
+        navigationRailBackgroundSchemeColor: navRailBackgroundSchemeColor.value.scheme,
+        navigationRailOpacity: navRailOpacity.value,
+        navigationRailElevation: navigationRailElevation.value,
+        navigationRailLabelType: navRailLabelType.value.type,
+      ),
+      //
+      // Advanced color properties for seed generated ColorScheme's
+      //
+      // Use key color based M3 ColorScheme.
+      keyColors: FlexKeyColors(
+        useKeyColors: useKeyColors.value,
+        useSecondary: useSecondary.value,
+        useTertiary: useTertiary.value,
+        keepPrimary: keepPrimary.value,
+        keepSecondary: keepSecondary.value,
+        keepTertiary: keepTertiary.value,
+        keepPrimaryContainer: keepPrimaryContainer.value,
+        keepSecondaryContainer: keepSecondaryContainer.value,
+        keepTertiaryContainer: keepTertiaryContainer.value,
+      ),
+      // Use Material3 error colors with Material2 themes.
+      useMaterial3ErrorColors: useM3ErrorColors.value,
+      // Use predefined [FlexTones] setups for the generated
+      // [TonalPalette] and it's usage in [ColorScheme] config.
+      // You can make your custom [FlexTones] object right here
+      // and apps it it, this just uses an int value to select
+      // between a few pre-configured ones.
+      tones: flexTonesConfig(Brightness.light, usedFlexToneSetup.value),
+      //
+      // ThemeData properties passed along directly to ThemeData.
+      //
+      // Modify the value in the AppData class to change it.
+      visualDensity: FlexColorScheme.comfortablePlatformDensity,
+      // Custom font, modify in AppData class to change it.
+      fontFamily: fontFamily.value,
+      // The platform can be toggled in the app, but not saved.
+      platform: defaultTargetPlatform,
+      // Opt-in/out of using Flutter SDK Material3 based theming
+      // features. In Flutter SDK 2.10 and earlier it has almost no
+      // effect, but it will later and then we can use this toggle
+      // with FlexColorScheme too, and in this demo we can see its
+      // impact easily.
+      useMaterial3: useMaterial3.value,
+    );
+  }
+
+  FlexColorScheme toFlexColorThemeDark() {
+    return FlexColorScheme.dark(
+      usedColors: usedColors.value,
+      surfaceMode: surfaceModeDark.value.mode,
+      blendLevel: blendLevelDark.value,
+      appBarStyle: appBarStyleDark.value.style,
+      appBarOpacity: appBarOpacityDark.value,
+      transparentStatusBar: transparentStatusBar.value,
+      appBarElevation: appBarElevationDark.value,
+      tabBarStyle: tabBarStyle.value.style,
+      darkIsTrueBlack: darkIsTrueBlack.value,
+      swapColors: swapDarkColors.value,
+      tooltipsMatchBackground: tooltipsMatchBackground.value,
+      //
+      subThemesData: FlexSubThemesData(
+        interactionEffects: interactionEffects.value,
+        blendOnLevel: blendOnLevelDark.value,
+        blendOnColors: blendDarkOnColors.value,
+        blendTextTheme: blendDarkTextTheme.value,
+        useFlutterDefaults: useFlutterDefaults.value,
+        useTextTheme: useTextTheme.value,
+        //
+        defaultRadius: defaultRadius.value,
+        bottomSheetRadius: bottomSheetBorderRadius.value,
+        textButtonRadius: textButtonBorderRadius.value,
+        elevatedButtonRadius: elevatedButtonBorderRadius.value,
+        outlinedButtonRadius: outlinedButtonBorderRadius.value,
+        toggleButtonsRadius: toggleButtonsBorderRadius.value,
+        //
+        textButtonSchemeColor: textButtonSchemeColor.value.scheme,
+        elevatedButtonSchemeColor: elevatedButtonSchemeColor.value.scheme,
+        outlinedButtonSchemeColor: outlinedButtonSchemeColor.value.scheme,
+        toggleButtonsSchemeColor: toggleButtonsSchemeColor.value.scheme,
+        switchSchemeColor: switchSchemeColor.value.scheme,
+        checkboxSchemeColor: checkboxSchemeColor.value.scheme,
+        radioSchemeColor: radioSchemeColor.value.scheme,
+        unselectedToggleIsColored: unselectedToggleIsColored.value,
+        //
+        inputDecoratorSchemeColor: inputDecoratorSchemeColorDark.value.scheme,
+        inputDecoratorIsFilled: inputDecoratorIsFilled.value,
+        inputDecoratorBorderType: inputDecoratorBorderType.value.type,
+        inputDecoratorRadius: inputDecoratorBorderRadius.value,
+        inputDecoratorUnfocusedHasBorder: inputDecoratorUnfocusedHasBorder.value,
+        inputDecoratorUnfocusedBorderIsColored: inputDecoratorUnfocusedBorderIsColored.value,
+        //
+        fabUseShape: fabUseShape.value,
+        fabRadius: fabBorderRadius.value,
+        fabSchemeColor: fabSchemeColor.value.scheme,
+        snackBarBackgroundSchemeColor: snackBarSchemeColor.value.scheme,
+        chipSchemeColor: chipSchemeColor.value.scheme,
+        chipRadius: chipBorderRadius.value,
+        cardRadius: cardBorderRadius.value,
+        popupMenuOpacity: popupMenuOpacity.value,
+        popupMenuRadius: popupMenuBorderRadius.value,
+        //
+        dialogBackgroundSchemeColor: dialogBackgroundSchemeColor.value.scheme,
+        dialogRadius: dialogBorderRadius.value,
+        timePickerDialogRadius: dialogBorderRadius.value,
+        appBarBackgroundSchemeColor: appBarBackgroundSchemeColorDark.value.scheme,
+        tabBarItemSchemeColor: tabBarItemSchemeColorDark.value.scheme,
+        tabBarIndicatorSchemeColor: tabBarIndicatorDark.value.scheme,
+        // BottomNavigationBar settings
+        bottomNavigationBarSelectedLabelSchemeColor: bottomNavBarSelectedSchemeColor.value.scheme,
+        bottomNavigationBarUnselectedLabelSchemeColor: bottomNavBarUnselectedSchemeColor.value.scheme,
+        bottomNavigationBarMutedUnselectedLabel: bottomNavBarMuteUnselected.value,
+        bottomNavigationBarSelectedIconSchemeColor: bottomNavBarSelectedSchemeColor.value.scheme,
+        bottomNavigationBarUnselectedIconSchemeColor: bottomNavBarUnselectedSchemeColor.value.scheme,
+        bottomNavigationBarMutedUnselectedIcon: bottomNavBarMuteUnselected.value,
+        bottomNavigationBarBackgroundSchemeColor: bottomNavBarBackgroundSchemeColor.value.scheme,
+        bottomNavigationBarOpacity: bottomNavigationBarOpacity.value,
+        bottomNavigationBarElevation: bottomNavigationBarElevation.value,
+        bottomNavigationBarShowSelectedLabels: bottomNavShowSelectedLabels.value,
+        bottomNavigationBarShowUnselectedLabels: bottomNavShowUnselectedLabels.value,
+        // NavigationBar settings
+        navigationBarSelectedLabelSchemeColor: navBarSelectedSchemeColor.value.scheme,
+        navigationBarUnselectedLabelSchemeColor: navBarUnselectedSchemeColor.value.scheme,
+        navigationBarMutedUnselectedLabel: navBarMuteUnselected.value,
+        navigationBarSelectedIconSchemeColor: navBarSelectedSchemeColor.value.scheme,
+        navigationBarUnselectedIconSchemeColor: navBarUnselectedSchemeColor.value.scheme,
+        navigationBarMutedUnselectedIcon: navBarMuteUnselected.value,
+        navigationBarIndicatorSchemeColor: navBarIndicatorSchemeColor.value.scheme,
+        navigationBarIndicatorOpacity: navBarIndicatorOpacity.value,
+        navigationBarBackgroundSchemeColor: navBarBackgroundSchemeColor.value.scheme,
+        navigationBarOpacity: navBarOpacity.value,
+        navigationBarHeight: navBarHeight.value,
+        navigationBarLabelBehavior: navBarLabelBehavior.value.behavior,
+        // NavigationRail settings
+        navigationRailSelectedLabelSchemeColor: navRailSelectedSchemeColor.value.scheme,
+        navigationRailUnselectedLabelSchemeColor: navRailUnselectedSchemeColor.value.scheme,
+        navigationRailMutedUnselectedLabel: navRailMuteUnselected.value,
+        navigationRailSelectedIconSchemeColor: navRailSelectedSchemeColor.value.scheme,
+        navigationRailUnselectedIconSchemeColor: navRailUnselectedSchemeColor.value.scheme,
+        navigationRailMutedUnselectedIcon: navRailMuteUnselected.value,
+        navigationRailUseIndicator: navRailUseIndicator.value,
+        navigationRailIndicatorSchemeColor: navRailIndicatorSchemeColor.value.scheme,
+        navigationRailIndicatorOpacity: navRailIndicatorOpacity.value,
+        navigationRailBackgroundSchemeColor: navRailBackgroundSchemeColor.value.scheme,
+        navigationRailOpacity: navRailOpacity.value,
+        navigationRailElevation: navigationRailElevation.value,
+        navigationRailLabelType: navRailLabelType.value.type,
+      ),
+      //
+      // Advanced color properties for seed generated ColorScheme's
+      // Use key color based M3 ColorScheme.
+      keyColors: FlexKeyColors(
+        useKeyColors: useKeyColors.value,
+        useSecondary: useSecondary.value,
+        useTertiary: useTertiary.value,
+        keepPrimary: keepDarkPrimary.value,
+        keepSecondary: keepDarkSecondary.value,
+        keepTertiary: keepDarkTertiary.value,
+        keepPrimaryContainer: keepDarkPrimaryContainer.value,
+        keepSecondaryContainer: keepDarkSecondaryContainer.value,
+        keepTertiaryContainer: keepDarkTertiaryContainer.value,
+      ),
+      useMaterial3ErrorColors: useM3ErrorColors.value,
+      tones: flexTonesConfig(Brightness.dark, usedFlexToneSetup.value),
+      //
+      // ThemeData properties passed along directly to ThemeData.
+      visualDensity: FlexColorScheme.comfortablePlatformDensity,
+      fontFamily: fontFamily.value,
+      platform: defaultTargetPlatform,
+      useMaterial3: useMaterial3.value,
+    );
+  }
+
+  /// Return [FlexTones] based on passed in [brightness] and [tones] value.
+  FlexTones flexTonesConfig(Brightness brightness, int tones) {
+    if (tones == 2) {
+      return FlexTones.soft(brightness);
+    } else if (tones == 3) {
+      return FlexTones.vivid(brightness);
+    } else if (tones == 4) {
+      return FlexTones.vividSurfaces(brightness);
+    } else if (tones == 5) {
+      return FlexTones.highContrast(brightness);
+    } else {
+      return FlexTones.material(brightness);
+    }
   }
 }

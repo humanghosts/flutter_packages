@@ -1,8 +1,16 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:get/get.dart';
+import 'package:hg_framework/ability/export.dart';
+import 'package:hg_framework/app/app_logic.dart';
+import 'package:hg_framework/entity/theme_template.dart';
+import 'package:hg_framework/view/util/app_scroll_behavior.dart';
 
 /// 主程序
-class App extends StatelessWidget with WidgetsBindingObserver {
-  MainLogic get logic => MainLogic.instance;
+abstract class App extends StatelessWidget with WidgetsBindingObserver {
+  AppLogic get logic => AppLogic.instance;
 
   const App({Key? key}) : super(key: key);
 
@@ -15,7 +23,6 @@ class App extends StatelessWidget with WidgetsBindingObserver {
   @override
   void didChangePlatformBrightness() {
     super.didChangePlatformBrightness();
-    log("didChangePlatformBrightness:${Get.mediaQuery.platformBrightness}");
     logic.didChangePlatformBrightness();
   }
 
@@ -27,152 +34,48 @@ class App extends StatelessWidget with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<MainLogic>(
+    return GetBuilder<AppLogic>(
       init: logic,
       autoRemove: false,
       initState: (state) {
-        WidgetsBinding.instance?.addObserver(this);
+        WidgetsBinding.instance.addObserver(this);
       },
       dispose: (state) {
-        WidgetsBinding.instance?.removeObserver(this);
+        WidgetsBinding.instance.removeObserver(this);
       },
       builder: (logic) {
         logic.onWidgetBuild(context);
-        return buildWithTheme();
-      },
-    );
-  }
-
-  /// 包装主题
-  Widget buildWithTheme() {
-    ThemeConfig config = logic.themeConfig;
-    Brightness brightness = logic.brightness;
-    ThemeTemplate template;
-    if (brightness == Brightness.light) {
-      template = config.light.value;
-    } else {
-      template = config.dark.value;
-    }
-    ThemeDataValue themeDataValue = template.data.value;
-    if (themeDataValue.isNull) return buildWithApp();
-    // 在这里添加新的主题类型
-    if (themeDataValue.themeType == ThemeType.neumorphic) return buildWithNeumorphic(themeDataValue);
-    return buildWithApp();
-  }
-
-  /// 包装新拟态主题
-  Widget buildWithNeumorphic(ThemeDataValue themeDataValue) {
-    NeumorphicThemeTemplateData templateData = themeDataValue.themeData as NeumorphicThemeTemplateData;
-    NeumorphicThemeData neumorphicThemeData = templateData.toNeumorphicThemeData();
-    ThemeData themeData = templateData.toThemeData(brightness: logic.brightness);
-    ThemeData.from(colorScheme: colorScheme)
-    
-    return NeumorphicTheme(
-      theme: neumorphicThemeData,
-      darkTheme: neumorphicThemeData,
-      child: buildWithApp(light: themeData, dark: themeData),
-    );
-  }
-
-  /// 包装app
-  Widget buildWithApp({ThemeData? light, ThemeData? dark}) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: AppConfig.appName,
-      theme: light,
-      darkTheme: dark,
-      themeMode: ThemeMode.system,
-      navigatorObservers: [
-        Observer(RouteHelper.observer, ObserverRouting()),
-        Statusbarz.instance.observer,
-      ],
-      home: buildHomeOrIntro(),
-      locale: const Locale('zh', 'CN'),
-      supportedLocales: const <Locale>[Locale('zh', 'CN')],
-      localizationsDelegates: const [
-        // 本地化的代理类
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-    );
-  }
-
-  /// 是否构建应用介绍页面
-  Widget buildHomeOrIntro() {
-    return Obx(() {
-      bool isShowIntro = logic.isShowIntro.value;
-      if (isShowIntro) {
-        return IntroductionPage(key: 'intro', args: IntroductionArgs(onIntroEnd: logic.onIntroEnd));
-      } else {
-        return buildHomeWithWillScope();
-      }
-    });
-  }
-
-  /// 包装will_scope+navigator
-  Widget buildHomeWithWillScope() {
-    return Stack(
-      children: [
-        WillPopScope(
-          child: Navigator(
-            key: Get.nestedKey(AppConfig.rootNavigatorId),
-            onGenerateRoute: (routeSettings) {
-              return MaterialWithModalsPageRoute(builder: (context) => Neumorphic(child: buildHome()), settings: routeSettings);
-            },
-          ),
-          onWillPop: () async => false,
-        ),
-        buildOverlay(),
-      ],
-    );
-  }
-
-  /// 构建主页
-  Widget buildHome() {
-    NeumorphicThemeData themeData = logic.neumorphicThemeData;
-    return RefreshConfiguration(
-      headerBuilder: () {
-        return WaterDropHeader(
-          refresh: SpinKitCircle(color: themeData.disabledColor),
-          waterDropColor: themeData.disabledColor,
-          complete: HgNeumorphicIcon(Icons.done, color: themeData.disabledColor),
+        return AnimatedBuilder(
+          animation: logic,
+          builder: (BuildContext context, Widget? child) {
+            ThemeTemplate template = logic.themeConfig.templateInUse.value;
+            return GetMaterialApp(
+              scrollBehavior: const AppScrollBehavior(),
+              debugShowCheckedModeBanner: false,
+              title: logic.config.appName,
+              theme: template.toFlexColorThemeLight().toTheme,
+              darkTheme: template.toFlexColorThemeDark().toTheme,
+              themeMode: template.themeMode.value.mode,
+              navigatorObservers: [
+                Observer(RouteHelper.observer, ObserverRouting()),
+              ],
+              home: buildHome(),
+              locale: const Locale('zh', 'CN'),
+              supportedLocales: const <Locale>[Locale('zh', 'CN')],
+              localizationsDelegates: const [
+                // 本地化的代理类
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+            );
+          },
         );
       },
-      enableScrollWhenRefreshCompleted: true,
-      child: Scrollable(
-        physics: const PageScrollPhysics(parent: ClampingScrollPhysics()),
-        controller: logic._controller,
-        axisDirection: AxisDirection.right,
-        viewportBuilder: (BuildContext context, ViewportOffset position) {
-          return Viewport(
-            axisDirection: AxisDirection.right,
-            offset: position,
-            clipBehavior: Clip.hardEdge,
-            slivers: <Widget>[
-              // 抽屉导航
-              SliverFillViewport(
-                viewportFraction: 0.5,
-                padEnds: false,
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    return buildDrawer();
-                  },
-                  childCount: 1,
-                ),
-              ),
-              // 主页页面
-              SliverFillViewport(
-                viewportFraction: 1,
-                padEnds: false,
-                delegate: SliverChildListDelegate([buildPage()]),
-              ),
-            ],
-          );
-        },
-      ),
     );
   }
+
+  Widget buildHome();
 
   /// 构建蒙版
   Widget buildOverlay() {
@@ -197,36 +100,5 @@ class App extends StatelessWidget with WidgetsBindingObserver {
       if (children.isEmpty) return Container();
       return Stack(children: children);
     });
-  }
-
-  /// 构建导航
-  Widget buildDrawer() {
-    List<Widget> children = [];
-    for (HomePages page in HomePages.list) {
-      children.add(buildDrawerItem(page));
-    }
-    children.insert(children.length - 1, const Spacer());
-    return Neumorphic(child: SafeArea(child: Column(children: children)));
-  }
-
-  /// 构建具体导航项
-  Widget buildDrawerItem(HomePages page) {
-    String value = page.value;
-    String current = logic.activePage;
-    bool isActive = value == current;
-    HomePageLogic? homePageLogic = logic.getPageLogic(value);
-    if (null == homePageLogic) return Container();
-    return homePageLogic.buildDrawer(
-      isActive: isActive,
-      iconData: page.iconData,
-      title: page.title,
-      action: () => logic.setActivePage(value),
-    );
-  }
-
-  /// 构建具体页面
-  Widget buildPage() {
-    HomePages homePage = HomePages.map[logic.activePage]!;
-    return homePage.build(navigatorId: AppConfig.rootNavigatorId);
   }
 }

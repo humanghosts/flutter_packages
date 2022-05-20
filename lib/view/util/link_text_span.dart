@@ -1,6 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 /// An URL link TextSpan that contain an URL link that can be used as a
 /// working URL link text when using it in a [Text.rich] or lower
@@ -20,7 +20,7 @@ class LinkTextSpan extends TextSpan {
           text: text ?? url,
           recognizer: TapGestureRecognizer()
             ..onTap = () {
-              launch(url!, forceSafariVC: false);
+              launchUrlString(url!);
             },
         );
 }

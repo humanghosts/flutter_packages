@@ -1,34 +1,31 @@
 import 'package:hg_entity/hg_entity.dart';
+import 'package:hg_framework/app/app_config.dart';
+import 'package:hg_framework/app/app_logic.dart';
+import 'package:hg_framework/entity/entities.dart';
 import 'package:hg_orm/hg_orm.dart';
 
 import '../ability/export.dart';
 
-/// 初始化助手
-class InitializeHelper {
-  InitializeHelper._();
+/// 初始化
+class AppInit {
+  AppInit._();
 
   /// 初始化
-  static Future<void> init({
-    DatabaseConfig? databaseConfig,
-    PresetData? presetData,
-    EntityAndDao? entityAndDao,
-  }) async {
+  static Future<void> init(AppConfig config) async {
     // 设备信息初始化
     await DeviceInfoHelper.init();
     // 数据库初始化
-    if (null != databaseConfig) {
-      await _databaseInit(databaseConfig);
-      // 模型和dao注册
-      if (null != entityAndDao) {
-        // 注册构造器
-        entityAndDao.entityMap.forEach((key, value) => ConstructorCache.put(key, value));
-        // 注册dao
-        entityAndDao.daoMap.forEach((key, value) => DaoCache.put(key, value));
-      }
-    }
-    if (null != presetData) {
-      await _presetDataInit(presetData);
-    }
+    await _databaseInit(config.databaseConfig);
+    // 当前包下的模型和dao注册
+    getEntitiesMap().forEach(ConstructorCache.put);
+    getDaoMap().forEach(DaoCache.put);
+    // 传入的模型和dao注册
+    config.entityAndDao?.entityMap.forEach(ConstructorCache.put);
+    config.entityAndDao?.daoMap.forEach(DaoCache.put);
+    // 预置数据
+    await _presetDataInit(config.presetData);
+    // 主题等数据加载
+    await AppLogic.instance.onAppInit(config);
     // 初始化通知服务
     await NotificationHelper.init();
   }
@@ -63,31 +60,27 @@ class PresetData {
 }
 
 /// 首次启动初始化预置数据
-Future<void> _presetDataInit(PresetData presetData) async {
+Future<void> _presetDataInit(PresetData? presetData) async {
   String key = "is_preset_data_init";
   bool? isInitData = DatabaseHelper.database.kv.get(key);
   if (isInitData == true) return;
-  Map<Type, List<DataModel> Function()>? dataModelMap = presetData.dataModelMap;
-  Map<Type, SimpleModel Function()>? simpleModelMap = presetData.simpleModelMap;
+  Map<Type, List<DataModel> Function()> dataModelMap = presetData?.dataModelMap ?? {};
+  Map<Type, SimpleModel Function()> simpleModelMap = presetData?.simpleModelMap ?? {};
+  dataModelMap.addAll(getDataModelInitData());
+  simpleModelMap.addAll(getSimpleModelInitData());
   // 插入数据
-  if (null != dataModelMap || null != simpleModelMap) {
-    await DatabaseHelper.transaction((tx) async {
-      if (null != dataModelMap) {
-        for (Type key in dataModelMap.keys) {
-          DataDao dataDao = DaoCache.getByType(key) as DataDao;
-          List<DataModel> value = dataModelMap[key]!.call();
-          await dataDao.saveList(value, tx: tx);
-        }
-      }
-      if (null != simpleModelMap) {
-        for (Type key in simpleModelMap.keys) {
-          SimpleDao simpleDao = DaoCache.getByType(key) as SimpleDao;
-          SimpleModel value = simpleModelMap[key]!.call();
-          await simpleDao.save(value, tx: tx);
-        }
-      }
-    });
-  }
+  await DatabaseHelper.transaction((tx) async {
+    for (Type key in dataModelMap.keys) {
+      DataDao dataDao = DaoCache.getByType(key) as DataDao;
+      List<DataModel> value = dataModelMap[key]!.call();
+      await dataDao.saveList(value, tx: tx);
+    }
+    for (Type key in simpleModelMap.keys) {
+      SimpleDao simpleDao = DaoCache.getByType(key) as SimpleDao;
+      SimpleModel value = simpleModelMap[key]!.call();
+      await simpleDao.save(value, tx: tx);
+    }
+  });
   await DatabaseHelper.database.kv.putSave(key, true);
 }
 

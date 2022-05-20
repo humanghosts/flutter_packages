@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hg_framework/app/app_config.dart';
 import 'package:hg_framework/hg_framework.dart';
-import 'package:hg_orm/hg_orm.dart';
 
 import '../ability/log/log.dart';
 
@@ -14,21 +14,16 @@ class AppHelper {
   /// [orientations]应用支持的屏幕方法，默认为仅支持竖屏
   static run({
     required Widget app,
+    required AppConfig appConfig,
     List<DeviceOrientation> orientations = const [DeviceOrientation.portraitUp],
-    DatabaseConfig? databaseConfig,
-    PresetData? presetData,
   }) {
     WidgetsFlutterBinding.ensureInitialized();
     // 设置允许的屏幕方向
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    SystemChrome.setPreferredOrientations(orientations);
     // 监控应用
     runZonedGuarded(
       () async {
-        await InitializeHelper.init(databaseConfig: databaseConfig, presetData: presetData);
-        final ThemeService themeService = ThemeServiceHive('flex_color_scheme_v5_box_4');
-        await themeService.init();
-        final ThemeController themeController = ThemeController(themeService);
-        await themeController.loadAll();
+        await AppInit.init(appConfig);
         runApp(app);
       },
       (error, stackTrace) {

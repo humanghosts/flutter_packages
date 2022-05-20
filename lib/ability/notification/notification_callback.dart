@@ -1,4 +1,4 @@
-import 'package:hg_logger/ability/export.dart';
+import 'package:hg_framework/ability/export.dart';
 
 /// 通知点击回调
 /// 由于要考虑点击通知冷启动应用的情况，所以通知标识需要做成枚举，回调要静态编码

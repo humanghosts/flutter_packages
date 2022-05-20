@@ -1,15 +1,21 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:hg_framework/entity/theme_template.dart';
+import 'package:hg_framework/hg_framework.dart';
+import 'package:hg_framework/service/theme.dart';
 import 'package:orientation/orientation.dart';
+
+import '../entity/theme_config.dart';
 
 /// 屏幕方向监听器
 abstract class OrientationListener {
   // --- 屏幕方向 ---
-  /// 当前屏幕方向 使用这个参数的原因是，当应用禁用左右旋转之后，mediaQuery的方向九不会变化了
+  /// 当前屏幕方向 使用这个参数的原因是，当应用禁用左右旋转之后，mediaQuery的方向就不会变化了
   /// 这个参数即使是锁定旋转也可以生效
   DeviceOrientation? deviceOrientation;
 
@@ -17,14 +23,14 @@ abstract class OrientationListener {
   StreamSubscription<DeviceOrientation>? _subscription;
 
   /// 初始化
-  void initOrientationListener() {
+  void onWidgetBuildOrientation() {
     _subscription = OrientationPlugin.onOrientationChange.listen((value) {
       deviceOrientation = value;
     });
   }
 
   /// 关闭
-  void closeOrientationListener() {
+  void onCloseOrientation() {
     _subscription?.cancel();
   }
 
@@ -51,28 +57,29 @@ abstract class ThemeListener {
   /// 系统亮度
   Brightness brightness = Brightness.light;
 
-  /// 获取当前的新拟态主题
-  NeumorphicThemeData get neumorphicThemeData => NeumorphicTheme.currentTheme(Get.context!);
+  /// 获取主题
+  ThemeTemplate get neumorphicThemeData => themeConfig.templateInUse.value;
 
-  void initThemeListener() {
+  ThemeData get themeData => Theme.of(Get.context!);
+
+  /// 应用渲染时调用
+  void onWidgetBuildTheme() {
     brightness = window.platformBrightness;
-    updateTheme(themeConfig);
   }
 
-  /// 查询主题配置
-  Future<void> findThemeConfig() async {
-    themeConfig = await themeConfigService.find();
+  /// 查询主题配置 在应用启动时候初始化完数据库调用
+  Future<void> onAppInitTheme() async {
+    themeConfig = await ThemeConfigService.instance.find();
   }
 
   /// 更新主题
-  void updateTheme(ThemeConfig themeConfig) {
-    this.themeConfig = themeConfig;
+  void updateTheme(ThemeConfig config) {
+    themeConfig = config;
     themeChangedReRender();
   }
 
   /// 重新构建
   Future<void> rebuild() async {
-    await findThemeConfig();
     themeChangedReRender();
   }
 
@@ -135,25 +142,34 @@ abstract class OverlayHelper {
 }
 
 /// 主页控制器
-class MainLogic extends GetxController with PageBuilder, OrientationListener, ThemeListener, AppLifecycleListener, OverlayHelper {
-  MainLogic._();
+class AppLogic extends GetxController with OrientationListener, ThemeListener, AppLifecycleListener, OverlayHelper {
+  AppLogic._();
 
-  static MainLogic get instance => Get.put<MainLogic>(MainLogic._());
+  static AppLogic get instance => Get.put<AppLogic>(AppLogic._());
 
-  /// 路由id
-  final int navigatorId = AppConfig.rootNavigatorId;
+  late final AppConfig config;
 
-  /// 应用构建完回调
+  static AppConfig get appConfig => instance.config;
+
+  /// 应用构建完回调函数
+  /// 调用点为[onReady]
   final Map<String, VoidCallback> _onReadyCallback = {};
 
-  /// 注册构建完回调
+  /// 注册构建完回调，用于为其他组件提供应用构建回调
   void registerReadyCallback(String key, VoidCallback callback) => _onReadyCallback[key] = callback;
 
+  /// 应用初始化时调用
+  /// 调用点为[InitializeHelper.init]
+  Future<void> onAppInit(AppConfig appConfig) async {
+    config = appConfig;
+    await onAppInitTheme();
+  }
+
   /// 应用构建时调用
+  /// 调用点为[App.build]
   void onWidgetBuild(BuildContext context) {
-    initThemeListener();
-    initOrientationListener();
-    isShowIntro.value = SharedPreferencesHelper.prefs.getBool(SharedPreferencesKeys.isShowIntro) ?? true;
+    onWidgetBuildTheme();
+    onWidgetBuildOrientation();
   }
 
   @override
@@ -165,38 +181,24 @@ class MainLogic extends GetxController with PageBuilder, OrientationListener, Th
 
   @override
   onClose() {
-    closeOrientationListener();
+    onCloseOrientation();
   }
-
-  /// 根据页面重新渲染
-  @override
-  void pageChangedReRender() => update();
 
   /// 重新根据主题渲染
   @override
-  void themeChangedReRender() => update();
+  void themeChangedReRender() => notifyChildrens();
 
   /// 生命周期改变回调
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    HomePageLogic? pageLogic = activeLogic;
-    pageLogic?.didChangeAppLifecycleState(state);
+    log("didChangeAppLifecycleState:$state");
   }
 
   /// 屏幕方向改变监听
   @override
   void onDeviceOrientationChanged(DeviceOrientation deviceOrientation) {
-    activeLogic?.onDeviceOrientationChanged(deviceOrientation);
-  }
-
-  /// 是否显示介绍页
-  Rx<bool> isShowIntro = true.obs;
-
-  /// 介绍页关闭调用
-  void onIntroEnd() async {
-    SharedPreferencesHelper.prefs.setBool(SharedPreferencesKeys.isShowIntro, false);
-    isShowIntro.value = false;
+    log("onDeviceOrientationChanged:$deviceOrientation");
   }
 
   /// 蒙版更新标识

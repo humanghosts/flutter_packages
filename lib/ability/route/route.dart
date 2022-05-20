@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hg_framework/app/app_logic.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import 'observer.dart';
@@ -40,8 +41,8 @@ class RouteHelper {
       sheet,
       settings: RouteSettings(name: routeName),
       barrierColor: barrierColor,
-      enterBottomSheetDuration: AppConfig.animationConfig.middleAnimationDuration,
-      exitBottomSheetDuration: AppConfig.animationConfig.middleAnimationDuration,
+      enterBottomSheetDuration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
+      exitBottomSheetDuration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
     );
   }
 
@@ -60,7 +61,7 @@ class RouteHelper {
       settings: RouteSettings(name: routeName),
       barrierColor: barrierColor,
       enableDrag: false,
-      duration: AppConfig.animationConfig.middleAnimationDuration,
+      duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
     );
   }
 
@@ -82,7 +83,7 @@ class RouteHelper {
       expand: expand,
       backgroundColor: Colors.transparent,
       isDismissible: false,
-      duration: AppConfig.animationConfig.middleAnimationDuration,
+      duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
       enableDrag: false,
       builder: (BuildContext context) {
         return WillPopScope(
@@ -121,7 +122,7 @@ class RouteHelper {
       id: id,
       routeName: routeName,
       fullscreenDialog: fullScreenDialog,
-      duration: AppConfig.animationConfig.middleAnimationDuration,
+      duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
     );
   }
 

@@ -6,10 +6,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:get/get.dart';
+import 'package:hg_framework/ability/export.dart';
+import 'package:hg_framework/app/export.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:scheduled_timer/scheduled_timer.dart';
-import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/data/latest_all.dart' as tzd;
 import 'package:timezone/timezone.dart' as tz;
+
+import '../shared_preferences/prefs.dart';
 
 enum NotificationCacheNodeType {
   normal,
@@ -271,7 +275,7 @@ class NotificationHelper {
     _log("初始化本地通知");
     await LocalNotificationHelper.init();
     _log("注册应用启动回调，检测是否通过通知启动应用");
-    MainLogic.instance.registerReadyCallback("notification", () {
+    AppLogic.instance.registerReadyCallback("notification", () {
       if (LocalNotificationHelper.notificationAppLaunchDetails?.didNotificationLaunchApp == true) {
         String? payload = LocalNotificationHelper.notificationAppLaunchDetails?.payload;
         _log("通过通知启动应用，使用通知负载触发回调，通知负载$payload");
@@ -283,6 +287,9 @@ class NotificationHelper {
     _log("通知助手初始化完成");
     return true;
   }
+
+  static const String oldNotificationCache = "notification_cache_old";
+  static const String notificationCache = "notification_cache";
 
   /// 添加缓存节点
   static Future<void> _addCacheNode(NotificationCacheNode cacheNode) async {
@@ -304,7 +311,7 @@ class NotificationHelper {
       oldDbCache.add(cacheNode.encode());
       // 时间缓存
       oldDateTimeIdCache.putIfAbsent(dateTime, () => {}).add(id);
-      await SharedPreferencesHelper.prefs.setStringList(SharedPreferencesKeys.oldNotificationCache, oldDbCache.toList());
+      await PrefsHelper.prefs.setStringList(oldNotificationCache, oldDbCache.toList());
       _log("通知{id:$id}放入通知历史完成");
     } else {
       _log("通知{id:$id}的通知时间{$dateTime}晚于此刻{$now}，放入通知缓存");
@@ -312,7 +319,7 @@ class NotificationHelper {
       dbCache.add(cacheNode.encode());
       // 时间缓存
       dateTimeIdCache.putIfAbsent(dateTime, () => {}).add(id);
-      await SharedPreferencesHelper.prefs.setStringList(SharedPreferencesKeys.notificationCache, dbCache.toList());
+      await PrefsHelper.prefs.setStringList(notificationCache, dbCache.toList());
       _log("通知{id:$id}放入通知缓存完成");
     }
   }
@@ -322,7 +329,7 @@ class NotificationHelper {
     _log("检查缓存是否存在");
     if (oldDbCache.isEmpty) {
       _log("通知历史内存缓存不存在，查询数据库并处理数据到内存缓存");
-      oldDbCache.addAll(SharedPreferencesHelper.prefs.getStringList(SharedPreferencesKeys.oldNotificationCache) ?? []);
+      oldDbCache.addAll(PrefsHelper.prefs.getStringList(oldNotificationCache) ?? []);
       for (String oneDbCache in oldDbCache) {
         NotificationCacheNode? oneDbCacheNode = NotificationCacheNode.decode(oneDbCache);
         if (null == oneDbCacheNode) {
@@ -341,7 +348,7 @@ class NotificationHelper {
       // 此刻
       DateTime now = DateTime.now();
       // 存储的数据
-      List<String> cloneDbCache = SharedPreferencesHelper.prefs.getStringList(SharedPreferencesKeys.notificationCache) ?? [];
+      List<String> cloneDbCache = PrefsHelper.prefs.getStringList(notificationCache) ?? [];
       for (int i = 0; i < cloneDbCache.length; i++) {
         String oneDbCache = cloneDbCache[i];
         NotificationCacheNode? oneDbCacheNode = NotificationCacheNode.decode(oneDbCache);
@@ -363,8 +370,8 @@ class NotificationHelper {
         }
       }
       // 刷新缓存
-      await SharedPreferencesHelper.prefs.setStringList(SharedPreferencesKeys.notificationCache, dbCache.toList());
-      await SharedPreferencesHelper.prefs.setStringList(SharedPreferencesKeys.oldNotificationCache, oldDbCache.toList());
+      await PrefsHelper.prefs.setStringList(notificationCache, dbCache.toList());
+      await PrefsHelper.prefs.setStringList(oldNotificationCache, oldDbCache.toList());
       _log("通知缓存处理完成");
     }
     _log("检查缓存是否存在完成");
@@ -375,7 +382,7 @@ class NotificationHelper {
     _log("发送通知");
     _log("检查缓存");
     await findDbCache();
-    int maxCount = AppConfig.notificationConfig.maxNotificationCount;
+    int maxCount = AppLogic.appConfig.notificationConfig.maxNotificationCount;
     // 这里取消所有提醒的原因是，有可能先加晚点的提醒，后加早点的提醒，不取消的话就会导致早点的提醒发不出去
     // 也可以一一比对，但是太复杂，容易出错
     _log("取消所有提醒");
@@ -479,8 +486,8 @@ class NotificationHelper {
     }
     _log("通知处理完成，刷新数据库缓存数据");
     // 刷新缓存
-    await SharedPreferencesHelper.prefs.setStringList(SharedPreferencesKeys.notificationCache, dbCache.toList());
-    await SharedPreferencesHelper.prefs.setStringList(SharedPreferencesKeys.oldNotificationCache, oldDbCache.toList());
+    await PrefsHelper.prefs.setStringList(notificationCache, dbCache.toList());
+    await PrefsHelper.prefs.setStringList(oldNotificationCache, oldDbCache.toList());
     List<PendingNotificationRequest> pendingList = await LocalNotificationHelper.checkPendingNotificationRequests();
     _log("检查待发送通知队列，通知数量${pendingList.length}");
     if (pendingList.isEmpty) return _log("通知队列为空，发送通知完成");
@@ -805,8 +812,8 @@ class NotificationHelper {
     dateTimeIdCache[dateTime]?.remove(id);
     oldDateTimeIdCache[dateTime]?.remove(id);
     _log("清除缓存完成，更新数据库存储");
-    await SharedPreferencesHelper.prefs.setStringList(SharedPreferencesKeys.notificationCache, dbCache.toList());
-    await SharedPreferencesHelper.prefs.setStringList(SharedPreferencesKeys.oldNotificationCache, oldDbCache.toList());
+    await PrefsHelper.prefs.setStringList(notificationCache, dbCache.toList());
+    await PrefsHelper.prefs.setStringList(oldNotificationCache, oldDbCache.toList());
     _log("更新数据库存储完成，删除通知{id:$id}完成");
   }
 
@@ -824,8 +831,8 @@ class NotificationHelper {
     dateTimeIdCache.clear();
     oldDateTimeIdCache.clear();
     _log("清除缓存完成，更新数据库存储");
-    await SharedPreferencesHelper.prefs.setStringList(SharedPreferencesKeys.notificationCache, dbCache.toList());
-    await SharedPreferencesHelper.prefs.setStringList(SharedPreferencesKeys.oldNotificationCache, oldDbCache.toList());
+    await PrefsHelper.prefs.setStringList(notificationCache, dbCache.toList());
+    await PrefsHelper.prefs.setStringList(oldNotificationCache, oldDbCache.toList());
     _log("更新数据库存储完成，删除所有完成");
   }
 }
@@ -844,9 +851,9 @@ class LocalNotificationHelper {
   static Future<bool?> init() async {
     // 时区初始化
     if (!kIsWeb && !Platform.isLinux) {
-      tz.initializeTimeZones();
-      final String? timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
-      tz.setLocalLocation(tz.getLocation(timeZoneName!));
+      tzd.initializeTimeZones();
+      final String timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(timeZoneName));
     }
 
     // 是否通过通知启动应用 来判断应该进入哪个页面
@@ -880,7 +887,7 @@ class LocalNotificationHelper {
     bool hasPermission = await checkNotificationPermission();
     if (!hasPermission) {
       bool isOpen = Get.isSnackbarOpen;
-      if (!isOpen) RouteHelper.inAppNotification(title: "没有通知权限,添加提醒失败", message: "如果已设置权限，请重新保存");
+      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败", message: "如果已设置权限，请重新保存");
       return;
     }
     // 发送通知
@@ -905,7 +912,7 @@ class LocalNotificationHelper {
     bool hasPermission = await checkNotificationPermission();
     if (!hasPermission) {
       bool isOpen = Get.isSnackbarOpen;
-      if (!isOpen) RouteHelper.inAppNotification(title: "没有通知权限,添加提醒失败", message: "如果已设置权限，请重新保存");
+      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败", message: "如果已设置权限，请重新保存");
       return;
     }
     await flutterLocalNotificationsPlugin.zonedSchedule(
@@ -937,7 +944,7 @@ class LocalNotificationHelper {
     bool hasPermission = await checkNotificationPermission();
     if (!hasPermission) {
       bool isOpen = Get.isSnackbarOpen;
-      if (!isOpen) RouteHelper.inAppNotification(title: "没有通知权限,添加提醒失败", message: "如果已设置权限，请重新保存");
+      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败", message: "如果已设置权限，请重新保存");
       return;
     }
     await flutterLocalNotificationsPlugin.periodicallyShow(
@@ -968,7 +975,7 @@ class LocalNotificationHelper {
     bool hasPermission = await checkNotificationPermission();
     if (!hasPermission) {
       bool isOpen = Get.isSnackbarOpen;
-      if (!isOpen) RouteHelper.inAppNotification(title: "没有通知权限,添加提醒失败", message: "如果已设置权限，请重新保存");
+      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败", message: "如果已设置权限，请重新保存");
       return false;
     }
     await flutterLocalNotificationsPlugin.zonedSchedule(
@@ -1044,7 +1051,7 @@ class LocalNotificationHelper {
       if (isOpen == true) {
         isOpen = await openAppSettings();
         if (isOpen == false) {
-          RouteHelper.toast(msg: "打开系统设置失败,请手动打开");
+          ToastHelper.toast(msg: "打开系统设置失败,请手动打开");
         }
       }
       return false;

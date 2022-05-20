@@ -1,7 +1,6 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:hg_entity/hg_entity.dart';
-import 'package:hg_framework/ability/theme/theme/app_color.dart';
 
 /// 主题模式
 class ThemeModeValue extends CustomValue {
@@ -327,7 +326,7 @@ class NavigationRailLabelTypeValue extends CustomValue {
 class ColorValue extends CustomValue {
   late Color color;
 
-  ColorValue({this.color = AppColor.customPrimaryLight});
+  ColorValue({this.color = const Color(0xFF004881)});
 
   @override
   ColorValue clone() => ColorValue(color: color);

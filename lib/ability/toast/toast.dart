@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:hg_framework/app/app_logic.dart';
 
 import '../export.dart';
 
@@ -14,24 +15,18 @@ class ToastHelper {
     String? msg,
     ToastGravity? gravity,
   }) {
-    NeumorphicThemeData themeData = MainLogic.instance.neumorphicThemeData;
+    ThemeData themeData = AppLogic.instance.themeData;
     Fluttertoast.showToast(msg: msg ?? "", backgroundColor: themeData.disabledColor, gravity: gravity ?? ToastGravity.CENTER);
   }
 
   /// 应用内提示
   static SnackbarController inAppNotification({String? title, String? message}) {
-    NeumorphicThemeData themeData = MainLogic.instance.neumorphicThemeData;
     SnackbarController controller = Get.snackbar(
       "",
       "",
       titleText: title == null ? null : Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
       messageText: message == null ? null : Text(message),
       duration: const Duration(minutes: 1),
-      backgroundColor: themeData.baseColor,
-      overlayBlur: themeData.depth,
-      overlayColor: themeData.defaultTextColor.withOpacity(0.1),
-      borderColor: themeData.borderColor,
-      borderWidth: themeData.borderWidth,
     );
     HapticFeedback.vibrate();
     return controller;
@@ -118,11 +113,11 @@ class ToastHelper {
 
   /// 显示蒙版
   static void overlay(Widget widget, {Color? backgroundColor, bool Function()? canClose, VoidCallback? onClose}) {
-    NeumorphicThemeData themeData = MainLogic.instance.neumorphicThemeData;
+    ThemeData themeData = AppLogic.instance.themeData;
     overlayBuilder((loader, background) {
       return GestureDetector(
         child: Scaffold(
-          backgroundColor: backgroundColor ?? themeData.baseColor.withOpacity(0.9),
+          backgroundColor: backgroundColor ?? themeData.primaryColor.withOpacity(0.9),
           body: widget,
         ),
         onTap: () {
@@ -138,12 +133,12 @@ class ToastHelper {
 
   /// 蒙版构建器
   static void overlayBuilder(Widget Function(OverlayEntry? loader, OverlayEntry background) builder, {double opacity = 0.9}) {
-    NeumorphicThemeData themeData = MainLogic.instance.neumorphicThemeData;
+    ThemeData themeData = AppLogic.instance.themeData;
     NavigatorState navigatorState = Navigator.of(Get.overlayContext!, rootNavigator: true);
     OverlayState overlayState = navigatorState.overlay!;
 
     OverlayEntry overlayEntryOpacity = OverlayEntry(builder: (context) {
-      return Opacity(opacity: opacity, child: Container(color: themeData.baseColor.withOpacity(0.9)));
+      return Opacity(opacity: opacity, child: Container(color: themeData.primaryColor.withOpacity(0.9)));
     });
     OverlayEntry? overlayEntryLoader;
     overlayEntryLoader = OverlayEntry(builder: (context) {

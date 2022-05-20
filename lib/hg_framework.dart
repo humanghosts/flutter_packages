@@ -1,5 +1,5 @@
 library hg_framework;
 
-export 'initialize/initialize.dart';
+export 'app/export.dart';
 export 'util/export.dart';
 export 'view/export.dart';

@@ -21,7 +21,7 @@ class NotificationPayload {
   static NotificationPayload? decode(String? notificationPayload) {
     if (null == notificationPayload || notificationPayload.isEmpty) return null;
     Map<String, dynamic> payloadMap = json.decode(notificationPayload);
-    NotificationType? callbackType = NotificationType.fromMap(payloadMap[_typeKey]);
+    NotificationType? callbackType = NotificationTypes.get(payloadMap[_typeKey]);
     if (null == callbackType) return null;
     return NotificationPayload(type: callbackType, payload: payloadMap[_payloadKey]);
   }
