@@ -1,4 +1,5 @@
 import 'package:hg_entity/hg_entity.dart';
+import 'package:hg_framework/ability/shared_preferences/prefs.dart';
 import 'package:hg_framework/app/app_config.dart';
 import 'package:hg_framework/app/app_logic.dart';
 import 'package:hg_framework/entity/entities.dart';
@@ -33,6 +34,7 @@ class AppInit {
 
 /// 数据库初始化
 Future<void> _databaseInit(DatabaseConfig config) async {
+  await PrefsHelper.init();
   await DatabaseHelper.open(config: config);
 }
 

@@ -35,37 +35,41 @@ abstract class App extends StatelessWidget with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<AppLogic>(
-      init: logic,
-      autoRemove: false,
-      initState: (state) {
-        WidgetsBinding.instance.addObserver(this);
-      },
-      dispose: (state) {
-        WidgetsBinding.instance.removeObserver(this);
-      },
-      builder: (logic) {
-        logic.onWidgetBuild(context);
-        ThemeTemplate template = logic.themeConfig.templateInUse.value;
-        return GetMaterialApp(
-          // scrollBehavior: const AppScrollBehavior(),
-          debugShowCheckedModeBanner: false,
-          title: logic.config.appName,
-          theme: template.toFlexColorThemeLight().toTheme,
-          darkTheme: template.toFlexColorThemeDark().toTheme,
-          themeMode: template.themeMode.value.mode,
-          navigatorObservers: [
-            Observer(RouteHelper.observer, ObserverRouting()),
-          ],
-          home: buildHome(),
-          locale: const Locale('zh', 'CN'),
-          supportedLocales: const <Locale>[Locale('zh', 'CN')],
-          localizationsDelegates: const [
-            // 本地化的代理类
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return GetBuilder<AppLogic>(
+          init: logic,
+          autoRemove: false,
+          initState: (state) {
+            WidgetsBinding.instance.addObserver(this);
+          },
+          dispose: (state) {
+            WidgetsBinding.instance.removeObserver(this);
+          },
+          builder: (logic) {
+            logic.onWidgetBuild(context);
+            ThemeTemplate template = logic.themeConfig.templateInUse.value;
+            return GetMaterialApp(
+              scrollBehavior: const AppScrollBehavior(),
+              debugShowCheckedModeBanner: false,
+              title: logic.config.appName,
+              theme: template.toFlexColorThemeLight().toTheme,
+              darkTheme: template.toFlexColorThemeDark().toTheme,
+              themeMode: template.themeMode.value.mode,
+              navigatorObservers: [
+                Observer(RouteHelper.observer, ObserverRouting()),
+              ],
+              home: buildHome(),
+              locale: const Locale('zh', 'CN'),
+              supportedLocales: const <Locale>[Locale('zh', 'CN')],
+              localizationsDelegates: const [
+                // 本地化的代理类
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+            );
+          },
         );
       },
     );
