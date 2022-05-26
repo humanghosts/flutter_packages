@@ -64,9 +64,11 @@ dependencies:
   ## 布局的库
   # 底部弹框
   modal_bottom_sheet: ^2.0.1
+  # 角标
+  badges: ^2.0.2
 
-  # 屏幕自适应
-  # flutter_screenutil: ^5.5.2
+  ## 图标、动画、字体的库
+  animated_text_kit:
 
   # 介绍页
   introduction_screen: ^3.0.0

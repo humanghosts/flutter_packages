@@ -11,47 +11,24 @@ class ThemeTemplate extends DataModel {
   late final Attribute<String?> name;
   late final Attribute<String?> fontFamily;
 
-  // GENERAL SETTINGS.
-  // ThemeMode, use FlexColorScheme and sub-themes, current scheme, view, etc.
-  // ===========================================================================
+  // 全局设置.
   late final Attribute<ThemeModeValue> themeMode;
-  late final Attribute<bool> useSubThemes;
-  late final Attribute<bool> useFlutterDefaults;
-  late final Attribute<bool> isLargeGridView;
-  late final Attribute<int> viewIndex;
-  late final Attribute<bool> useTextTheme;
-  late final Attribute<FlexSchemeValue> usedScheme;
-  late final Attribute<bool> interactionEffects;
   late final Attribute<double?> defaultRadius;
-  late final Attribute<bool> tooltipsMatchBackground;
+  late final Attribute<ColorValue> primaryLight;
+  late final Attribute<ColorValue> primaryContainerLight;
+  late final Attribute<ColorValue> secondaryLight;
+  late final Attribute<ColorValue> secondaryContainerLight;
+  late final Attribute<ColorValue> tertiaryLight;
+  late final Attribute<ColorValue> tertiaryContainerLight;
+  late final Attribute<ColorValue> primaryDark;
+  late final Attribute<ColorValue> primaryContainerDark;
+  late final Attribute<ColorValue> secondaryDark;
+  late final Attribute<ColorValue> secondaryContainerDark;
+  late final Attribute<ColorValue> tertiaryDark;
+  late final Attribute<ColorValue> tertiaryContainerDark;
 
-  // Surface and blend SETTINGS.
+  // 色彩方案设置
   // ===========================================================================
-  late final Attribute<FlexSurfaceModeValue> surfaceModeLight;
-  late final Attribute<FlexSurfaceModeValue> surfaceModeDark;
-  late final Attribute<int> blendLevel;
-  late final Attribute<int> blendLevelDark;
-  late final Attribute<int> blendOnLevel;
-  late final Attribute<int> blendOnLevelDark;
-  late final Attribute<int> usedColors;
-  late final Attribute<bool> swapLightColors;
-  late final Attribute<bool> swapDarkColors;
-  late final Attribute<bool> lightIsWhite;
-  late final Attribute<bool> darkIsTrueBlack;
-  late final Attribute<bool> useDarkColorsForSeed;
-  late final Attribute<bool> useToDarkMethod;
-  late final Attribute<bool> toDarkSwapPrimaryAndContainer;
-  late final Attribute<int> darkMethodLevel;
-
-  // On color blending ON/OFF
-  late final Attribute<bool> blendLightOnColors;
-  late final Attribute<bool> blendDarkOnColors;
-  late final Attribute<bool> blendLightTextTheme;
-  late final Attribute<bool> blendDarkTextTheme;
-
-  // Material 3 and Seed ColorScheme SETTINGS.
-  // ===========================================================================
-  late final Attribute<bool> useMaterial3;
   late final Attribute<bool> useKeyColors;
   late final Attribute<bool> useSecondary;
   late final Attribute<bool> useTertiary;
@@ -68,7 +45,26 @@ class ThemeTemplate extends DataModel {
   late final Attribute<bool> keepDarkSecondaryContainer;
   late final Attribute<bool> keepDarkTertiaryContainer;
   late final Attribute<int> usedFlexToneSetup;
-  late final Attribute<bool> useM3ErrorColors;
+
+  // 表面色彩混合设置
+  // ===========================================================================
+  late final Attribute<FlexSurfaceModeValue> surfaceModeLight;
+  late final Attribute<FlexSurfaceModeValue> surfaceModeDark;
+  late final Attribute<int> blendLevel;
+  late final Attribute<int> blendLevelDark;
+  late final Attribute<int> blendOnLevel;
+  late final Attribute<int> blendOnLevelDark;
+  late final Attribute<int> usedColors;
+  late final Attribute<bool> swapLightColors;
+  late final Attribute<bool> swapDarkColors;
+  late final Attribute<bool> lightIsWhite;
+  late final Attribute<bool> darkIsTrueBlack;
+
+  // On color blending ON/OFF
+  late final Attribute<bool> blendLightOnColors;
+  late final Attribute<bool> blendDarkOnColors;
+  late final Attribute<bool> blendLightTextTheme;
+  late final Attribute<bool> blendDarkTextTheme;
 
   // InputDecorator SETTINGS.
   // ===========================================================================
@@ -154,11 +150,11 @@ class ThemeTemplate extends DataModel {
   late final Attribute<double?> elevatedButtonBorderRadius;
   late final Attribute<SchemeColorValue> outlinedButtonSchemeColor;
   late final Attribute<double?> outlinedButtonBorderRadius;
-  late final Attribute<SchemeColorValue> toggleButtonsSchemeColor;
-  late final Attribute<double?> toggleButtonsBorderRadius;
 
   // Toggleable SETTINGS.
   // ===========================================================================
+  late final Attribute<SchemeColorValue> toggleButtonsSchemeColor;
+  late final Attribute<double?> toggleButtonsBorderRadius;
   late final Attribute<bool> unselectedToggleIsColored;
   late final Attribute<SchemeColorValue> switchSchemeColor;
   late final Attribute<SchemeColorValue> checkboxSchemeColor;
@@ -166,7 +162,6 @@ class ThemeTemplate extends DataModel {
 
   // Fab, Chip, SnackBar, Popup, Card nad Dialog SETTINGS.
   // ===========================================================================
-  late final Attribute<bool> fabUseShape;
   late final Attribute<double?> fabBorderRadius;
   late final Attribute<SchemeColorValue> fabSchemeColor;
   late final Attribute<SchemeColorValue> chipSchemeColor;
@@ -177,35 +172,13 @@ class ThemeTemplate extends DataModel {
   late final Attribute<double?> cardBorderRadius;
   late final Attribute<SchemeColorValue> dialogBackgroundSchemeColor;
   late final Attribute<double?> dialogBorderRadius;
-
-  // Custom color SETTINGS.
-  // ===========================================================================
-  late final Attribute<ColorValue> primaryLight;
-  late final Attribute<ColorValue> primaryContainerLight;
-  late final Attribute<ColorValue> secondaryLight;
-  late final Attribute<ColorValue> secondaryContainerLight;
-  late final Attribute<ColorValue> tertiaryLight;
-  late final Attribute<ColorValue> tertiaryContainerLight;
-  late final Attribute<ColorValue> primaryDark;
-  late final Attribute<ColorValue> primaryContainerDark;
-  late final Attribute<ColorValue> secondaryDark;
-  late final Attribute<ColorValue> secondaryContainerDark;
-  late final Attribute<ColorValue> tertiaryDark;
-  late final Attribute<ColorValue> tertiaryContainerDark;
+  late final Attribute<bool> tooltipsMatchBackground;
 
   ThemeTemplate() {
     name = attributes.stringNullable(name: "name", title: "名称");
     fontFamily = attributes.stringNullable(name: "fontFamily", title: "字体");
     themeMode = attributes.custom(name: "themeMode", title: "主题模式");
-    useSubThemes = attributes.boolean(name: "useSubThemes", title: "使用子主题", dvalue: true);
-    useFlutterDefaults = attributes.boolean(name: "useFlutterDefaults", title: "使用 Flutter 默认值", dvalue: false);
-    isLargeGridView = attributes.boolean(name: "isLargeGridView", title: "是大网格视图", dvalue: false);
-    viewIndex = attributes.integer(name: "viewIndex", title: "索引", dvalue: 0);
-    useTextTheme = attributes.boolean(name: "useTextTheme", title: "使用文本主题", dvalue: true);
-    usedScheme = attributes.custom(name: "usedScheme", title: "使用的方案");
-    interactionEffects = attributes.boolean(name: "interactionEffects", title: "交互效果", dvalue: true);
     defaultRadius = attributes.floatNullable(name: "defaultRadius", title: "默认半径");
-    tooltipsMatchBackground = attributes.boolean(name: "tooltipsMatchBackground", title: "工具提示匹配背景", dvalue: false);
 
     surfaceModeLight = attributes.custom(name: "surfaceModeLight", title: "表面模式光");
     surfaceModeDark = attributes.custom(name: "surfaceModeDark", title: "表面模式暗");
@@ -213,21 +186,16 @@ class ThemeTemplate extends DataModel {
     blendLevelDark = attributes.integer(name: "blendLevelDark", title: "混合水平黑暗", dvalue: 15);
     blendOnLevel = attributes.integer(name: "blendOnLevel", title: "混合水平", dvalue: 20);
     blendOnLevelDark = attributes.integer(name: "blendOnLevelDark", title: "混合水平黑暗", dvalue: 30);
-    usedColors = attributes.integer(name: "usedColors", title: "用过的颜色", dvalue: 6);
+    usedColors = attributes.integer(name: "usedColors", title: "输入的颜色数量", dvalue: 6);
     swapLightColors = attributes.boolean(name: "swapLightColors", title: "交换浅色", dvalue: false);
     swapDarkColors = attributes.boolean(name: "swapDarkColors", title: "交换深色", dvalue: false);
     lightIsWhite = attributes.boolean(name: "lightIsWhite", title: "光是白色的", dvalue: false);
     darkIsTrueBlack = attributes.boolean(name: "darkIsTrueBlack", title: "黑暗是真正的黑色", dvalue: false);
-    useDarkColorsForSeed = attributes.boolean(name: "useDarkColorsForSeed", title: "为种子使用深色", dvalue: false);
-    useToDarkMethod = attributes.boolean(name: "useToDarkMethod", title: "使用 To Dark 方法", dvalue: false);
-    toDarkSwapPrimaryAndContainer = attributes.boolean(name: "toDarkSwapPrimaryAndContainer", title: "到暗交换主要和容器", dvalue: true);
-    darkMethodLevel = attributes.integer(name: "darkMethodLevel", title: "黑暗方法级别", dvalue: 10);
     blendLightOnColors = attributes.boolean(name: "blendLightOnColors", title: "混合灯光颜色", dvalue: false);
     blendDarkOnColors = attributes.boolean(name: "blendDarkOnColors", title: "混合深色", dvalue: true);
     blendLightTextTheme = attributes.boolean(name: "blendLightTextTheme", title: "混合轻文本主题", dvalue: true);
     blendDarkTextTheme = attributes.boolean(name: "blendDarkTextTheme", title: "混合深色文本主题", dvalue: true);
 
-    useMaterial3 = attributes.boolean(name: "useMaterial3", title: "使用材料 3", dvalue: true);
     useKeyColors = attributes.boolean(name: "useKeyColors", title: "使用关键颜色", dvalue: false);
     useSecondary = attributes.boolean(name: "useSecondary", title: "使用次要", dvalue: false);
     useTertiary = attributes.boolean(name: "useTertiary", title: "使用第三", dvalue: false);
@@ -244,7 +212,6 @@ class ThemeTemplate extends DataModel {
     keepDarkSecondaryContainer = attributes.boolean(name: "keepDarkSecondaryContainer", title: "保持黑暗辅助容器", dvalue: false);
     keepDarkTertiaryContainer = attributes.boolean(name: "keepDarkTertiaryContainer", title: "保持暗三级容器", dvalue: false);
     usedFlexToneSetup = attributes.integer(name: "usedFlexToneSetup", title: "使用 Flex Tone 设置", dvalue: 1);
-    useM3ErrorColors = attributes.boolean(name: "useM3ErrorColors", title: "使用 M 3 错误颜色", dvalue: false);
 
     inputDecoratorSchemeColorLight = attributes.custom(name: "inputDecoratorSchemeColorLight", title: "输入装饰方案颜色光");
     inputDecoratorSchemeColorDark = attributes.custom(name: "inputDecoratorSchemeColorDark", title: "输入装饰方案颜色深");
@@ -318,7 +285,6 @@ class ThemeTemplate extends DataModel {
     checkboxSchemeColor = attributes.custom(name: "checkboxSchemeColor", title: "复选框方案颜色");
     radioSchemeColor = attributes.custom(name: "radioSchemeColor", title: "收音机方案颜色");
 
-    fabUseShape = attributes.boolean(name: "fabUseShape", title: "晶圆厂使用形状", dvalue: true);
     fabBorderRadius = attributes.floatNullable(name: "fabBorderRadius", title: "晶圆厂边界半径");
     fabSchemeColor = attributes.custom(name: "fabSchemeColor", title: "晶圆厂方案颜色");
     chipSchemeColor = attributes.custom(name: "chipSchemeColor", title: "芯片方案颜色");
@@ -329,6 +295,7 @@ class ThemeTemplate extends DataModel {
     cardBorderRadius = attributes.floatNullable(name: "cardBorderRadius", title: "卡片边框半径");
     dialogBackgroundSchemeColor = attributes.custom(name: "dialogBackgroundSchemeColor", title: "对话框背景方");
     dialogBorderRadius = attributes.floatNullable(name: "dialogBorderRadius", title: "对话框边框半径");
+    tooltipsMatchBackground = attributes.boolean(name: "tooltipsMatchBackground", title: "tooltip是否匹配背景", dvalue: false);
 
     primaryLight = attributes.custom(name: "primaryLight", title: "主要色彩", dvalue: ColorValue(color: const Color(0xFF004881)));
     primaryContainerLight = attributes.custom(name: "primaryContainerLight", title: "主要容器色彩", dvalue: ColorValue(color: const Color(0xFFD0E4FF)));
@@ -519,12 +486,12 @@ extension FlexColorSchemeConvert on ThemeTemplate {
     );
   }
 
-  FlexSchemeColor toFlexSchemeColor() {
-    return AppLogic.instance.brightness == Brightness.light ? toFlexSchemeColorLight() : toFlexSchemeColorDark();
+  FlexSchemeColor toFlexSchemeColor({Brightness? brightness}) {
+    return (brightness ?? AppLogic.instance.brightness) == Brightness.light ? toFlexSchemeColorLight() : toFlexSchemeColorDark();
   }
 
-  FlexColorScheme toFlexColorTheme() {
-    return AppLogic.instance.brightness == Brightness.light ? toFlexColorThemeLight() : toFlexColorThemeDark();
+  FlexColorScheme toFlexColorTheme({Brightness? brightness}) {
+    return (brightness ?? AppLogic.instance.brightness) == Brightness.light ? toFlexColorThemeLight() : toFlexColorThemeDark();
   }
 
   FlexColorScheme toFlexColorThemeLight() {
@@ -563,7 +530,7 @@ extension FlexColorSchemeConvert on ThemeTemplate {
       subThemesData: FlexSubThemesData(
         // Want color themed disable hover, focus, highlight and
         // splash colors? Then keep this one on.
-        interactionEffects: interactionEffects.value,
+        interactionEffects: true,
         // Blend level for on colors for on colors, primary
         // secondary and tertiary and their containers.
         blendOnLevel: blendOnLevel.value,
@@ -581,10 +548,10 @@ extension FlexColorSchemeConvert on ThemeTemplate {
         // Typography, as it is called in Flutter SDK. The M3 Typography is
         // not yet natively available in Flutter SDK 2.10.3 or earlier,
         // this offers it as a way to use it already now.
-        useTextTheme: useTextTheme.value,
+        useTextTheme: true,
         // Prefer Flutter SDK null default behavior for sub-themes, when
         // possible.
-        useFlutterDefaults: useFlutterDefaults.value,
+        useFlutterDefaults: false,
         // Value to adjust themed border radius on widgets with
         // an adjustable corner rounding, this one is very handy.
         // If null, it defaults to Material3 (You) design
@@ -627,7 +594,7 @@ extension FlexColorSchemeConvert on ThemeTemplate {
         // Set to false to keep using M2 style FAB and ignore
         // M3 type default and global radius on the FAB, it thus
         // remains circular or stadium shaped in extended mode.
-        fabUseShape: fabUseShape.value,
+        fabUseShape: true,
         fabRadius: fabBorderRadius.value,
         fabSchemeColor: fabSchemeColor.value.scheme,
         snackBarBackgroundSchemeColor: snackBarSchemeColor.value.scheme,
@@ -699,7 +666,7 @@ extension FlexColorSchemeConvert on ThemeTemplate {
         keepTertiaryContainer: keepTertiaryContainer.value,
       ),
       // Use Material3 error colors with Material2 themes.
-      useMaterial3ErrorColors: useM3ErrorColors.value,
+      useMaterial3ErrorColors: true,
       // Use predefined [FlexTones] setups for the generated
       // [TonalPalette] and it's usage in [ColorScheme] config.
       // You can make your custom [FlexTones] object right here
@@ -720,7 +687,7 @@ extension FlexColorSchemeConvert on ThemeTemplate {
       // effect, but it will later and then we can use this toggle
       // with FlexColorScheme too, and in this demo we can see its
       // impact easily.
-      useMaterial3: useMaterial3.value,
+      useMaterial3: true,
       primary: primaryLight.value.color,
       primaryContainer: primaryContainerLight.value.color,
       secondary: secondaryLight.value.color,
@@ -745,12 +712,12 @@ extension FlexColorSchemeConvert on ThemeTemplate {
       tooltipsMatchBackground: tooltipsMatchBackground.value,
       //
       subThemesData: FlexSubThemesData(
-        interactionEffects: interactionEffects.value,
+        interactionEffects: true,
         blendOnLevel: blendOnLevelDark.value,
         blendOnColors: blendDarkOnColors.value,
         blendTextTheme: blendDarkTextTheme.value,
-        useFlutterDefaults: useFlutterDefaults.value,
-        useTextTheme: useTextTheme.value,
+        useFlutterDefaults: false,
+        useTextTheme: true,
         //
         defaultRadius: defaultRadius.value,
         bottomSheetRadius: bottomSheetBorderRadius.value,
@@ -775,7 +742,7 @@ extension FlexColorSchemeConvert on ThemeTemplate {
         inputDecoratorUnfocusedHasBorder: inputDecoratorUnfocusedHasBorder.value,
         inputDecoratorUnfocusedBorderIsColored: inputDecoratorUnfocusedBorderIsColored.value,
         //
-        fabUseShape: fabUseShape.value,
+        fabUseShape: true,
         fabRadius: fabBorderRadius.value,
         fabSchemeColor: fabSchemeColor.value.scheme,
         snackBarBackgroundSchemeColor: snackBarSchemeColor.value.scheme,
@@ -845,14 +812,14 @@ extension FlexColorSchemeConvert on ThemeTemplate {
         keepSecondaryContainer: keepDarkSecondaryContainer.value,
         keepTertiaryContainer: keepDarkTertiaryContainer.value,
       ),
-      useMaterial3ErrorColors: useM3ErrorColors.value,
+      useMaterial3ErrorColors: true,
       tones: flexTonesConfig(Brightness.dark, usedFlexToneSetup.value),
       //
       // ThemeData properties passed along directly to ThemeData.
       visualDensity: FlexColorScheme.comfortablePlatformDensity,
       fontFamily: fontFamily.value,
       platform: defaultTargetPlatform,
-      useMaterial3: useMaterial3.value,
+      useMaterial3: true,
       primary: primaryDark.value.color,
       primaryContainer: primaryContainerDark.value.color,
       secondary: secondaryDark.value.color,

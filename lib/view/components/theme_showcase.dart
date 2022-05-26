@@ -93,8 +93,7 @@ class ThemeShowcase extends StatelessWidget {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Text('Normal TextTheme',
-                      style: Theme.of(context).textTheme.titleMedium),
+                  child: Text('Normal TextTheme', style: Theme.of(context).textTheme.titleMedium),
                 ),
                 const TextThemeShowcase(),
               ],
@@ -111,8 +110,7 @@ class ThemeShowcase extends StatelessWidget {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Text('Primary TextTheme',
-                      style: Theme.of(context).primaryTextTheme.subtitle1),
+                  child: Text('Primary TextTheme', style: Theme.of(context).primaryTextTheme.subtitle1),
                 ),
                 const PrimaryTextThemeShowcase(),
               ],
@@ -136,16 +134,16 @@ class ElevatedButtonShowcase extends StatelessWidget {
       children: <Widget>[
         ElevatedButton(
           onPressed: () {},
-          child: const Text('Elevated button'),
+          child: const Text('浮动按钮'),
         ),
         ElevatedButton.icon(
           onPressed: () {},
           icon: const Icon(Icons.add),
-          label: const Text('Elevated icon'),
+          label: const Text('浮动图标'),
         ),
         const ElevatedButton(
           onPressed: null,
-          child: Text('Elevated button'),
+          child: Text('浮动按钮'),
         ),
       ],
     );
@@ -255,29 +253,29 @@ class FabShowcase extends StatelessWidget {
           heroTag: null,
           onPressed: () {},
           mini: true,
-          tooltip: 'Tooltip on mini\nFloatingActionButton',
+          tooltip: '最小尺寸浮动操作按钮',
           child: const Icon(Icons.accessibility),
         ),
         FloatingActionButton.extended(
           heroTag: null,
           isExtended: false,
           onPressed: () {},
-          tooltip: 'Tooltip on extended:false\nFloatingActionButton.extended',
+          tooltip: '无扩展浮动操作按钮',
           icon: const Icon(Icons.accessibility),
-          label: const Text('Extended'),
+          label: const Text('扩展'),
         ),
         FloatingActionButton.extended(
           heroTag: null,
           isExtended: true,
           onPressed: () {},
-          tooltip: 'Tooltip on extended:true\nFloatingActionButton.extended',
+          tooltip: '带扩展浮动操作按钮',
           icon: const Icon(Icons.accessibility),
-          label: const Text('Extended'),
+          label: const Text('扩展'),
         ),
         FloatingActionButton(
           heroTag: null,
           onPressed: () {},
-          tooltip: 'Tooltip on default\nFloatingActionButton',
+          tooltip: '默认浮动操作按钮',
           child: const Icon(Icons.accessibility),
         ),
       ],
@@ -437,8 +435,7 @@ class _PopupMenuButton extends StatelessWidget {
             onSurface: scheme.onSurface,
             shape: radius != null
                 ? RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.all(Radius.circular(radius ?? 4)),
+                    borderRadius: BorderRadius.all(Radius.circular(radius ?? 4)),
                   )
                 : null,
           ),
@@ -459,23 +456,18 @@ class _DropDownButton extends StatefulWidget {
 }
 
 class _DropDownButtonState extends State<_DropDownButton> {
-  String selectedItem = 'Dropdown button 1';
+  String selectedItem = '下拉按钮 1';
+
   @override
   Widget build(BuildContext context) {
     return DropdownButton<String>(
       value: selectedItem,
       onChanged: (String? value) {
         setState(() {
-          selectedItem = value ?? 'Dropdown button 1';
+          selectedItem = value ?? '下拉按钮 1';
         });
       },
-      items: <String>[
-        'Dropdown button 1',
-        'Dropdown button 2',
-        'Dropdown button 3',
-        'Dropdown button 4',
-        'Dropdown button 5'
-      ].map<DropdownMenuItem<String>>((String value) {
+      items: <String>['下拉按钮 1', '下拉按钮 2', '下拉按钮 3', '下拉按钮 4', '下拉按钮 5'].map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(value),
@@ -489,27 +481,27 @@ class _DropDownButtonFormField extends StatefulWidget {
   const _DropDownButtonFormField({Key? key}) : super(key: key);
 
   @override
-  State<_DropDownButtonFormField> createState() =>
-      _DropDownButtonFormFieldState();
+  State<_DropDownButtonFormField> createState() => _DropDownButtonFormFieldState();
 }
 
 class _DropDownButtonFormFieldState extends State<_DropDownButtonFormField> {
-  String selectedItem = 'Dropdown button form field 1';
+  String selectedItem = '下拉按钮 选项1';
+
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
       value: selectedItem,
       onChanged: (String? value) {
         setState(() {
-          selectedItem = value ?? 'Dropdown button form field 1';
+          selectedItem = value ?? '下拉按钮 选项1';
         });
       },
       items: <String>[
-        'Dropdown button form field 1',
-        'Dropdown button form field 2',
-        'Dropdown button form field 3',
-        'Dropdown button form field 4',
-        'Dropdown button form field 5'
+        '下拉按钮 选项1',
+        '下拉按钮 选项2',
+        '下拉按钮 选项3',
+        '下拉按钮 选项4',
+        '下拉按钮 选项5',
       ].map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
@@ -521,8 +513,7 @@ class _DropDownButtonFormFieldState extends State<_DropDownButtonFormField> {
 }
 
 class IconButtonCircleAvatarDropdownTooltipShowcase extends StatelessWidget {
-  const IconButtonCircleAvatarDropdownTooltipShowcase({Key? key})
-      : super(key: key);
+  const IconButtonCircleAvatarDropdownTooltipShowcase({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -535,20 +526,18 @@ class IconButtonCircleAvatarDropdownTooltipShowcase extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: IconButton(
             icon: const Icon(Icons.accessibility),
-            tooltip: 'Tooltip on\nIconButton',
+            tooltip: '图标按钮',
             onPressed: () {},
           ),
         ),
         const Tooltip(
-          message: 'Tooltip on\nCircleAvatar',
-          child: CircleAvatar(
-            child: Text('AV'),
-          ),
+          message: '圆形头像',
+          child: CircleAvatar(child: Text('头像')),
         ),
         const _DropDownButton(),
         const Tooltip(
-          message: 'Current tooltip theme.\nThis a two row tooltip.',
-          child: Text('Text with tooltip'),
+          message: '提示',
+          child: Text('带提示的文本'),
         ),
       ],
     );
@@ -566,34 +555,34 @@ class ChipShowcase extends StatelessWidget {
       runSpacing: 8,
       children: <Widget>[
         Chip(
-          label: const Text('Chip'),
+          label: const Text('标签'),
           onDeleted: () {},
         ),
         const Chip(
-          label: Text('Avatar Chip'),
+          label: Text('图标标签'),
           avatar: FlutterLogo(),
         ),
         InputChip(
-          label: const Text('Input Chip'),
+          label: const Text('可输入标签'),
           onSelected: (bool value) {},
         ),
         InputChip(
           showCheckmark: true,
           selected: true,
-          label: const Text('Chip check'),
+          label: const Text('选中可输入标签'),
           onSelected: (bool value) {},
         ),
         const InputChip(
-          label: Text('Disabled Chip'),
+          label: Text('禁用标签'),
           isEnabled: false,
         ),
         ChoiceChip(
-          label: const Text('Selected Chip'),
+          label: const Text('选中标签'),
           selected: true,
           onSelected: (bool value) {},
         ),
         ChoiceChip(
-          label: const Text('Not selected Chip'),
+          label: const Text('未选中标签'),
           selected: false,
           onSelected: (bool value) {},
         ),
@@ -646,11 +635,9 @@ class _TextInputFieldState extends State<TextInputField> {
           key: const Key('TextField1'),
           controller: _textController1,
           decoration: InputDecoration(
-            hintText: 'Write something...',
-            labelText: 'Text entry',
-            errorText: _errorState1
-                ? "Any entry without an 'a' will trigger this error"
-                : null,
+            hintText: '写点什么...',
+            labelText: '文本输入框',
+            errorText: _errorState1 ? "没有字母 \"a\" 会报错" : null,
           ),
         ),
         const SizedBox(height: 8),
@@ -667,18 +654,16 @@ class _TextInputFieldState extends State<TextInputField> {
           key: const Key('TextField2'),
           controller: _textController2,
           decoration: InputDecoration(
-            hintText: 'Write something...',
-            labelText: 'Another text entry',
-            errorText: _errorState2
-                ? "Any entry without an 'a' will trigger this error"
-                : null,
+            hintText: '写点什么...',
+            labelText: '另一个文本输入框',
+            errorText: _errorState2 ? "没有字母 \"a\" 会报错" : null,
           ),
         ),
         const SizedBox(height: 8),
         const TextField(
           enabled: false,
           decoration: InputDecoration(
-            labelText: 'Disabled text input',
+            labelText: '禁用输入',
           ),
         ),
         const SizedBox(height: 8),
@@ -697,14 +682,11 @@ class TabBarForAppBarShowcase extends StatelessWidget {
     final bool isDark = theme.brightness == Brightness.dark;
     final ColorScheme colorScheme = theme.colorScheme;
 
-    final Color effectiveTabBackground =
-        Theme.of(context).appBarTheme.backgroundColor ??
-            (isDark ? colorScheme.surface : colorScheme.primary);
+    final Color effectiveTabBackground = Theme.of(context).appBarTheme.backgroundColor ?? (isDark ? colorScheme.surface : colorScheme.primary);
     final TextStyle denseHeader = theme.textTheme.titleMedium!.copyWith(
       fontSize: 13,
     );
-    final TextStyle denseBody = theme.textTheme.bodyMedium!
-        .copyWith(fontSize: 12, color: theme.textTheme.bodySmall!.color);
+    final TextStyle denseBody = theme.textTheme.bodyMedium!.copyWith(fontSize: 12, color: theme.textTheme.bodySmall!.color);
 
     return DefaultTabController(
       length: 3,
@@ -717,36 +699,11 @@ class TabBarForAppBarShowcase extends StatelessWidget {
               height: 70,
               child: TabBar(
                 tabs: <Widget>[
-                  Tab(
-                    text: 'Chat',
-                    icon: Icon(Icons.chat_bubble),
-                  ),
-                  Tab(
-                    text: 'Tasks',
-                    icon: Icon(Icons.beenhere),
-                  ),
-                  Tab(
-                    text: 'Folder',
-                    icon: Icon(Icons.create_new_folder),
-                  ),
+                  Tab(text: '聊天', icon: Icon(Icons.chat_bubble)),
+                  Tab(text: '任务', icon: Icon(Icons.beenhere)),
+                  Tab(text: '文件', icon: Icon(Icons.create_new_folder)),
                 ],
               ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Text(
-              'TabBar in an AppBar',
-              style: denseHeader,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: Text(
-              'If the TabBar will always be used in an AppBar, then use '
-              'style FlexTabBarStyle forAppBar (default), '
-              'it will fit contrast wise here',
-              style: denseBody,
             ),
           ),
         ],
@@ -764,8 +721,7 @@ class TabBarForBackgroundShowcase extends StatelessWidget {
     final TextStyle denseHeader = theme.textTheme.titleMedium!.copyWith(
       fontSize: 13,
     );
-    final TextStyle denseBody = theme.textTheme.bodyMedium!
-        .copyWith(fontSize: 12, color: theme.textTheme.bodySmall!.color);
+    final TextStyle denseBody = theme.textTheme.bodyMedium!.copyWith(fontSize: 12, color: theme.textTheme.bodySmall!.color);
     return DefaultTabController(
       length: 3,
       child: Column(
@@ -775,35 +731,10 @@ class TabBarForBackgroundShowcase extends StatelessWidget {
             height: 70,
             child: TabBar(
               tabs: <Widget>[
-                Tab(
-                  text: 'Chat',
-                  icon: Icon(Icons.chat_bubble),
-                ),
-                Tab(
-                  text: 'Tasks',
-                  icon: Icon(Icons.beenhere),
-                ),
-                Tab(
-                  text: 'Folder',
-                  icon: Icon(Icons.create_new_folder),
-                ),
+                Tab(text: '聊天', icon: Icon(Icons.chat_bubble)),
+                Tab(text: '任务', icon: Icon(Icons.beenhere)),
+                Tab(text: '文件', icon: Icon(Icons.create_new_folder)),
               ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Text(
-              'TabBar on a surface',
-              style: denseHeader,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: Text(
-              'If the TabBar will always be used on background and surface '
-              'colors, then use style FlexTabBarStyle forBackground, '
-              'it will fit contrast wise here',
-              style: denseBody,
             ),
           ),
         ],
@@ -816,12 +747,10 @@ class BottomNavigationBarShowcase extends StatefulWidget {
   const BottomNavigationBarShowcase({Key? key}) : super(key: key);
 
   @override
-  State<BottomNavigationBarShowcase> createState() =>
-      _BottomNavigationBarShowcaseState();
+  State<BottomNavigationBarShowcase> createState() => _BottomNavigationBarShowcaseState();
 }
 
-class _BottomNavigationBarShowcaseState
-    extends State<BottomNavigationBarShowcase> {
+class _BottomNavigationBarShowcaseState extends State<BottomNavigationBarShowcase> {
   int buttonIndex = 0;
 
   @override
@@ -830,8 +759,7 @@ class _BottomNavigationBarShowcaseState
     final TextStyle denseHeader = theme.textTheme.titleMedium!.copyWith(
       fontSize: 13,
     );
-    final TextStyle denseBody = theme.textTheme.bodyMedium!
-        .copyWith(fontSize: 12, color: theme.textTheme.bodySmall!.color);
+    final TextStyle denseBody = theme.textTheme.bodyMedium!.copyWith(fontSize: 12, color: theme.textTheme.bodySmall!.color);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -846,39 +774,10 @@ class _BottomNavigationBarShowcaseState
               });
             },
             items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: Icon(Icons.chat_bubble),
-                label: 'Chat',
-                // title: Text('Item 1'),
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.beenhere),
-                label: 'Tasks',
-                // title: Text('Item 2'),
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.create_new_folder),
-                label: 'Folder',
-                // title: Text('Item 3'),
-              ),
+              BottomNavigationBarItem(icon: Icon(Icons.chat_bubble), label: '聊天'),
+              BottomNavigationBarItem(icon: Icon(Icons.beenhere), label: '任务'),
+              BottomNavigationBarItem(icon: Icon(Icons.create_new_folder), label: '文件'),
             ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-          child: Text(
-            'BottomNavigationBar (Material 2)',
-            style: denseHeader,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: Text(
-            'Default SDK background color is theme canvasColor via Material, '
-            'and theme.canvasColor is set to theme.colorScheme.background, '
-            'elevation is 8. FlexColorScheme sub-theme default is '
-            'colorScheme.background and elevation 0.',
-            style: denseBody,
           ),
         ),
       ],
@@ -902,8 +801,7 @@ class _NavigationBarShowcaseState extends State<NavigationBarShowcase> {
     final TextStyle denseHeader = theme.textTheme.titleMedium!.copyWith(
       fontSize: 13,
     );
-    final TextStyle denseBody = theme.textTheme.bodyMedium!
-        .copyWith(fontSize: 12, color: theme.textTheme.bodySmall!.color);
+    final TextStyle denseBody = theme.textTheme.bodyMedium!.copyWith(fontSize: 12, color: theme.textTheme.bodySmall!.color);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -918,35 +816,10 @@ class _NavigationBarShowcaseState extends State<NavigationBarShowcase> {
               });
             },
             destinations: const <NavigationDestination>[
-              NavigationDestination(
-                icon: Icon(Icons.chat_bubble),
-                label: 'Chat',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.beenhere),
-                label: 'Tasks',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.create_new_folder),
-                label: 'Folder',
-              ),
+              NavigationDestination(icon: Icon(Icons.chat_bubble), label: '聊天'),
+              NavigationDestination(icon: Icon(Icons.beenhere), label: '任务'),
+              NavigationDestination(icon: Icon(Icons.create_new_folder), label: 'Folder'),
             ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-          child: Text(
-            'NavigationBar (Material 3)',
-            style: denseHeader,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: Text(
-            'Default SDK background color is theme.colorScheme.surface with '
-            'an onSurface overlay color with elevation 3. FlexColorScheme '
-            'sub-theme default is colorScheme.background and elevation 0.',
-            style: denseBody,
           ),
         ),
       ],
@@ -996,34 +869,17 @@ class _NavigationRailShowcaseState extends State<NavigationRailShowcase> {
     final TextStyle denseHeader = theme.textTheme.titleMedium!.copyWith(
       fontSize: 13,
     );
-    final TextStyle denseBody = theme.textTheme.bodyMedium!
-        .copyWith(fontSize: 12, color: theme.textTheme.bodySmall!.color);
+    final TextStyle denseBody = theme.textTheme.bodyMedium!.copyWith(fontSize: 12, color: theme.textTheme.bodySmall!.color);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-          child: Text(
-            'NavigationRail',
-            style: denseHeader,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: Text(
-            'Default SDK background color is theme.colorScheme.surface. '
-            'FlexColorScheme sub-theme default is colorScheme.background.',
-            style: denseBody,
-          ),
+          child: Text('侧导航栏', style: denseHeader),
         ),
         const Divider(height: 1),
         SizedBox(
           height: widget.height,
-          // If we expand the rail and have a very narrow screen, it will
-          // take up a lot of height, more than we want to give to the demo
-          // panel, just let it overflow then. This may happen when we place
-          // a lot of widgets in the child that no longer fits on a phone
-          // with expanded rail.
           child: ClipRect(
             child: OverflowBox(
               alignment: AlignmentDirectional.topStart,
@@ -1034,8 +890,7 @@ class _NavigationRailShowcaseState extends State<NavigationRailShowcase> {
                     extended: isExtended,
                     useIndicator: widget.useAssertWorkAround ? true : null,
                     minExtendedWidth: 150,
-                    indicatorColor:
-                        widget.useAssertWorkAround ? Colors.transparent : null,
+                    indicatorColor: widget.useAssertWorkAround ? Colors.transparent : null,
                     labelType: isExtended ? NavigationRailLabelType.none : null,
                     selectedIndex: buttonIndex,
                     onDestinationSelected: (int value) {
@@ -1044,22 +899,10 @@ class _NavigationRailShowcaseState extends State<NavigationRailShowcase> {
                       });
                     },
                     destinations: const <NavigationRailDestination>[
-                      NavigationRailDestination(
-                        icon: Icon(Icons.chat_bubble),
-                        label: Text('Chat'),
-                      ),
-                      NavigationRailDestination(
-                        icon: Icon(Icons.beenhere),
-                        label: Text('Tasks'),
-                      ),
-                      NavigationRailDestination(
-                        icon: Icon(Icons.create_new_folder),
-                        label: Text('Folder'),
-                      ),
-                      NavigationRailDestination(
-                        icon: Icon(Icons.logout),
-                        label: Text('Logout'),
-                      ),
+                      NavigationRailDestination(icon: Icon(Icons.chat_bubble), label: Text('聊天')),
+                      NavigationRailDestination(icon: Icon(Icons.beenhere), label: Text('任务')),
+                      NavigationRailDestination(icon: Icon(Icons.create_new_folder), label: Text('文件')),
+                      NavigationRailDestination(icon: Icon(Icons.logout), label: Text('退出')),
                     ],
                   ),
                   const VerticalDivider(width: 1),
@@ -1067,10 +910,7 @@ class _NavigationRailShowcaseState extends State<NavigationRailShowcase> {
                     child: Column(
                       children: <Widget>[
                         SwitchListTileAdaptive(
-                          title: const Text('Expand and collapse'),
-                          subtitle: const Text('ON to expand  OFF to collapse\n'
-                              'Only used for local control of Rail '
-                              'presentation.'),
+                          title: const Text('收缩/展开'),
                           value: isExtended,
                           onChanged: (bool value) {
                             setState(() {
@@ -1101,53 +941,53 @@ class ListTileShowcase extends StatelessWidget {
       children: <Widget>[
         ListTile(
           leading: const Icon(Icons.info),
-          title: const Text('ListTile'),
-          subtitle: const Text('List tile sub title'),
-          trailing: const Text('Trailing'),
+          title: const Text('列表项'),
+          subtitle: const Text('列表项子标题'),
+          trailing: const Text('列表项尾'),
           onTap: () {},
         ),
         ListTile(
           leading: const Icon(Icons.info),
-          title: const Text('ListTile selected'),
-          subtitle: const Text('Selected list tile sub title'),
-          trailing: const Text('Trailing'),
+          title: const Text('选中列表项'),
+          subtitle: const Text('选中列表项子标题'),
+          trailing: const Text('选中列表项尾'),
           selected: true,
           onTap: () {},
         ),
         const Divider(height: 1),
         SwitchListTile(
           secondary: const Icon(Icons.info),
-          title: const Text('SwitchListTile'),
-          subtitle: const Text('The switch list tile is OFF'),
+          title: const Text('开关列表项'),
+          subtitle: const Text('关闭'),
           value: false,
           onChanged: (bool value) {},
         ),
         SwitchListTile(
           secondary: const Icon(Icons.info),
-          title: const Text('SwitchListTile'),
-          subtitle: const Text('The switch list tile is ON'),
+          title: const Text('开关列表项'),
+          subtitle: const Text('打开'),
           value: true,
           onChanged: (bool value) {},
         ),
         const Divider(height: 1),
         CheckboxListTile(
           secondary: const Icon(Icons.info),
-          title: const Text('CheckboxListTile'),
-          subtitle: const Text('The checkbox list tile is unchecked'),
+          title: const Text('复选框列表项'),
+          subtitle: const Text('未选中'),
           value: false,
           onChanged: (bool? value) {},
         ),
         CheckboxListTile(
           secondary: const Icon(Icons.info),
-          title: const Text('CheckboxListTile'),
-          subtitle: const Text('The checkbox list tile is checked'),
+          title: const Text('复选框列表项'),
+          subtitle: const Text('选中'),
           value: true,
           onChanged: (bool? value) {},
         ),
         CheckboxListTile(
           secondary: const Icon(Icons.info),
-          title: const Text('CheckboxListTile'),
-          subtitle: const Text('The checkbox list tile is null in tristate'),
+          title: const Text('复选框列表项'),
+          subtitle: const Text('空选，既不是选中，也不是未选中'),
           tristate: true,
           value: null,
           onChanged: (bool? value) {},
@@ -1155,24 +995,24 @@ class ListTileShowcase extends StatelessWidget {
         const Divider(height: 1),
         RadioListTile<int>(
           secondary: const Icon(Icons.info),
-          title: const Text('RadioListTile'),
-          subtitle: const Text('The radio option is unselected'),
+          title: const Text('单选框列表项'),
+          subtitle: const Text('未选中'),
           value: 0,
           onChanged: (_) {},
           groupValue: 1,
         ),
         RadioListTile<int>(
           secondary: const Icon(Icons.info),
-          title: const Text('RadioListTile'),
-          subtitle: const Text('The radio option is selected'),
+          title: const Text('单选框列表项'),
+          subtitle: const Text('选中'),
           value: 1,
           onChanged: (_) {},
           groupValue: 1,
         ),
         RadioListTile<int>(
           secondary: const Icon(Icons.info),
-          title: const Text('RadioListTile'),
-          subtitle: const Text('The radio option and list tile is selected'),
+          title: const Text('单选框列表项'),
+          subtitle: const Text('选中且高亮'),
           value: 1,
           selected: true,
           onChanged: (_) {},
@@ -1223,12 +1063,11 @@ class AlertDialogShowcase extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Allow location services'),
-      content: const Text('Let us help determine location. This means '
-          'sending anonymous location data to us'),
+      title: const Text('启动位置服务'),
+      content: const Text('帮助确定位置，需要发送匿名位置信息'),
       actions: <Widget>[
-        TextButton(onPressed: () {}, child: const Text('CANCEL')),
-        TextButton(onPressed: () {}, child: const Text('ALLOW')),
+        TextButton(onPressed: () {}, child: const Text('取消')),
+        TextButton(onPressed: () {}, child: const Text('允许')),
       ],
       actionsPadding: const EdgeInsets.symmetric(horizontal: 16),
     );
@@ -1244,42 +1083,30 @@ class MaterialAndBottomSheetShowcase extends StatelessWidget {
     final ColorScheme colorScheme = theme.colorScheme;
     final bool isLight = theme.brightness == Brightness.light;
 
-    final Color defaultBackgroundColor = isLight
-        ? Color.alphaBlend(
-            colorScheme.onSurface.withOpacity(0.80), colorScheme.surface)
-        : colorScheme.onSurface;
-    final Color snackBackground =
-        theme.snackBarTheme.backgroundColor ?? defaultBackgroundColor;
-    final Color snackForeground =
-        ThemeData.estimateBrightnessForColor(snackBackground) ==
-                Brightness.light
-            ? Colors.black
-            : Colors.white;
-    final TextStyle snackStyle = theme.snackBarTheme.contentTextStyle ??
-        ThemeData(brightness: Brightness.light)
-            .textTheme
-            .titleMedium!
-            .copyWith(color: snackForeground);
+    final Color defaultBackgroundColor = isLight ? Color.alphaBlend(colorScheme.onSurface.withOpacity(0.80), colorScheme.surface) : colorScheme.onSurface;
+    final Color snackBackground = theme.snackBarTheme.backgroundColor ?? defaultBackgroundColor;
+    final Color snackForeground = ThemeData.estimateBrightnessForColor(snackBackground) == Brightness.light ? Colors.black : Colors.white;
+    final TextStyle snackStyle =
+        theme.snackBarTheme.contentTextStyle ?? ThemeData(brightness: Brightness.light).textTheme.titleMedium!.copyWith(color: snackForeground);
     final TextStyle denseHeader = theme.textTheme.titleMedium!.copyWith(
       fontSize: 13,
     );
-    final TextStyle denseBody = theme.textTheme.bodyMedium!
-        .copyWith(fontSize: 12, color: theme.textTheme.bodySmall!.color);
+    final TextStyle denseBody = theme.textTheme.bodyMedium!.copyWith(fontSize: 12, color: theme.textTheme.bodySmall!.color);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         MaterialBanner(
           padding: const EdgeInsets.all(20),
-          content: const Text('Hello, I am a Material Banner'),
-          leading: const Icon(Icons.agriculture_outlined),
+          content: const Text('提示横幅'),
+          leading: const Icon(Icons.notifications),
           actions: <Widget>[
             TextButton(
-              child: const Text('OPEN'),
+              child: const Text('打开'),
               onPressed: () {},
             ),
             TextButton(
-              child: const Text('DISMISS'),
+              child: const Text('忽略'),
               onPressed: () {},
             ),
           ],
@@ -1365,7 +1192,7 @@ class MaterialAndBottomSheetShowcase extends StatelessWidget {
                   children: <Widget>[
                     const SizedBox(height: 20),
                     Text(
-                      'A Material BottomSheet',
+                      '底部弹框',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     Text(
@@ -1381,9 +1208,7 @@ class MaterialAndBottomSheetShowcase extends StatelessWidget {
                       child: SizedBox(
                         height: 40,
                         child: Center(
-                          child: Text(
-                              'A Material SnackBar, style simulation only',
-                              style: snackStyle),
+                          child: Text('底部提示横幅', style: snackStyle),
                         ),
                       ),
                     ),
@@ -1407,14 +1232,13 @@ class CardShowcase extends StatelessWidget {
     final TextStyle denseHeader = theme.textTheme.titleMedium!.copyWith(
       fontSize: 13,
     );
-    final TextStyle denseBody = theme.textTheme.bodyMedium!
-        .copyWith(fontSize: 12, color: theme.textTheme.bodySmall!.color);
+    final TextStyle denseBody = theme.textTheme.bodyMedium!.copyWith(fontSize: 12, color: theme.textTheme.bodySmall!.color);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text('Card', style: denseHeader),
+          child: Text('卡片', style: denseHeader),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1427,7 +1251,7 @@ class CardShowcase extends StatelessWidget {
           elevation: 0,
           child: SizedBox(
             height: 50,
-            child: Center(child: Text('Card, elevation 0')),
+            child: Center(child: Text('卡片, 海拔 0')),
           ),
         ),
         const SizedBox(height: 10),
@@ -1435,7 +1259,7 @@ class CardShowcase extends StatelessWidget {
           elevation: 1,
           child: SizedBox(
             height: 50,
-            child: Center(child: Text('Card, elevation 1')),
+            child: Center(child: Text('卡片, 海拔 1')),
           ),
         ),
         const SizedBox(height: 10),
@@ -1443,7 +1267,7 @@ class CardShowcase extends StatelessWidget {
           elevation: 4,
           child: SizedBox(
             height: 50,
-            child: Center(child: Text('Card, elevation 4')),
+            child: Center(child: Text('卡片, 海拔 4')),
           ),
         ),
         const SizedBox(height: 10),
@@ -1451,7 +1275,7 @@ class CardShowcase extends StatelessWidget {
           elevation: 8,
           child: SizedBox(
             height: 50,
-            child: Center(child: Text('Card, elevation 8')),
+            child: Center(child: Text('卡片, 海拔 8')),
           ),
         ),
       ],
@@ -1473,14 +1297,12 @@ class PrimaryTextThemeShowcase extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextThemeColumnShowcase(
-        textTheme: Theme.of(context).primaryTextTheme);
+    return TextThemeColumnShowcase(textTheme: Theme.of(context).primaryTextTheme);
   }
 }
 
 class TextThemeColumnShowcase extends StatelessWidget {
-  const TextThemeColumnShowcase({Key? key, required this.textTheme})
-      : super(key: key);
+  const TextThemeColumnShowcase({Key? key, required this.textTheme}) : super(key: key);
   final TextTheme textTheme;
 
   @override
@@ -1488,9 +1310,7 @@ class TextThemeColumnShowcase extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('Font: ${textTheme.titleSmall!.fontFamily}',
-            style:
-                textTheme.titleMedium!.copyWith(fontWeight: FontWeight.w600)),
+        Text('字体: ${textTheme.titleSmall!.fontFamily}', style: textTheme.titleMedium!.copyWith(fontWeight: FontWeight.w600)),
         Text(
           'Display Large '
           '(${textTheme.displayLarge!.fontSize!.toStringAsFixed(0)})',

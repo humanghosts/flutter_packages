@@ -58,7 +58,11 @@ abstract class ThemeListener {
   /// 获取主题
   ThemeTemplate get themeTemplate => themeConfig.templateInUse.value;
 
+  /// 使用Theme.of(Get.context!)获取当前主题数据
   ThemeData get themeData => Theme.of(Get.context!);
+
+  bool get isLightMode => brightness == Brightness.light;
+  bool get isDarkMode => brightness == Brightness.dark;
 
   /// 应用渲染时调用
   void onWidgetBuildTheme() {
@@ -172,6 +176,10 @@ abstract class OverlayHelper {
   void onOverlayReRender();
 }
 
+class _AppAnimation extends ChangeNotifier {
+  _AppAnimation._();
+}
+
 /// 主页控制器
 class AppLogic extends GetxController with OrientationListener, ThemeListener, AppLifecycleListener, OverlayHelper {
   AppLogic._();
@@ -179,6 +187,8 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
   static AppLogic get instance => Get.put<AppLogic>(AppLogic._());
 
   late final AppConfig config;
+
+  final _AppAnimation _animation = _AppAnimation._();
 
   static AppConfig get appConfig => instance.config;
 

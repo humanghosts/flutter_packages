@@ -106,12 +106,8 @@ class SwitchListTileAdaptive extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SwitchListTile.adaptive(
-      activeColor: activeColor ??
-          Theme.of(context)
-              .switchTheme
-              .thumbColor
-              ?.resolve(<MaterialState>{MaterialState.selected}) ??
-          Theme.of(context).colorScheme.secondary,
+      activeColor:
+          activeColor ?? Theme.of(context).switchTheme.thumbColor?.resolve(<MaterialState>{MaterialState.selected}) ?? Theme.of(context).colorScheme.secondary,
       value: value,
       onChanged: onChanged,
       title: title,
