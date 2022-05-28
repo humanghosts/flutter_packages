@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/hg_framework.dart';
-import 'package:hg_framework/view/page.dart' as hg;
+import 'package:hg_framework/view/page/page.dart' as hg;
 
 import 'panel/android_bar.dart';
 import 'panel/app_bar.dart';

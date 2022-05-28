@@ -29,12 +29,6 @@ dependencies:
   # 异常处理 暂时不需要，是上报服务器的异常
   # sentry_flutter: ^6.2.2
 
-  # 主题
-  flex_color_scheme: ^5.0.1
-  # 颜色选择
-  flex_color_picker: ^2.5.0
-  google_fonts:
-
   ## 设备功能的库
   # 路径
   path_provider: ^2.0.9
@@ -62,18 +56,16 @@ dependencies:
   fluttertoast: ^8.0.9
 
   ## 布局的库
-  # 底部弹框
-  modal_bottom_sheet: ^2.0.1
   # 角标
   badges: ^2.0.2
 
   ## 图标、动画、字体的库
   animated_text_kit:
-
-  # 介绍页
-  introduction_screen: ^3.0.0
-  # 新手指导
-  tutorial_coach_mark: ^1.2.1
+  # 主题
+  flex_color_scheme: ^5.0.1
+  # 颜色选择
+  flex_color_picker: ^2.5.0
+  google_fonts:
 
 
 dev_dependencies:

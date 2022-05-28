@@ -5,6 +5,8 @@ export 'navigation_bar_label_behavior_buttons.dart';
 export 'navigation_rail_label_type_buttons.dart';
 export 'page_body.dart';
 export 'responsive_dialog.dart';
+export 'responsive_list.dart';
+export 'responsive_scaffold.dart';
 export 'stateful_header_card.dart';
 export 'switch_list_tile_adaptive.dart';
 export 'syntax_highlighter.dart';

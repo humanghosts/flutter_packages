@@ -2,10 +2,10 @@ import 'package:hg_entity/hg_entity.dart';
 import 'package:hg_framework/ability/shared_preferences/prefs.dart';
 import 'package:hg_framework/app/app_config.dart';
 import 'package:hg_framework/app/app_logic.dart';
-import 'package:hg_framework/entity/entities.dart';
 import 'package:hg_orm/hg_orm.dart';
 
 import '../ability/export.dart';
+import '../entity/export.dart';
 
 /// 初始化
 class AppInit {
@@ -18,11 +18,11 @@ class AppInit {
     // 数据库初始化
     await _databaseInit(config.databaseConfig);
     // 当前包下的模型和dao注册
-    getEntitiesMap().forEach(ConstructorCache.put);
-    getDaoMap().forEach(DaoCache.put);
+    _getEntitiesMap().forEach(ConstructorCache.put);
+    _getDaoMap().forEach(DaoCache.put);
     // 传入的模型和dao注册
-    config.entityAndDao?.entityMap.forEach(ConstructorCache.put);
-    config.entityAndDao?.daoMap.forEach(DaoCache.put);
+    config.entityAndDao?.getEntityMap?.call().forEach(ConstructorCache.put);
+    config.entityAndDao?.getDaoMap?.call().forEach(DaoCache.put);
     // 预置数据
     await _presetDataInit(config.presetData);
     // 主题等数据加载
@@ -44,19 +44,19 @@ typedef EntityConstructor = Object Function([Map<String, dynamic>? args]);
 /// Entity注册的时候需要注意依赖关系，被依赖的先注册
 /// 如果相互依赖，在先注册entity的构造方法中手动构建后注册的对象，默认对于Model类型的时候通过类型去构造器缓存中取
 class EntityAndDao {
-  late final Map<Type, EntityConstructor> entityMap;
-  late final Map<Type, Dao> daoMap;
+  late final Map<Type, EntityConstructor> Function()? getEntityMap;
+  late final Map<Type, Dao> Function()? getDaoMap;
 
-  EntityAndDao({Map<Type, EntityConstructor>? entityMap, Map<Type, Dao>? daoMap}) {
-    this.entityMap = entityMap ?? {};
-    this.daoMap = daoMap ?? {};
-  }
+  EntityAndDao({
+    this.getEntityMap,
+    this.getDaoMap,
+  });
 }
 
 /// 预置数据
 class PresetData {
-  final Map<Type, List<DataModel> Function()>? dataModelMap;
-  final Map<Type, SimpleModel Function()>? simpleModelMap;
+  final Map<Type, List<DataModel> Function()>? Function()? dataModelMap;
+  final Map<Type, SimpleModel Function()>? Function()? simpleModelMap;
 
   PresetData({this.dataModelMap, this.simpleModelMap});
 }
@@ -65,11 +65,11 @@ class PresetData {
 Future<void> _presetDataInit(PresetData? presetData) async {
   String key = "is_preset_data_init";
   bool? isInitData = DatabaseHelper.database.kv.get(key);
-  if (isInitData == true) return;
-  Map<Type, List<DataModel> Function()> dataModelMap = presetData?.dataModelMap ?? {};
-  Map<Type, SimpleModel Function()> simpleModelMap = presetData?.simpleModelMap ?? {};
-  dataModelMap.addAll(getDataModelInitData());
-  simpleModelMap.addAll(getSimpleModelInitData());
+  // if (isInitData == true) return;
+  Map<Type, List<DataModel> Function()> dataModelMap = presetData?.dataModelMap?.call() ?? {};
+  Map<Type, SimpleModel Function()> simpleModelMap = presetData?.simpleModelMap?.call() ?? {};
+  dataModelMap.addAll(_getDataModelInitData());
+  simpleModelMap.addAll(_getSimpleModelInitData());
   // 插入数据
   await DatabaseHelper.transaction((tx) async {
     for (Type key in dataModelMap.keys) {
@@ -92,4 +92,48 @@ Future<void> workInit() async {
   // await BackgroundWorkHelper.init();
   // 前台人物初始化
   await ForegroundWorkHelper.init();
+}
+
+/// 注册entity
+Map<Type, EntityConstructor> _getEntitiesMap() {
+  return {
+    // custom value
+    ThemeModeValue: ([args]) => ThemeModeValue(),
+    FlexSchemeValue: ([args]) => FlexSchemeValue(),
+    FlexSurfaceModeValue: ([args]) => FlexSurfaceModeValue(),
+    SchemeColorValue: ([args]) => SchemeColorValue(),
+    FlexAppBarStyleValue: ([args]) => FlexAppBarStyleValue(),
+    FlexTabBarStyleValue: ([args]) => FlexTabBarStyleValue(),
+    FlexInputBorderTypeValue: ([args]) => FlexInputBorderTypeValue(),
+    FlexSystemNavBarStyleValue: ([args]) => FlexSystemNavBarStyleValue(),
+    NavigationDestinationLabelBehaviorValue: ([args]) => NavigationDestinationLabelBehaviorValue(),
+    NavigationRailLabelTypeValue: ([args]) => NavigationRailLabelTypeValue(),
+    ColorValue: ([args]) => ColorValue(),
+    // data model
+    ThemeTemplate: ([args]) => ThemeTemplate(),
+    // simple model
+    ThemeConfig: ([args]) => ThemeConfig(),
+  };
+}
+
+/// 注册dao
+Map<Type, Dao> _getDaoMap() {
+  return {
+    ThemeTemplate: SembastDataDao<ThemeTemplate>(),
+    ThemeConfig: SembastSimpleDao<ThemeConfig>(),
+  };
+}
+
+/// 数据模型的初始化数据
+Map<Type, List<DataModel> Function()> _getDataModelInitData() {
+  return {
+    ThemeTemplate: () => ThemeTemplate.initData,
+  };
+}
+
+/// 简单模型的初始化数据
+Map<Type, SimpleModel Function()> _getSimpleModelInitData() {
+  return {
+    ThemeConfig: () => ThemeConfig.initData,
+  };
 }

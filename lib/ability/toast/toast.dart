@@ -34,80 +34,40 @@ class ToastHelper {
 
   /// 单选提示框
   /// TODO 安卓等其他平台处理
-  static Future<bool?> showOneChoiceRequest({
+  static Future<bool?> showOneChoiceDeleteRequest({
     String msg = "确定删除吗?",
     String doneText = "删除",
     String cancelText = "取消",
   }) async {
-    return await showCupertinoModalPopup<bool>(
-      context: Get.context!,
-      barrierDismissible: false,
-      semanticsDismissible: false,
-      builder: (context) {
-        return CupertinoActionSheet(
-          message: Text(msg, style: const TextStyle(fontSize: 20)),
-          actions: <Widget>[
-            CupertinoActionSheetAction(
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                RouteHelper.back(result: true);
-              },
-              isDestructiveAction: true,
-              child: Text(doneText),
-            ),
-          ],
-          cancelButton: CupertinoActionSheetAction(
-            child: Text(cancelText),
-            onPressed: () {
-              HapticFeedback.lightImpact();
-              RouteHelper.back(result: false);
-            },
-          ),
-        );
+    return await showRequest<bool>(
+      Get.context!,
+      valueList: [true],
+      destructiveValue: [true],
+      childBuilder: (value) {
+        return Text(doneText);
       },
+      message: Text(msg, style: const TextStyle(fontSize: 20)),
+      cancelText: cancelText,
     );
   }
 
   /// 双选提示框
-  /// TODO 安卓等其他平台处理
-  static Future<bool?> showTwoChoiceRequest({
+  static Future<bool?> showTwoChoiceDeleteRequest({
     String msg = "确定删除吗?",
     String doneText = "删除",
     String unDoneText = "不删除",
     String cancelText = "取消",
   }) async {
-    return await showCupertinoModalPopup<bool>(
-      context: Get.context!,
-      builder: (context) {
-        return CupertinoActionSheet(
-          message: Text(msg, style: const TextStyle(fontSize: 20)),
-          actions: <Widget>[
-            CupertinoActionSheetAction(
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                RouteHelper.back(result: true);
-              },
-              isDefaultAction: true,
-              child: Text(doneText, style: const TextStyle(color: Colors.green)),
-            ),
-            CupertinoActionSheetAction(
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                RouteHelper.back(result: false);
-              },
-              isDestructiveAction: true,
-              child: Text(unDoneText),
-            ),
-          ],
-          cancelButton: CupertinoActionSheetAction(
-            child: Text(cancelText),
-            onPressed: () {
-              HapticFeedback.lightImpact();
-              RouteHelper.back(result: null);
-            },
-          ),
-        );
+    return await showRequest<bool>(
+      Get.context!,
+      valueList: [true, false],
+      defaultValue: [false],
+      destructiveValue: [true],
+      childBuilder: (value) {
+        return Text(value ? doneText : unDoneText);
       },
+      message: Text(msg, style: const TextStyle(fontSize: 20)),
+      cancelText: cancelText,
     );
   }
 
@@ -120,6 +80,7 @@ class ToastHelper {
     required Widget Function(T value) childBuilder,
     List<T> defaultValue = const [],
     List<T> destructiveValue = const [],
+    String cancelText = "取消",
   }) async {
     return await showCupertinoModalPopup<T>(
       context: context,
@@ -138,7 +99,7 @@ class ToastHelper {
           message: message,
           actions: actions,
           cancelButton: CupertinoActionSheetAction(
-            child: const Text("取消"),
+            child: Text(cancelText),
             onPressed: () {
               RouteHelper.back(result: null);
             },

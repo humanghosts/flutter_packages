@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/app/app_logic.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import 'observer.dart';
 
@@ -43,64 +42,6 @@ class RouteHelper {
       barrierColor: barrierColor,
       enterBottomSheetDuration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
       exitBottomSheetDuration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
-    );
-  }
-
-  static Future<T?> cupertinoBottomSheet<T>({
-    required Widget sheet,
-    String? name,
-    Color? barrierColor,
-    bool expand = false,
-  }) async {
-    String routeName = name ?? getRouteName(sheet);
-    register(routeName, sheet);
-    return await showCupertinoModalBottomSheet(
-      context: Get.context!,
-      builder: (context) => sheet,
-      expand: expand,
-      settings: RouteSettings(name: routeName),
-      barrierColor: barrierColor,
-      enableDrag: false,
-      duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
-    );
-  }
-
-  /// 使用嵌套路由打开页面
-  static Future<T?> bottomPageNested<T>({
-    required int parentId,
-    required int nestedId,
-    required Widget page,
-    String? name,
-    bool expand = true,
-  }) async {
-    String routeName = name ?? getRouteName(page);
-    register("/$routeName", page);
-    GlobalKey<NavigatorState> getKey = Get.nestedKey(parentId)!;
-    BuildContext? context = getKey.currentState?.context;
-    context ??= Get.context!;
-    return await showCupertinoModalBottomSheet<T>(
-      context: context,
-      expand: expand,
-      backgroundColor: Colors.transparent,
-      isDismissible: false,
-      duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
-      enableDrag: false,
-      builder: (BuildContext context) {
-        return WillPopScope(
-          child: Navigator(
-            key: Get.nestedKey(nestedId),
-            initialRoute: "/",
-            onGenerateRoute: (RouteSettings settings) {
-              if (settings.name == "/") {
-                return MaterialWithModalsPageRoute(builder: (context) => page, settings: settings);
-              }
-              return null;
-            },
-            observers: [Observer(observer, ObserverRouting())],
-          ),
-          onWillPop: () async => false,
-        );
-      },
     );
   }
 

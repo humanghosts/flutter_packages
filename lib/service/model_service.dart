@@ -8,6 +8,26 @@ abstract class DataModelService<M extends DataModel> extends GetxService {
 
   /// 获取dao
   DataDao<M> get dao => DaoCache.getByType(M) as DataDao<M>;
+
+  Future<List<M>> find({Transaction? tx}) async {
+    return await dao.find(tx: tx);
+  }
+
+  Future<M?> findFirst({Transaction? tx}) async {
+    return await dao.findFirst(tx: tx);
+  }
+
+  Future<M?> findById(String id) async {
+    return await dao.findByID(id);
+  }
+
+  Future<void> save(M model, {Transaction? tx}) async {
+    await dao.save(model, tx: tx);
+  }
+
+  Future<void> remove(M model, {Transaction? tx}) async {
+    await dao.remove(model, tx: tx);
+  }
 }
 
 abstract class SimpleModelService<M extends SimpleModel> extends GetxService {
@@ -31,5 +51,9 @@ abstract class SimpleModelService<M extends SimpleModel> extends GetxService {
       }
     });
     return resultLst[0];
+  }
+
+  Future<void> save(M model, {Transaction? tx}) async {
+    await dao.save(model, tx: tx);
   }
 }

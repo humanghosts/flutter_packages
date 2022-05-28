@@ -2,10 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hg_framework/app/app_config.dart';
 import 'package:hg_framework/hg_framework.dart';
-
-import '../ability/log/log.dart';
 
 /// 应用助手
 class AppHelper {

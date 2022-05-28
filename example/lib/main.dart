@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hg_framework/ability/export.dart';
 import 'package:hg_framework/hg_framework.dart';
-import 'package:hg_framework/view/page/theme/theme_config.dart';
 import 'package:hg_orm/hg_orm.dart';
 
 class HgLoggerConfig extends AppConfig {
@@ -48,7 +46,7 @@ class Home extends View<HomeLogic> {
           ),
         );
       },
-      child: Text("push"),
+      child: Text('\u{1f600}'),
     );
   }
 }

@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 import 'package:hg_framework/ability/export.dart';
 import 'package:hg_framework/ability/shared_preferences/prefs.dart';
 import 'package:hg_framework/hg_framework.dart';
-import 'package:hg_framework/view/page.dart' as hg;
+import 'package:hg_framework/view/page/page.dart' as hg;
 
 import 'theme_template.dart';
 

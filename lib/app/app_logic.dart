@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -62,6 +63,7 @@ abstract class ThemeListener {
   ThemeData get themeData => Theme.of(Get.context!);
 
   bool get isLightMode => brightness == Brightness.light;
+
   bool get isDarkMode => brightness == Brightness.dark;
 
   /// 应用渲染时调用
@@ -188,8 +190,6 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
 
   late final AppConfig config;
 
-  final _AppAnimation _animation = _AppAnimation._();
-
   static AppConfig get appConfig => instance.config;
 
   static ThemeTemplate get currentThemeTemplate => instance.themeTemplate;
@@ -251,4 +251,6 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
   void onOverlayReRender() {
     overlayUpdateFlag.value++;
   }
+
+  bool get isPhone => Platform.isIOS || Platform.isAndroid;
 }

@@ -91,6 +91,10 @@ abstract class View<L extends ViewLogic> extends StatelessWidget {
   /// 逻辑控制器
   late final L logic;
 
+  get args => logic.args;
+
+  get dataSource => logic.dataSource;
+
   /// 构造
   View({required String key, required L logic, ViewArgs? args, ViewDataSource? dataSource}) : super(key: ValueKey("${key}_$L")) {
     this.logic = Get.put<L>(logic, tag: key);
@@ -100,6 +104,7 @@ abstract class View<L extends ViewLogic> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    screen.context = context;
     return GetBuilder<L>(
       init: logic,
       tag: logic.key,
@@ -112,6 +117,19 @@ abstract class View<L extends ViewLogic> extends StatelessWidget {
       dispose: (state) => logic.onWidgetDispose(context, state),
       builder: (logic) {
         logic.onWidgetBuild(context);
+        Widget? widget;
+        if (screen.isDesktop) {
+          widget = buildDesktop(context);
+          if (widget != null) return widget;
+        }
+        if (screen.isTablet) {
+          widget = buildTablet(context) ?? buildDesktop(context);
+          if (widget != null) return widget;
+        }
+        if (screen.isWatch) {
+          widget = buildWatch(context);
+          if (widget != null) return widget;
+        }
         return buildView(context);
       },
     );
@@ -120,10 +138,18 @@ abstract class View<L extends ViewLogic> extends StatelessWidget {
   /// 构建页面
   Widget buildView(BuildContext context);
 
+  Widget? buildDesktop(BuildContext context) => buildView(context);
+
+  Widget? buildTablet(BuildContext context) => buildView(context);
+
+  Widget? buildWatch(BuildContext context) => buildView(context);
+
   /// 创建子组件key：$key_$type[_$uniqueKey]
   /// [type]子组件类型
   /// [uniqueKey]子组件多个的时候，传入唯一标识
   LocalKey getChildKey(Type type, [String? uniqueKey]) {
     return ValueKey("${key}_$type${null == uniqueKey ? "" : "_$uniqueKey"}");
   }
+
+  final ResponsiveScreen screen = ResponsiveScreen(const ResponsiveScreenSettings());
 }
