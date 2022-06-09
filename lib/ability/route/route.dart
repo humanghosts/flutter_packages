@@ -79,4 +79,30 @@ class RouteHelper {
   static String getRouteName(Widget widget) {
     return widget.runtimeType.toString() + widget.hashCode.toString();
   }
+
+  static Future<T?> dialog<T>(
+    Widget widget, {
+    bool? barrierDismissible,
+    Color? barrierColor,
+    bool? useSafeArea,
+    GlobalKey<NavigatorState>? navigatorKey,
+    Object? arguments,
+    Duration? transitionDuration,
+    Curve? transitionCurve,
+    String? name,
+    RouteSettings? routeSettings,
+  }) async {
+    return await Get.dialog(
+      widget,
+      barrierDismissible: barrierDismissible ?? false,
+      barrierColor: barrierColor ?? Colors.transparent,
+      useSafeArea: useSafeArea ?? true,
+      navigatorKey: navigatorKey,
+      arguments: arguments,
+      transitionDuration: transitionDuration,
+      transitionCurve: transitionCurve,
+      name: name,
+      routeSettings: routeSettings,
+    );
+  }
 }
