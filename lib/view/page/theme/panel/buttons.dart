@@ -1,9 +1,9 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:hg_framework/hg_framework.dart';
-import 'shared/panel.dart';
 
 import 'shared/color_scheme_popup_menu.dart';
+import 'shared/panel.dart';
 
 /// 外部参数
 @immutable
@@ -60,7 +60,7 @@ class ButtonsView extends PanelView<ButtonsLogic> {
 
   @override
   Widget buildView(BuildContext context) {
-    ThemeData theme = logic.theme(context);
+    ThemeData theme = logic.contextTheme(context);
     SchemeColor? textButtonSchemeColor = logic.template.textButtonSchemeColor.value.scheme;
     double? textButtonBorderRadius = logic.template.textButtonBorderRadius.value;
     SchemeColor? elevatedButtonSchemeColor = logic.template.elevatedButtonSchemeColor.value.scheme;

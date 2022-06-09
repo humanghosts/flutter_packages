@@ -77,7 +77,7 @@ class SurfaceBlendsView extends PanelView<SurfaceBlendsLogic> {
   @override
   Widget buildView(BuildContext context) {
     bool isLight = logic.isLight(context);
-    ThemeData theme = logic.theme(context);
+    ThemeData theme = logic.contextTheme(context);
 
     FlexSurfaceMode flexSurfaceMode = isLight ? logic.template.surfaceModeLight.value.mode : logic.template.surfaceModeDark.value.mode;
     int blendLevel = isLight ? logic.template.blendLevel.value : logic.template.blendLevelDark.value;

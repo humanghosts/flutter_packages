@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hg_framework/app/app_logic.dart';
+import 'package:hg_framework/hg_framework.dart';
 
 /// 页面外部参数
 @immutable
@@ -84,6 +86,9 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
   /// GetStatefulWidget组件Stated的dispose回调
   /// 需要注意的是该方法是绑定组件，[onDelete]或[onClose]是绑定控制器，两者的生命周期不一样
   void onWidgetDispose(BuildContext context, GetBuilderState state) {}
+
+  ThemeData get theme => AppLogic.instance.themeData;
+  ThemeTemplate get themeTemplate => AppLogic.instance.themeTemplate;
 }
 
 /// 页面组件
@@ -104,7 +109,6 @@ abstract class View<L extends ViewLogic> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    screen.context = context;
     return GetBuilder<L>(
       init: logic,
       tag: logic.key,
@@ -116,21 +120,10 @@ abstract class View<L extends ViewLogic> extends StatelessWidget {
       didUpdateWidget: (oldWidget, state) => logic.onWidgetDidUpdateWidget(context, oldWidget, state),
       dispose: (state) => logic.onWidgetDispose(context, state),
       builder: (logic) {
-        logic.onWidgetBuild(context);
-        Widget? widget;
-        if (screen.isDesktop) {
-          widget = buildDesktop(context);
-          if (widget != null) return widget;
-        }
-        if (screen.isTablet) {
-          widget = buildTablet(context) ?? buildDesktop(context);
-          if (widget != null) return widget;
-        }
-        if (screen.isWatch) {
-          widget = buildWatch(context);
-          if (widget != null) return widget;
-        }
-        return buildView(context);
+        return Builder(builder: (context) {
+          logic.onWidgetBuild(context);
+          return buildView(context);
+        });
       },
     );
   }
@@ -138,18 +131,10 @@ abstract class View<L extends ViewLogic> extends StatelessWidget {
   /// 构建页面
   Widget buildView(BuildContext context);
 
-  Widget? buildDesktop(BuildContext context) => buildView(context);
-
-  Widget? buildTablet(BuildContext context) => buildView(context);
-
-  Widget? buildWatch(BuildContext context) => buildView(context);
-
   /// 创建子组件key：$key_$type[_$uniqueKey]
   /// [type]子组件类型
   /// [uniqueKey]子组件多个的时候，传入唯一标识
   LocalKey getChildKey(Type type, [String? uniqueKey]) {
     return ValueKey("${key}_$type${null == uniqueKey ? "" : "_$uniqueKey"}");
   }
-
-  final ResponsiveScreen screen = ResponsiveScreen(const ResponsiveScreenSettings());
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/app/app_logic.dart';
+import 'package:hg_framework/hg_framework.dart';
 
 import 'observer.dart';
 
@@ -50,15 +51,15 @@ class RouteHelper {
   }
 
   /// 打开新的页面
-  static void to({
+  static Future<T?> to<T>({
     int? id,
     required Widget page,
     String? name,
     bool fullScreenDialog = false,
-  }) {
+  }) async {
     String routeName = name ?? getRouteName(page);
     register("/$routeName", page);
-    Get.to(
+    return await Get.to<T>(
       () => page,
       id: id,
       routeName: routeName,
@@ -68,10 +69,10 @@ class RouteHelper {
   }
 
   /// 压入给定的page，然后在堆栈中弹出多个页面，直到predicate返回 true
-  static void offUntilAndToPage({int? id, required Widget page, required RoutePredicate predicate, String? name}) {
+  static Future<T?> offUntilAndToPage<T>({int? id, required Widget page, required RoutePredicate predicate, String? name}) async {
     String routeName = name ?? getRouteName(page);
     register("/$routeName", page);
-    Get.offUntil(GetPageRoute(page: () => page, routeName: routeName), predicate, id: id);
+    return await Get.offUntil<T>(GetPageRoute(page: () => page, routeName: routeName), predicate, id: id);
   }
 
   /// 获取路由名称

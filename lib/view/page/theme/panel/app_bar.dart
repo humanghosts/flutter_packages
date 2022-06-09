@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:hg_framework/hg_framework.dart';
-import 'shared/panel.dart';
 
 import 'shared/color_scheme_popup_menu.dart';
+import 'shared/panel.dart';
 
 /// 外部参数
 @immutable
@@ -73,7 +73,7 @@ class AppBarView extends PanelView<AppBarLogic> {
 
   @override
   Widget buildView(BuildContext context) {
-    final ThemeData theme = logic.theme(context);
+    final ThemeData theme = logic.contextTheme(context);
     final bool isLight = logic.isLight(context);
     SchemeColor? appBarBackgroundSchemeColor =
         isLight ? logic.template.appBarBackgroundSchemeColorLight.value.scheme : logic.template.appBarBackgroundSchemeColorDark.value.scheme;

@@ -53,7 +53,11 @@ dependencies:
   # 日志
   logger: ^1.1.0
   # 提示
-  fluttertoast: ^8.0.9
+  # 不支持全平台，暂时不用了
+#  fluttertoast: ^8.0.9
+  flutter_easyloading:
+  # 日期格式化
+  date_format: ^2.0.6
 
   ## 布局的库
   # 角标

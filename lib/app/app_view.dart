@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/ability/export.dart';
@@ -60,6 +61,7 @@ abstract class App extends StatelessWidget with WidgetsBindingObserver {
                 Observer(RouteHelper.observer, ObserverRouting()),
               ],
               home: buildHome(),
+              builder: EasyLoading.init(),
               locale: const Locale('zh', 'CN'),
               supportedLocales: const <Locale>[Locale('zh', 'CN')],
               localizationsDelegates: const [
@@ -80,7 +82,7 @@ abstract class App extends StatelessWidget with WidgetsBindingObserver {
   /// 构建蒙版
   Widget buildOverlay() {
     return Obx(() {
-      debugPrint("蒙版更新次数${logic.overlayUpdateFlag.value}");
+      logic.overlayUpdateFlag.value;
       Map<int, Set<String>> indexOverlay = logic.indexOverlay;
       if (indexOverlay.isEmpty) return Container();
       // stack子组件

@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:io';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -178,10 +178,6 @@ abstract class OverlayHelper {
   void onOverlayReRender();
 }
 
-class _AppAnimation extends ChangeNotifier {
-  _AppAnimation._();
-}
-
 /// 主页控制器
 class AppLogic extends GetxController with OrientationListener, ThemeListener, AppLifecycleListener, OverlayHelper {
   AppLogic._();
@@ -252,5 +248,20 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
     overlayUpdateFlag.value++;
   }
 
-  bool get isPhone => Platform.isIOS || Platform.isAndroid;
+  /// 是否是桌面平台
+  static bool get isDesktop {
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.fuchsia:
+      case TargetPlatform.linux:
+      case TargetPlatform.windows:
+      case TargetPlatform.macOS:
+        return true;
+      case TargetPlatform.android:
+      case TargetPlatform.iOS:
+        return false;
+    }
+  }
+
+  /// 是否移动平台
+  static bool get isMobile => !isDesktop;
 }

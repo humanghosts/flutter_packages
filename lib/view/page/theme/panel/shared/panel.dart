@@ -23,11 +23,11 @@ class PanelDataSource extends ViewDataSource {
 class PanelLogic<A extends PanelArgs, D extends PanelDataSource> extends ViewLogic<A, D> {
   ThemeTemplate get template => dataSource.template;
 
-  bool isLight(BuildContext context) => theme(context).brightness == Brightness.light;
+  bool isLight(BuildContext context) => contextTheme(context).brightness == Brightness.light;
 
-  bool isDark(BuildContext context) => theme(context).brightness == Brightness.dark;
+  bool isDark(BuildContext context) => contextTheme(context).brightness == Brightness.dark;
 
-  ThemeData theme(BuildContext context) => Theme.of(context);
+  ThemeData contextTheme(BuildContext context) => Theme.of(context);
 }
 
 /// 页面

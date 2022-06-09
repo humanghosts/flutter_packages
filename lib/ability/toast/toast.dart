@@ -1,22 +1,19 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:hg_framework/app/app_logic.dart';
+import 'package:hg_framework/hg_framework.dart';
 
-import '../export.dart';
+import '../../view/components/popup_menu.dart';
 
 class ToastHelper {
   ToastHelper._();
 
   /// 提示框
-  static void toast({
-    String? msg,
-    ToastGravity? gravity,
-  }) {
-    ThemeData themeData = AppLogic.instance.themeData;
-    Fluttertoast.showToast(msg: msg ?? "", backgroundColor: themeData.disabledColor, gravity: gravity ?? ToastGravity.CENTER);
+  static void toast({String? msg}) {
+    EasyLoading.showToast(msg ?? "");
   }
 
   /// 应用内提示
@@ -33,7 +30,6 @@ class ToastHelper {
   }
 
   /// 单选提示框
-  /// TODO 安卓等其他平台处理
   static Future<bool?> showOneChoiceDeleteRequest({
     String msg = "确定删除吗?",
     String doneText = "删除",
@@ -46,7 +42,7 @@ class ToastHelper {
       childBuilder: (value) {
         return Text(doneText);
       },
-      message: Text(msg, style: const TextStyle(fontSize: 20)),
+      message: Center(child: Text(msg)),
       cancelText: cancelText,
     );
   }
@@ -66,13 +62,12 @@ class ToastHelper {
       childBuilder: (value) {
         return Text(value ? doneText : unDoneText);
       },
-      message: Text(msg, style: const TextStyle(fontSize: 20)),
+      message: Center(child: Text(msg)),
       cancelText: cancelText,
     );
   }
 
-  /// 双选提示框
-  /// TODO 安卓等其他平台处理
+  /// 提示框
   static Future<T?> showRequest<T>(
     BuildContext context, {
     Widget? message,
@@ -82,31 +77,25 @@ class ToastHelper {
     List<T> destructiveValue = const [],
     String cancelText = "取消",
   }) async {
-    return await showCupertinoModalPopup<T>(
-      context: context,
-      builder: (context) {
-        List<CupertinoActionSheetAction> actions = valueList.map((value) {
-          return CupertinoActionSheetAction(
-            onPressed: () {
-              RouteHelper.back(result: value);
-            },
-            isDefaultAction: defaultValue.contains(value),
-            isDestructiveAction: destructiveValue.contains(value),
-            child: childBuilder(value),
-          );
-        }).toList();
-        return CupertinoActionSheet(
+    switch (defaultTargetPlatform) {
+
+      /// TODO 安卓等其他平台处理
+      case TargetPlatform.android:
+      case TargetPlatform.fuchsia:
+      case TargetPlatform.linux:
+      case TargetPlatform.windows:
+      case TargetPlatform.macOS:
+      case TargetPlatform.iOS:
+        return await _showCupertinoPopup(
+          context,
+          valueList: valueList,
+          childBuilder: childBuilder,
           message: message,
-          actions: actions,
-          cancelButton: CupertinoActionSheetAction(
-            child: Text(cancelText),
-            onPressed: () {
-              RouteHelper.back(result: null);
-            },
-          ),
+          defaultValue: defaultValue,
+          destructiveValue: destructiveValue,
+          cancelText: cancelText,
         );
-      },
-    );
+    }
   }
 
   /// 显示蒙版
@@ -144,5 +133,118 @@ class ToastHelper {
     });
     overlayState.insert(overlayEntryOpacity);
     overlayState.insert(overlayEntryLoader);
+  }
+
+  /// 显示漂浮菜单
+  /// 出了ios都是用menu，ios使用modalPopup
+  static Future<T?> showContextMenu<T>(
+    BuildContext context, {
+    Widget? message,
+    required List<T> valueList,
+    required Widget Function(T value) childBuilder,
+    List<T> defaultValue = const [],
+    List<T> destructiveValue = const [],
+    String cancelText = "取消",
+  }) async {
+    switch (defaultTargetPlatform) {
+      // TODO android
+      case TargetPlatform.android:
+      case TargetPlatform.fuchsia:
+      case TargetPlatform.linux:
+      case TargetPlatform.windows:
+      case TargetPlatform.macOS:
+        return await _showDeskTopContextMenu(context, valueList: valueList, childBuilder: childBuilder);
+      case TargetPlatform.iOS:
+        return await _showCupertinoPopup(
+          context,
+          valueList: valueList,
+          childBuilder: childBuilder,
+          message: message,
+          defaultValue: defaultValue,
+          destructiveValue: destructiveValue,
+          cancelText: cancelText,
+        );
+    }
+  }
+
+  /// 桌面端菜单按钮
+  static Future<T?> _showDeskTopContextMenu<T>(
+    BuildContext context, {
+    required List<T> valueList,
+    required Widget Function(T value) childBuilder,
+  }) async {
+    // 菜单项
+    List<PopupMenuEntry<T>> items = [];
+    for (int i = 0; i < valueList.length; i++) {
+      T value = valueList[i];
+      items.add(RawPopupMenuItem(
+        value: value,
+        child: childBuilder(value),
+      ));
+      if (i != valueList.length - 1) {
+        items.add(const PopupMenuDivider());
+      }
+    }
+    // 样式
+    final PopupMenuThemeData popupMenuTheme = PopupMenuTheme.of(context);
+    // 发起菜单的组件
+    final RenderBox button = context.findRenderObject()! as RenderBox;
+    final RenderBox overlay = Navigator.of(context).overlay!.context.findRenderObject()! as RenderBox;
+    final Offset offset = Offset(button.size.width, 0);
+    // 菜单位置
+    final RelativeRect position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        button.localToGlobal(offset, ancestor: overlay),
+        button.localToGlobal(button.size.bottomRight(Offset.zero) + offset, ancestor: overlay),
+      ),
+      Offset.zero & overlay.size,
+    );
+    // 显示菜单
+    return await showMenu<T?>(
+      context: context,
+      elevation: popupMenuTheme.elevation,
+      items: items,
+      position: position,
+      shape: popupMenuTheme.shape,
+      color: popupMenuTheme.color,
+    );
+  }
+
+  /// ios平台的弹出菜单
+  static Future<T?> _showCupertinoPopup<T>(
+    BuildContext context, {
+    Widget? message,
+    required List<T> valueList,
+    required Widget Function(T value) childBuilder,
+    List<T> defaultValue = const [],
+    List<T> destructiveValue = const [],
+    String cancelText = "取消",
+  }) async {
+    ThemeData theme = AppLogic.instance.themeData;
+    return await showCupertinoModalPopup<T>(
+      context: context,
+      builder: (context) {
+        List<CupertinoActionSheetAction> actions = valueList.map((value) {
+          return CupertinoActionSheetAction(
+            onPressed: () {
+              RouteHelper.back(result: value);
+            },
+            isDefaultAction: defaultValue.contains(value),
+            isDestructiveAction: destructiveValue.contains(value),
+            child: childBuilder(value),
+          );
+        }).toList();
+        return CupertinoActionSheet(
+          message: message == null ? null : DefaultTextStyle(style: theme.textTheme.titleLarge ?? const TextStyle(), child: message),
+          actions: actions,
+          cancelButton: CupertinoActionSheetAction(
+            child: Text(cancelText),
+            onPressed: () {
+              RouteHelper.back(result: null);
+            },
+          ),
+        );
+      },
+    );
   }
 }

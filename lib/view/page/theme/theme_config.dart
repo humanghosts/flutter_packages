@@ -285,6 +285,7 @@ class ThemeConfigView extends hg.Page<ThemeConfigViewLogic> {
   Widget buildTemplateGridItem(BuildContext context, ThemeTemplate template, bool isInUse) {
     FlexSchemeColor flexSchemeColor = template.toFlexSchemeColor();
     ThemeTemplate inUseTemplate = AppLogic.currentThemeTemplate;
+    ThemeData theme = AppLogic.instance.themeData;
     // 主题名称
     String? templateName = template.name.value;
     return Column(
