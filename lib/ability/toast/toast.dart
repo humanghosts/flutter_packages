@@ -189,15 +189,12 @@ class ToastHelper {
     final PopupMenuThemeData popupMenuTheme = PopupMenuTheme.of(context);
     // 发起菜单的组件
     final RenderBox button = context.findRenderObject()! as RenderBox;
-    final RenderBox overlay = Navigator.of(context).overlay!.context.findRenderObject()! as RenderBox;
-    final Offset offset = Offset(button.size.width, 0);
-    // 菜单位置
-    final RelativeRect position = RelativeRect.fromRect(
-      Rect.fromPoints(
-        button.localToGlobal(offset, ancestor: overlay),
-        button.localToGlobal(button.size.bottomRight(Offset.zero) + offset, ancestor: overlay),
-      ),
-      Offset.zero & overlay.size,
+    Offset global = button.localToGlobal(Offset.zero);
+    RelativeRect position = RelativeRect.fromLTRB(
+      global.dx + button.size.width,
+      global.dy,
+      Get.width,
+      Get.height,
     );
     // 显示菜单
     return await showMenu<T?>(
