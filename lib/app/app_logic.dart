@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
@@ -23,6 +24,7 @@ abstract class OrientationListener {
 
   /// 初始化
   void onWidgetBuildOrientation() {
+    if (!(Platform.isAndroid || Platform.isIOS)) return;
     _subscription = OrientationPlugin.onOrientationChange.listen((value) {
       deviceOrientation = value;
     });
