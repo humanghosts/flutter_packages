@@ -64,7 +64,7 @@ class RouteHelper {
       id: id,
       routeName: routeName,
       fullscreenDialog: fullScreenDialog,
-      duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
+      duration: AppLogic.appConfig.animationConfig.slowAnimationDuration,
     );
   }
 

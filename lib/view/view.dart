@@ -88,7 +88,14 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
   void onWidgetDispose(BuildContext context, GetBuilderState state) {}
 
   ThemeData get theme => AppLogic.instance.themeData;
+
   ThemeTemplate get themeTemplate => AppLogic.instance.themeTemplate;
+
+  AppConfig get appConfig => AppLogic.appConfig;
+
+  AnimationConfig get animationConfig => appConfig.animationConfig;
+
+  Duration get middleAnimationDuration => animationConfig.middleAnimationDuration;
 }
 
 /// 页面组件

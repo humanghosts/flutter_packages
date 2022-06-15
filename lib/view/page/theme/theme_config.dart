@@ -173,7 +173,7 @@ class ThemeConfigView extends hg.Page<ThemeConfigViewLogic> {
             child = buildTemplateGrid(context, templateList: templateList, inUseTemplate: inUseTemplate);
           }
           return AnimatedSwitcher(
-            duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
+            duration: logic.middleAnimationDuration,
             child: Container(key: ValueKey(logic.templateViewType.value), child: child),
           );
         }),

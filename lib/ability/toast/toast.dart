@@ -140,6 +140,7 @@ class ToastHelper {
   static Future<T?> showContextMenu<T>(
     BuildContext context, {
     Widget? message,
+    RelativeRect? position,
     required List<T> valueList,
     required Widget Function(T value) childBuilder,
     List<T> defaultValue = const [],
@@ -153,7 +154,7 @@ class ToastHelper {
       case TargetPlatform.linux:
       case TargetPlatform.windows:
       case TargetPlatform.macOS:
-        return await _showDeskTopContextMenu(context, valueList: valueList, childBuilder: childBuilder);
+        return await _showDeskTopContextMenu(context, valueList: valueList, childBuilder: childBuilder, pos: position);
       case TargetPlatform.iOS:
         return await _showCupertinoPopup(
           context,
@@ -172,6 +173,7 @@ class ToastHelper {
     BuildContext context, {
     required List<T> valueList,
     required Widget Function(T value) childBuilder,
+    RelativeRect? pos,
   }) async {
     // 菜单项
     List<PopupMenuEntry<T>> items = [];
@@ -190,12 +192,13 @@ class ToastHelper {
     // 发起菜单的组件
     final RenderBox button = context.findRenderObject()! as RenderBox;
     Offset global = button.localToGlobal(Offset.zero);
-    RelativeRect position = RelativeRect.fromLTRB(
-      global.dx + button.size.width,
-      global.dy,
-      Get.width,
-      Get.height,
-    );
+    RelativeRect position = pos ??
+        RelativeRect.fromLTRB(
+          global.dx + button.size.width,
+          global.dy,
+          Get.width,
+          Get.height,
+        );
     // 显示菜单
     return await showMenu<T?>(
       context: context,
