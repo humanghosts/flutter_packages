@@ -65,6 +65,7 @@ dependencies:
 
   ## 图标、动画、字体的库
   animated_text_kit:
+  flutter_bounceable: ^1.0.2
   # 主题
   flex_color_scheme: ^5.0.1
   # 颜色选择

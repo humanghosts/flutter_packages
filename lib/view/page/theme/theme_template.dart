@@ -452,6 +452,7 @@ class ThemeTemplateView extends hg.Page<ThemeTemplateViewLogic> {
     return Container(
       padding: const EdgeInsets.only(left: 12, right: 12),
       child: HeaderCard(
+        key: "theme_mode",
         title: const Text('主题模式'),
         child: ListTile(
           title: Text(logic.template.themeMode.value.mode.title),
@@ -511,6 +512,7 @@ class ThemeTemplateView extends hg.Page<ThemeTemplateViewLogic> {
             padding: EdgeInsets.only(left: 12, right: 12, bottom: Get.height * 0.4, top: 12),
             children: <Widget>[
               HeaderCard(
+                key: "panel_page",
                 title: Text(type.title),
                 leading: Icon(type.icon.icon, color: iconColor),
                 child: panelPageBuilder[type]?.call(context) ?? Center(child: Text(type.title)),

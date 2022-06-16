@@ -1,5 +1,5 @@
+export '../components/header_card.dart';
 export 'animated_switch_hide.dart';
-export 'header_card.dart';
 export 'maybe_tooltip.dart';
 export 'navigation_bar_label_behavior_buttons.dart';
 export 'navigation_rail_label_type_buttons.dart';
