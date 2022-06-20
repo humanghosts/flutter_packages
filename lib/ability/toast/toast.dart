@@ -98,41 +98,38 @@ class ToastHelper {
     }
   }
 
-  /// 显示蒙版
-  static void overlay(Widget widget, {Color? backgroundColor, bool Function()? canClose, VoidCallback? onClose}) {
-    ThemeData themeData = AppLogic.instance.themeData;
-    overlayBuilder((loader, background) {
-      return GestureDetector(
-        child: Scaffold(
-          backgroundColor: backgroundColor ?? themeData.primaryColor.withOpacity(0.9),
-          body: widget,
-        ),
-        onTap: () {
-          bool close = canClose?.call() ?? true;
-          if (!close) return;
-          loader!.remove();
-          background.remove();
-          onClose?.call();
-        },
-      );
-    });
-  }
-
   /// 蒙版构建器
-  static void overlayBuilder(Widget Function(OverlayEntry? loader, OverlayEntry background) builder, {double opacity = 0.9}) {
+  static void overlayBuilder(
+    Widget Function(BuildContext context) builder, {
+    Widget Function(BuildContext context)? backgroundBuilder,
+    // 关闭弹框方法
+    void Function(VoidCallback action)? close,
+  }) {
     ThemeData themeData = AppLogic.instance.themeData;
-    NavigatorState navigatorState = Navigator.of(Get.overlayContext!, rootNavigator: true);
+    BuildContext context = Get.overlayContext!;
+    NavigatorState navigatorState = Navigator.of(context, rootNavigator: true);
     OverlayState overlayState = navigatorState.overlay!;
 
     OverlayEntry overlayEntryOpacity = OverlayEntry(builder: (context) {
-      return Opacity(opacity: opacity, child: Container(color: themeData.primaryColor.withOpacity(0.9)));
+      return backgroundBuilder?.call(context) ??
+          Opacity(
+            opacity: 0.9,
+            child: Container(
+              color: themeData.primaryColor.withOpacity(0.9),
+            ),
+          );
     });
     OverlayEntry? overlayEntryLoader;
     overlayEntryLoader = OverlayEntry(builder: (context) {
-      return builder(overlayEntryLoader, overlayEntryOpacity);
+      return builder(context);
     });
     overlayState.insert(overlayEntryOpacity);
     overlayState.insert(overlayEntryLoader);
+    // 关闭方法
+    close?.call(() {
+      overlayEntryLoader?.remove();
+      overlayEntryOpacity.remove();
+    });
   }
 
   /// 显示漂浮菜单

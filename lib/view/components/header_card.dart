@@ -70,26 +70,29 @@ class HeaderCard extends View<HeaderCardLogic> {
             Material(
               type: MaterialType.card,
               color: headerColor,
-              child: ListTile(
-                contentPadding: headerPadding,
-                leading: leading,
-                title: cardTitle,
-                subtitle: subtitle,
-                trailing: Obx(() {
-                  return Clickable(
-                    onPressed: () => logic.isOpen.value = !logic.isOpen.value,
-                    tooltip: logic.isOpen.value ? "收起" : "展开",
-                    child: AnimatedSwitcher(
-                      duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
-                      child: Icon(
-                        logic.isOpen.value ? Icons.expand_less_outlined : Icons.expand_more_outlined,
-                        key: ValueKey(logic.isOpen.value),
-                        size: 32,
+              child: SizedBox(
+                height: kToolbarHeight,
+                child: ListTile(
+                  contentPadding: headerPadding,
+                  leading: leading,
+                  title: cardTitle,
+                  subtitle: subtitle,
+                  trailing: Obx(() {
+                    return Clickable(
+                      onPressed: () => logic.isOpen.value = !logic.isOpen.value,
+                      tooltip: logic.isOpen.value ? "收起" : "展开",
+                      child: AnimatedSwitcher(
+                        duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
+                        child: Icon(
+                          logic.isOpen.value ? Icons.expand_less_outlined : Icons.expand_more_outlined,
+                          key: ValueKey(logic.isOpen.value),
+                          size: 32,
+                        ),
                       ),
-                    ),
-                  );
-                }),
-                onTap: () => logic.isOpen.value = !logic.isOpen.value,
+                    );
+                  }),
+                  onTap: () => logic.isOpen.value = !logic.isOpen.value,
+                ),
               ),
             ),
           Obx(() {

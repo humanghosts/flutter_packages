@@ -214,33 +214,15 @@ class Clickable extends StatelessWidget {
     if (null == tooltip) {
       widget = child;
     } else if (AppLogic.isDesktop) {
-      widget = Tooltip(child: child, message: tooltip, preferBelow: tooltipBelow);
+      widget = Tooltip(message: tooltip, preferBelow: tooltipBelow, child: child);
     } else {
       if (forceTooltip) {
-        widget = Tooltip(child: child, message: tooltip, preferBelow: tooltipBelow);
+        widget = Tooltip(message: tooltip, preferBelow: tooltipBelow, child: child);
       } else {
         widget = child;
       }
     }
     return GestureDetector(
-      child: Bounceable(
-        onTap: onTap ?? onPressed,
-        child: Ink(
-          child: InkWell(
-            mouseCursor: cursor,
-            borderRadius: BorderRadius.circular(template.defaultRadius.value ?? 12),
-            child: widget,
-            hoverColor: theme.highlightColor,
-            onTap: onTap ?? onPressed,
-            onDoubleTap: onDoubleTap,
-            onHover: onHover,
-            onTapDown: onTapDown,
-            onTapUp: onTapUp,
-            onTapCancel: onTapCancel,
-            onLongPress: onLongPress,
-          ),
-        ),
-      ),
       onSecondaryTap: onSecondaryTap,
       onSecondaryTapDown: onSecondaryTapDown,
       onSecondaryTapUp: onSecondaryTapUp,
@@ -295,6 +277,24 @@ class Clickable extends StatelessWidget {
       behavior: behavior,
       excludeFromSemantics: excludeFromSemantics,
       dragStartBehavior: dragStartBehavior,
+      child: Bounceable(
+        onTap: onTap ?? onPressed,
+        child: Ink(
+          child: InkWell(
+            mouseCursor: cursor,
+            borderRadius: BorderRadius.circular(template.defaultRadius.value ?? 12),
+            hoverColor: theme.highlightColor,
+            onTap: onTap ?? onPressed,
+            onDoubleTap: onDoubleTap,
+            onHover: onHover,
+            onTapDown: onTapDown,
+            onTapUp: onTapUp,
+            onTapCancel: onTapCancel,
+            onLongPress: onLongPress,
+            child: widget,
+          ),
+        ),
+      ),
     );
   }
 }

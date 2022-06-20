@@ -78,29 +78,4 @@ abstract class App extends StatelessWidget with WidgetsBindingObserver {
   }
 
   Widget buildHome();
-
-  /// 构建蒙版
-  Widget buildOverlay() {
-    return Obx(() {
-      logic.overlayUpdateFlag.value;
-      Map<int, Set<String>> indexOverlay = logic.indexOverlay;
-      if (indexOverlay.isEmpty) return Container();
-      // stack子组件
-      List<Widget> children = [];
-      // 蒙版顺讯
-      List<int> indexList = indexOverlay.keys.toList();
-      indexList.sort();
-      for (int index in indexList) {
-        Set<String>? overlayKeySet = indexOverlay[index];
-        if (null == overlayKeySet || overlayKeySet.isEmpty) continue;
-        for (String overlayKey in overlayKeySet) {
-          Widget? overlayWidget = logic.overlayWidget[overlayKey];
-          if (null == overlayWidget) continue;
-          children.add(overlayWidget);
-        }
-      }
-      if (children.isEmpty) return Container();
-      return Stack(children: children);
-    });
-  }
 }

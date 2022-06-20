@@ -7,7 +7,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:hg_framework/ability/toast/toast.dart';
 import 'package:hg_framework/hg_framework.dart';
 import 'package:hg_framework/service/theme.dart';
 import 'package:orientation/orientation.dart';
@@ -150,34 +149,31 @@ abstract class AppLifecycleListener {
 
 /// 蒙版助手
 abstract class OverlayHelper {
-  /// 蒙版组件
-  Map<String, Widget> overlayWidget = {};
-
-  /// 蒙版顺序
-  Map<int, Set<String>> indexOverlay = {};
-
-  /// 蒙版顺序
-  Map<String, int> overlayIndex = {};
+  /// 蒙版关闭缓存
+  Map<String, VoidCallback> closeFuncMap = {};
 
   /// 显示蒙版 index越高越靠上
-  void showOverlay({required String key, int index = 0, required Widget widget}) {
-    overlayWidget[key] = widget;
-    indexOverlay.putIfAbsent(index, () => {}).add(key);
-    overlayIndex[key] = index;
-    onOverlayReRender();
+  void showOverlay({required String key, required Widget widget, Widget? background}) {
+    ToastHelper.overlayBuilder(
+      (context) {
+        return widget;
+      },
+      backgroundBuilder: (context) {
+        return background ??
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaY: 2, sigmaX: 2),
+              child: Container(),
+            );
+      },
+      close: (action) => closeFuncMap[key] = action,
+    );
   }
 
   /// 关闭蒙版
   void closeOverlay(String key) {
-    int? index = overlayIndex[key];
-    if (null != index) indexOverlay.putIfAbsent(index, () => {}).remove(key);
-    overlayWidget.remove(key);
-    overlayIndex.remove(key);
-    onOverlayReRender();
+    closeFuncMap[key]?.call();
+    closeFuncMap.remove(key);
   }
-
-  /// 蒙版修改渲染
-  void onOverlayReRender();
 }
 
 /// 主页控制器
@@ -240,14 +236,6 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
   @override
   void onDeviceOrientationChanged(DeviceOrientation deviceOrientation) {
     log("onDeviceOrientationChanged:$deviceOrientation");
-  }
-
-  /// 蒙版更新标识
-  Rx<int> overlayUpdateFlag = 0.obs;
-
-  @override
-  void onOverlayReRender() {
-    overlayUpdateFlag.value++;
   }
 
   /// 是否是桌面平台
