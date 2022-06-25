@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/ability/export.dart';
 import 'package:hg_framework/app/app_logic.dart';
@@ -50,26 +49,37 @@ abstract class App extends StatelessWidget with WidgetsBindingObserver {
           builder: (logic) {
             logic.onWidgetBuild(context);
             ThemeTemplate template = logic.themeConfig.templateInUse.value;
+            ThemeData light = template.toFlexColorThemeLight().toTheme;
+            ThemeData dark = template.toFlexColorThemeDark().toTheme;
+            ThemeData themeData;
+            ThemeMode mode = template.themeMode.value.mode;
+            switch (mode) {
+              case ThemeMode.system:
+                themeData = logic.isDarkMode ? dark : light;
+                break;
+              case ThemeMode.light:
+                themeData = light;
+                break;
+              case ThemeMode.dark:
+                themeData = dark;
+                break;
+            }
+            logic.themeData = themeData;
             return GetMaterialApp(
               scrollBehavior: const AppScrollBehavior(),
               debugShowCheckedModeBanner: false,
               title: logic.config.appName,
-              theme: template.toFlexColorThemeLight().toTheme,
-              darkTheme: template.toFlexColorThemeDark().toTheme,
-              themeMode: template.themeMode.value.mode,
+              theme: light,
+              darkTheme: dark,
+              themeMode: mode,
               navigatorObservers: [
                 Observer(RouteHelper.observer, ObserverRouting()),
               ],
-              home: buildHome(),
+              home: buildHome(context),
               builder: EasyLoading.init(),
-              locale: const Locale('zh', 'CN'),
-              supportedLocales: const <Locale>[Locale('zh', 'CN')],
-              localizationsDelegates: const [
-                // 本地化的代理类
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
+              locale: logic.config.locale,
+              supportedLocales: logic.config.supportedLocales,
+              localizationsDelegates: logic.config.localizationsDelegates,
             );
           },
         );
@@ -77,5 +87,5 @@ abstract class App extends StatelessWidget with WidgetsBindingObserver {
     );
   }
 
-  Widget buildHome();
+  Widget buildHome(BuildContext context);
 }

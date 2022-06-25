@@ -61,7 +61,7 @@ abstract class ThemeListener {
   ThemeTemplate get themeTemplate => themeConfig.templateInUse.value;
 
   /// 使用Theme.of(Get.context!)获取当前主题数据
-  ThemeData get themeData => Theme.of(Get.context!);
+  late ThemeData themeData;
 
   bool get isLightMode => brightness == Brightness.light;
 

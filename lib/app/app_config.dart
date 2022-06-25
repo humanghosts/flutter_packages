@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hg_orm/hg_orm.dart';
 
 import 'app_init.dart';
@@ -24,6 +26,19 @@ abstract class AppConfig {
 
   /// 资源配置
   AssetsConfig get assetsConfig => AssetsConfig();
+
+  /// 默认地域
+  Locale get locale => const Locale('zh', 'CN');
+
+  /// 支持地域
+  List<Locale> get supportedLocales => const <Locale>[Locale('zh', 'CN')];
+
+  /// 本地化代理类
+  List<LocalizationsDelegate<dynamic>> get localizationsDelegates => [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ];
 }
 
 /// 通知配置

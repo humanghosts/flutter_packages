@@ -84,7 +84,7 @@ class DateTimeUtil {
       return format(dateTime, formats: realFormats);
     }
 
-    List<String?> dateStringList = [];
+    List<String> dateStringList = [];
     // format Start
     if (null != start) {
       dateStringList.add(formatWithNow(start));
@@ -98,8 +98,7 @@ class DateTimeUtil {
       } else {
         List<String> endFormats = [];
         if (start.isSameMinute(end)) {
-          dateStringList.add(dateStringList[0]);
-          return dateStringList.join(joinStr);
+          return dateStringList[0];
         }
         if (start.isSameDay(end)) {
           endFormats = sameDayFormats;
@@ -113,7 +112,7 @@ class DateTimeUtil {
         dateStringList.add(format(end, formats: endFormats));
       }
     } else {
-      dateStringList.add("");
+      return dateStringList[0];
     }
     return dateStringList.join(joinStr);
   }
