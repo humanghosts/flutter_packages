@@ -1,6 +1,5 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:hg_framework/hg_framework.dart';
 
 class Clickable extends StatelessWidget {
@@ -277,22 +276,19 @@ class Clickable extends StatelessWidget {
       behavior: behavior,
       excludeFromSemantics: excludeFromSemantics,
       dragStartBehavior: dragStartBehavior,
-      child: Bounceable(
-        onTap: onTap ?? onPressed,
-        child: Ink(
-          child: InkWell(
-            mouseCursor: cursor,
-            borderRadius: BorderRadius.circular(template.defaultRadius.value ?? 12),
-            hoverColor: theme.highlightColor,
-            onTap: onTap ?? onPressed,
-            onDoubleTap: onDoubleTap,
-            onHover: onHover,
-            onTapDown: onTapDown,
-            onTapUp: onTapUp,
-            onTapCancel: onTapCancel,
-            onLongPress: onLongPress,
-            child: widget,
-          ),
+      child: Ink(
+        child: InkWell(
+          mouseCursor: cursor,
+          borderRadius: BorderRadius.circular(template.defaultRadius.value ?? 12),
+          hoverColor: theme.highlightColor,
+          onTap: onTap ?? onPressed,
+          onDoubleTap: onDoubleTap,
+          onHover: onHover,
+          onTapDown: onTapDown,
+          onTapUp: onTapUp,
+          onTapCancel: onTapCancel,
+          onLongPress: onLongPress,
+          child: widget,
         ),
       ),
     );

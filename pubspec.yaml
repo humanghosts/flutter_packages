@@ -71,8 +71,6 @@ dependencies:
   # 图标、动画、字体的库
   ## 动画字体
   animated_text_kit:
-  ## 点击跳动的动画
-  flutter_bounceable: ^1.0.2
   ## 字体
   google_fonts:
 

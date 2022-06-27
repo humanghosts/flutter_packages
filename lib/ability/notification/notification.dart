@@ -1,20 +1,16 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
-import 'package:get/get.dart';
 import 'package:hg_framework/ability/export.dart';
 import 'package:hg_framework/app/export.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:hg_orm/hg_orm.dart';
 import 'package:scheduled_timer/scheduled_timer.dart';
-import 'package:timezone/data/latest_all.dart' as tzd;
-import 'package:timezone/timezone.dart' as tz;
 
-import '../shared_preferences/prefs.dart';
+import 'notification_local.dart';
 
+/// 提醒类型
 enum NotificationCacheNodeType {
   normal,
   repeat,
@@ -254,27 +250,13 @@ class NotificationHelper {
   /// 日志
   static _log(String msg) => debugPrint("[通知助手]:$msg");
 
-  /// 通知id和通知负载的映射
-  static final Map<int, NotificationCacheNode> idCache = {};
-
-  /// 数据库的缓存
-  static final Set<String> dbCache = {};
-
-  /// 过时的提醒缓存
-  static final Set<String> oldDbCache = {};
-
-  /// 通知时间和通知id的映射，由于同一时间可能多个提醒，value设置为Set类型
-  static final Map<DateTime, Set<int>> dateTimeIdCache = {};
-
-  /// 过时的提醒缓存
-  static final Map<DateTime, Set<int>> oldDateTimeIdCache = {};
-
-  /// 初始化
+  /// 初始化 用于应用启动时调用
   static Future<bool?> init() async {
     _log("初始化通知助手");
     _log("初始化本地通知");
     await LocalNotificationHelper.init();
     _log("注册应用启动回调，检测是否通过通知启动应用");
+    await _findInDatabase();
     AppLogic.instance.registerReadyCallback("notification", () {
       if (LocalNotificationHelper.notificationAppLaunchDetails?.didNotificationLaunchApp == true) {
         String? payload = LocalNotificationHelper.notificationAppLaunchDetails?.payload;
@@ -288,48 +270,86 @@ class NotificationHelper {
     return true;
   }
 
-  static const String oldNotificationCache = "notification_cache_old";
-  static const String notificationCache = "notification_cache";
-
-  /// 添加缓存节点
-  static Future<void> _addCacheNode(NotificationCacheNode cacheNode) async {
-    _log("添加通知到通知缓存，通知数据${cacheNode.encode()}");
-    // 缓存节点
-    int id = cacheNode.id;
-    DateTime dateTime = cacheNode.dateTime;
-    _log("检查缓存");
-    await findDbCache();
-    if (idCache.containsKey(id)) return _log("通知{id:$id}已存在，添加完成");
-    _log("添加到idCache");
-    // id缓存
-    idCache[id] = cacheNode;
-    // 此刻
-    DateTime now = DateTime.now();
-    if (dateTime.isBefore(now)) {
-      _log("通知{id:$id}的通知时间{$dateTime}早于此刻{$now}，不通知，放入通知历史");
-      // 更新缓存
-      oldDbCache.add(cacheNode.encode());
-      // 时间缓存
-      oldDateTimeIdCache.putIfAbsent(dateTime, () => {}).add(id);
-      await PrefsHelper.prefs.setStringList(oldNotificationCache, oldDbCache.toList());
-      _log("通知{id:$id}放入通知历史完成");
-    } else {
-      _log("通知{id:$id}的通知时间{$dateTime}晚于此刻{$now}，放入通知缓存");
-      // 更新缓存
-      dbCache.add(cacheNode.encode());
-      // 时间缓存
-      dateTimeIdCache.putIfAbsent(dateTime, () => {}).add(id);
-      await PrefsHelper.prefs.setStringList(notificationCache, dbCache.toList());
-      _log("通知{id:$id}放入通知缓存完成");
+  /// 启动检查是否通知，用于AppInit
+  static Future<void> checkAutoNotification() async {
+    _log("启动检查定时任务");
+    // 定时执行器
+    late ScheduledTimer timer;
+    timer = ScheduledTimer.fromId(
+      id: "auto_send_notification",
+      onExecute: () async {
+        _log("定时任务执行，执行时间${DateTime.now()}");
+        // 发送通知
+        DateTime? dateTime = await _notification();
+        // 时间不为空，说明是notification已经设置过下次执行时间了
+        if (null != dateTime) {
+          _log("定时任务执行完成，下次任务执行时间$dateTime");
+          return;
+        }
+        List<PendingNotificationRequest> pendingList = await LocalNotificationHelper.checkPendingNotificationRequests();
+        // 下次执行时间
+        DateTime next;
+        if (pendingList.isEmpty) {
+          next = DateTime.now().add(const Duration(hours: 1));
+        } else {
+          PendingNotificationRequest last = pendingList.last;
+          int id = last.id;
+          NotificationCacheNode? cacheNode = idCache[id];
+          if (null == cacheNode) {
+            next = DateTime.now().add(const Duration(hours: 1));
+          } else {
+            next = cacheNode.dateTime;
+          }
+        }
+        // 更新计时器
+        timer.schedule(next);
+        _log("定时任务执行完成，下次任务执行时间$next");
+      },
+      onMissedSchedule: () {
+        _log("错过定时任务执行时间，立即执行");
+        timer.execute();
+      },
+    );
+    if (timer.scheduledTime == null) {
+      _log("定时任务执行时间为空，尝试从数据库中加载");
+      await timer.load();
     }
+    if (timer.scheduledTime != null) {
+      _log("定时任务执行时间不为空,执行定时任务");
+      timer.start();
+    }
+    _log("启动检查定时任务完成");
   }
 
-  /// 查询数据库数据
-  static Future<void> findDbCache() async {
-    _log("检查缓存是否存在");
+  /// 通知id和通知负载的映射 缓存
+  static final Map<int, NotificationCacheNode> idCache = {};
+
+  /// 数据库的 内存缓存
+  static final Set<String> dbCache = {};
+
+  /// 过时的提醒 内存缓存
+  static final Set<String> oldDbCache = {};
+
+  /// 通知时间和通知id的映射 缓存，由于同一时间可能多个提醒，value设置为Set类型
+  static final Map<DateTime, Set<int>> dateTimeIdCache = {};
+
+  /// 过时的提醒缓存  缓存
+  static final Map<DateTime, Set<int>> oldDateTimeIdCache = {};
+
+  /// 过期的通知数据的key
+  static const String oldNotificationCache = "notification_cache_old";
+
+  /// 所有存储的通知数据的key
+  static const String notificationCache = "notification_cache";
+
+  /// 查询数据库数据并处理
+  /// 将数据库的数据读到[oldDbCache]和[dbCache]变量中，如果变量有值则跳过
+  static Future<void> _findInDatabase() async {
+    _log("调用findInDatabase");
     if (oldDbCache.isEmpty) {
-      _log("通知历史内存缓存不存在，查询数据库并处理数据到内存缓存");
-      oldDbCache.addAll(PrefsHelper.prefs.getStringList(oldNotificationCache) ?? []);
+      _log("通知历史 内存缓存 不存在，查询数据库 并 处理数据 到 内存缓存");
+      oldDbCache.addAll(DatabaseHelper.kv.get(oldNotificationCache) ?? []);
+      // 遍历数据处理
       for (String oneDbCache in oldDbCache) {
         NotificationCacheNode? oneDbCacheNode = NotificationCacheNode.decode(oneDbCache);
         if (null == oneDbCacheNode) {
@@ -344,11 +364,11 @@ class NotificationHelper {
       _log("通知历史处理完成");
     }
     if (dbCache.isEmpty) {
-      _log("通知内存缓存不存在，查询数据库并处理数据到内存缓存");
+      _log("通知 内存缓存 不存在，查询数据库 并 处理数据 到 内存缓存");
       // 此刻
       DateTime now = DateTime.now();
       // 存储的数据
-      List<String> cloneDbCache = PrefsHelper.prefs.getStringList(notificationCache) ?? [];
+      List<String> cloneDbCache = DatabaseHelper.kv.get(notificationCache) ?? [];
       for (int i = 0; i < cloneDbCache.length; i++) {
         String oneDbCache = cloneDbCache[i];
         NotificationCacheNode? oneDbCacheNode = NotificationCacheNode.decode(oneDbCache);
@@ -370,18 +390,54 @@ class NotificationHelper {
         }
       }
       // 刷新缓存
-      await PrefsHelper.prefs.setStringList(notificationCache, dbCache.toList());
-      await PrefsHelper.prefs.setStringList(oldNotificationCache, oldDbCache.toList());
+      DatabaseHelper.kv.put(notificationCache, dbCache.toList());
+      DatabaseHelper.kv.put(oldNotificationCache, oldDbCache.toList());
+      await DatabaseHelper.kv.save();
       _log("通知缓存处理完成");
     }
-    _log("检查缓存是否存在完成");
+    _log("findInDatabase调用完成");
+  }
+
+  /// 添加提醒缓存节点
+  /// 所有提醒方法均需要调用这个方法添加提醒 然后调用[_notification]检查并发送
+  static Future<void> _addNotificationToCache(NotificationCacheNode cacheNode) async {
+    _log("添加通知到通知缓存，通知数据${cacheNode.encode()}");
+    // 缓存节点
+    int id = cacheNode.id;
+    DateTime dateTime = cacheNode.dateTime;
+    _log("检查缓存");
+    await _findInDatabase();
+    if (idCache.containsKey(id)) return _log("通知{id:$id}已存在，添加完成");
+    _log("添加到idCache");
+    // id缓存
+    idCache[id] = cacheNode;
+    // 此刻
+    DateTime now = DateTime.now();
+    if (dateTime.isBefore(now)) {
+      _log("通知{id:$id}的通知时间{$dateTime}早于此刻{$now}，不通知，放入通知历史");
+      // 更新缓存
+      oldDbCache.add(cacheNode.encode());
+      // 时间缓存
+      oldDateTimeIdCache.putIfAbsent(dateTime, () => {}).add(id);
+      await DatabaseHelper.kv.putSave(oldNotificationCache, oldDbCache.toList());
+      _log("通知{id:$id}放入通知历史完成");
+    } else {
+      _log("通知{id:$id}的通知时间{$dateTime}晚于此刻{$now}，放入通知缓存");
+      // 更新缓存
+      dbCache.add(cacheNode.encode());
+      // 时间缓存
+      dateTimeIdCache.putIfAbsent(dateTime, () => {}).add(id);
+      await DatabaseHelper.kv.putSave(notificationCache, dbCache.toList());
+      _log("通知{id:$id}放入通知缓存完成");
+    }
   }
 
   /// 检查并发送通知
-  static Future<DateTime?> notification() async {
+  /// 用于实际上发送通知
+  static Future<DateTime?> _notification() async {
     _log("发送通知");
     _log("检查缓存");
-    await findDbCache();
+    await _findInDatabase();
     int maxCount = AppLogic.appConfig.notificationConfig.maxNotificationCount;
     // 这里取消所有提醒的原因是，有可能先加晚点的提醒，后加早点的提醒，不取消的话就会导致早点的提醒发不出去
     // 也可以一一比对，但是太复杂，容易出错
@@ -486,8 +542,9 @@ class NotificationHelper {
     }
     _log("通知处理完成，刷新数据库缓存数据");
     // 刷新缓存
-    await PrefsHelper.prefs.setStringList(notificationCache, dbCache.toList());
-    await PrefsHelper.prefs.setStringList(oldNotificationCache, oldDbCache.toList());
+    DatabaseHelper.kv.put(notificationCache, dbCache.toList());
+    DatabaseHelper.kv.put(oldNotificationCache, oldDbCache.toList());
+    await DatabaseHelper.kv.save();
     List<PendingNotificationRequest> pendingList = await LocalNotificationHelper.checkPendingNotificationRequests();
     _log("检查待发送通知队列，通知数量${pendingList.length}");
     if (pendingList.isEmpty) return _log("通知队列为空，发送通知完成");
@@ -498,13 +555,13 @@ class NotificationHelper {
     if (null == cacheNode) return _log("缓存中未找到id为$id的通知，发送通知完成");
     _log("通知内容${cacheNode.encode()}");
     _log("更新或新增定时任务，预计定时任务时间:${cacheNode.dateTime.add(const Duration(microseconds: 200))}");
-    autoNotification(executeTime: cacheNode.dateTime.add(const Duration(microseconds: 200)));
+    _autoNotification(executeTime: cacheNode.dateTime.add(const Duration(microseconds: 200)));
     _log("发送通知完成");
     return cacheNode.dateTime.add(const Duration(microseconds: 200));
   }
 
   /// 自动发送缓存的提醒
-  static Future<void> autoNotification({DateTime? executeTime}) async {
+  static Future<void> _autoNotification({DateTime? executeTime}) async {
     _log("更新或创建前台定时任务");
     // 没有传时间就立即执行
     DateTime scheduledTime = executeTime ?? DateTime.now().add(const Duration(seconds: 1));
@@ -515,7 +572,7 @@ class NotificationHelper {
       onExecute: () async {
         _log("定时任务执行，执行时间${DateTime.now()}");
         // 发送通知
-        DateTime? dateTime = await notification();
+        DateTime? dateTime = await _notification();
         // 时间不为空，说明是notification已经设置过下次执行时间了
         if (null != dateTime) {
           _log("定时任务执行完成，下次任务执行时间$dateTime");
@@ -564,56 +621,6 @@ class NotificationHelper {
     _log("更新或创建前台定时任务完成");
   }
 
-  static Future<void> checkAutoNotification() async {
-    _log("启动检查定时任务");
-    // 定时执行器
-    late ScheduledTimer timer;
-    timer = ScheduledTimer(
-      id: "auto_send_notification",
-      onExecute: () async {
-        _log("定时任务执行，执行时间${DateTime.now()}");
-        // 发送通知
-        DateTime? dateTime = await notification();
-        // 时间不为空，说明是notification已经设置过下次执行时间了
-        if (null != dateTime) {
-          _log("定时任务执行完成，下次任务执行时间$dateTime");
-          return;
-        }
-        List<PendingNotificationRequest> pendingList = await LocalNotificationHelper.checkPendingNotificationRequests();
-        // 下次执行时间
-        DateTime next;
-        if (pendingList.isEmpty) {
-          next = DateTime.now().add(const Duration(hours: 1));
-        } else {
-          PendingNotificationRequest last = pendingList.last;
-          int id = last.id;
-          NotificationCacheNode? cacheNode = idCache[id];
-          if (null == cacheNode) {
-            next = DateTime.now().add(const Duration(hours: 1));
-          } else {
-            next = cacheNode.dateTime;
-          }
-        }
-        // 更新计时器
-        timer.schedule(next);
-        _log("定时任务执行完成，下次任务执行时间$next");
-      },
-      onMissedSchedule: () {
-        _log("错过定时任务执行时间，立即执行");
-        timer.execute();
-      },
-    );
-    if (timer.scheduledTime == null) {
-      _log("定时任务执行时间为空，尝试从数据库中加载");
-      await timer.load();
-    }
-    if (timer.scheduledTime != null) {
-      _log("定时任务执行时间不为空,执行定时任务");
-      timer.start();
-    }
-    _log("启动检查定时任务完成");
-  }
-
   /// 显示简单通知，立即通知，不占用缓存
   static Future<void> showNotification(NotificationArgs args) async {
     _log("立即通知:${{"id": args.id, "时间": DateTime.now(), "标题": args.title, "内容": args.body}}");
@@ -633,8 +640,8 @@ class NotificationHelper {
       title: args.title,
       body: args.body,
     );
-    await _addCacheNode(cacheNode);
-    await notification();
+    await _addNotificationToCache(cacheNode);
+    await _notification();
     _log("延时通知完成{id:${args.id}}");
   }
 
@@ -651,9 +658,9 @@ class NotificationHelper {
         title: args.title,
         body: args.body,
       );
-      await _addCacheNode(cacheNode);
+      await _addNotificationToCache(cacheNode);
     }
-    await notification();
+    await _notification();
     _log("批量延时通知完成，数量${argsList.length}");
   }
 
@@ -671,8 +678,8 @@ class NotificationHelper {
       body: args.body,
       dateTime: dateTime,
     );
-    await _addCacheNode(cacheNode);
-    await notification();
+    await _addNotificationToCache(cacheNode);
+    await _notification();
     _log("重复通知完成{id:${args.id}}");
   }
 
@@ -690,9 +697,9 @@ class NotificationHelper {
         body: args.body,
         dateTime: dateTime,
       );
-      await _addCacheNode(cacheNode);
+      await _addNotificationToCache(cacheNode);
     }
-    await notification();
+    await _notification();
     _log("批量重复通知完成，数量${argsList.length}");
   }
 
@@ -706,8 +713,8 @@ class NotificationHelper {
       title: args.title,
       body: args.body,
     );
-    await _addCacheNode(cacheNode);
-    await notification();
+    await _addNotificationToCache(cacheNode);
+    await _notification();
     _log("定时通知完成{id:${args.id}}");
   }
 
@@ -723,9 +730,9 @@ class NotificationHelper {
         title: args.title,
         body: args.body,
       );
-      await _addCacheNode(cacheNode);
+      await _addNotificationToCache(cacheNode);
     }
-    await notification();
+    await _notification();
     _log("批量定时通知完成，数量${argsList.length}");
   }
 
@@ -741,8 +748,8 @@ class NotificationHelper {
       body: args.body,
       matchDateTimeComponents: args.matchDateTimeComponents,
     );
-    await _addCacheNode(cacheNode);
-    await notification();
+    await _addNotificationToCache(cacheNode);
+    await _notification();
     _log("定时通知完成{id:${args.id}}");
   }
 
@@ -759,9 +766,9 @@ class NotificationHelper {
         body: args.body,
         matchDateTimeComponents: args.matchDateTimeComponents,
       );
-      await _addCacheNode(cacheNode);
+      await _addNotificationToCache(cacheNode);
     }
-    await notification();
+    await _notification();
     _log("批量定时重复通知完成，数量${argsList.length}");
   }
 
@@ -800,7 +807,7 @@ class NotificationHelper {
     _log("删除本地通知{id:$id}");
     await LocalNotificationHelper.cancelNotification(id);
     _log("检查缓存");
-    await findDbCache();
+    await _findInDatabase();
     NotificationCacheNode? cacheNode = idCache[id];
     if (null == cacheNode) return _log("根据id未找到通知，删除完成");
     _log("清除缓存");
@@ -812,8 +819,9 @@ class NotificationHelper {
     dateTimeIdCache[dateTime]?.remove(id);
     oldDateTimeIdCache[dateTime]?.remove(id);
     _log("清除缓存完成，更新数据库存储");
-    await PrefsHelper.prefs.setStringList(notificationCache, dbCache.toList());
-    await PrefsHelper.prefs.setStringList(oldNotificationCache, oldDbCache.toList());
+    DatabaseHelper.kv.put(notificationCache, dbCache.toList());
+    DatabaseHelper.kv.put(oldNotificationCache, oldDbCache.toList());
+    await DatabaseHelper.kv.save();
     _log("更新数据库存储完成，删除通知{id:$id}完成");
   }
 
@@ -823,7 +831,7 @@ class NotificationHelper {
     _log("删除本地所有通知");
     await LocalNotificationHelper.cancelAllNotifications();
     _log("检查缓存");
-    await findDbCache();
+    await _findInDatabase();
     _log("清除缓存");
     idCache.clear();
     dbCache.clear();
@@ -831,251 +839,35 @@ class NotificationHelper {
     dateTimeIdCache.clear();
     oldDateTimeIdCache.clear();
     _log("清除缓存完成，更新数据库存储");
-    await PrefsHelper.prefs.setStringList(notificationCache, dbCache.toList());
-    await PrefsHelper.prefs.setStringList(oldNotificationCache, oldDbCache.toList());
+    DatabaseHelper.kv.put(notificationCache, dbCache.toList());
+    DatabaseHelper.kv.put(oldNotificationCache, oldDbCache.toList());
+    await DatabaseHelper.kv.save();
     _log("更新数据库存储完成，删除所有完成");
   }
 }
 
-/// 本地通知发送
-class LocalNotificationHelper {
-  LocalNotificationHelper._();
+/// 通知点击回调
+/// 由于要考虑点击通知冷启动应用的情况，所以通知标识需要做成枚举，回调要静态编码
+class NotificationCallback {
+  NotificationCallback._();
 
-  /// 通知插件
-  static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  /// 日志
+  static void _log(String msg) => LogHelper.debug("[本地通知回调]:$msg");
 
-  /// 通知启动应用
-  static NotificationAppLaunchDetails? notificationAppLaunchDetails;
-
-  /// 初始化通知组件
-  static Future<bool?> init() async {
-    // 时区初始化
-    if (!kIsWeb && !Platform.isLinux) {
-      tzd.initializeTimeZones();
-      final String timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
-      tz.setLocalLocation(tz.getLocation(timeZoneName));
-    }
-
-    // 是否通过通知启动应用 来判断应该进入哪个页面
-    notificationAppLaunchDetails = !kIsWeb && Platform.isLinux ? null : await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
-    //  app_icon是应用图标文件
-    AndroidInitializationSettings android = const AndroidInitializationSettings('app_icon');
-    // ios配置
-    IOSInitializationSettings ios = IOSInitializationSettings(
-      // ios10 之前的系统点击通知回调的方法
-      onDidReceiveLocalNotification: ((id, title, body, payload) => onSelectNotification(payload)),
-    );
-    // macOS配置
-    MacOSInitializationSettings macOS = const MacOSInitializationSettings();
-    // 插件配置
-    InitializationSettings settings = InitializationSettings(android: android, iOS: ios, macOS: macOS);
-    bool? isInit = await flutterLocalNotificationsPlugin.initialize(settings, onSelectNotification: onSelectNotification);
-    return isInit;
-  }
-
-  /// 通知点击回调
-  static void onSelectNotification(String? payload) => NotificationCallback.callback(payload);
-
-  /// 显示简单通知
-  static Future<void> showNotification({
-    required int id,
-    NotificationPayload? payload,
-    String? title,
-    String? body,
-    NotificationDetails? details,
-  }) async {
-    bool hasPermission = await checkNotificationPermission();
-    if (!hasPermission) {
-      bool isOpen = Get.isSnackbarOpen;
-      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败", message: "如果已设置权限，请重新保存");
+  /// 通知回调方法
+  static void callback(String? payload) {
+    _log("回调执行，原始负载:$payload");
+    NotificationPayload? notificationPayload = NotificationPayload.decode(payload);
+    if (null == notificationPayload) {
+      _log("负载解码为空，不执行，发送新的通知");
+      NotificationHelper._notification();
       return;
     }
-    // 发送通知
-    await flutterLocalNotificationsPlugin.show(
-      id,
-      title,
-      body,
-      details ?? buildNotificationDetail(),
-      payload: payload?.encode(),
-    );
-  }
-
-  /// 延时通知
-  static Future<void> delayNotification({
-    required int id,
-    NotificationPayload? payload,
-    required Duration duration,
-    String? title,
-    String? body,
-    NotificationDetails? details,
-  }) async {
-    bool hasPermission = await checkNotificationPermission();
-    if (!hasPermission) {
-      bool isOpen = Get.isSnackbarOpen;
-      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败", message: "如果已设置权限，请重新保存");
-      return;
-    }
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      id,
-      title,
-      body,
-      // 请注意，要在本机级别（即 Android/iOS）获得适当的时间表示，
-      // 插件需要以 yyyy-mm-dd hh:mm:ss 格式通过平台通道传递时间。因此,精度最好到秒。
-      tz.TZDateTime.now(tz.local).add(duration),
-      details ?? buildNotificationDetail(),
-      // androidAllowWhileIdle参数确定即使设备处于低功耗空闲模式时，是否仍应在准确时间显示通知。
-      androidAllowWhileIdle: true,
-      // uiLocalNotificationDateInterpretation适用于 10 之前的 iOS 版本，因为 API 对时区的支持有限。
-      // 使用此参数，它用于确定是否应将预定日期解释为绝对时间或挂钟时间。
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-      payload: payload?.encode(),
-    );
-  }
-
-  ///  重复通知
-  static Future<void> repeatNotification({
-    required int id,
-    NotificationPayload? payload,
-    required RepeatInterval repeatInterval,
-    String? title,
-    String? body,
-    NotificationDetails? details,
-  }) async {
-    bool hasPermission = await checkNotificationPermission();
-    if (!hasPermission) {
-      bool isOpen = Get.isSnackbarOpen;
-      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败", message: "如果已设置权限，请重新保存");
-      return;
-    }
-    await flutterLocalNotificationsPlugin.periodicallyShow(
-      id,
-      title,
-      body,
-      repeatInterval,
-      details ?? buildNotificationDetail(),
-      androidAllowWhileIdle: true,
-      payload: payload?.encode(),
-    );
-  }
-
-  /// 定时通知 精确到分钟 超过当前时间忽略
-  /// [matchDateTimeComponents]是重复标识
-  static Future<bool> scheduleNotification({
-    required int id,
-    NotificationPayload? payload,
-    required DateTime dateTime,
-    String? title,
-    String? body,
-    NotificationDetails? details,
-    DateTimeComponents? matchDateTimeComponents,
-  }) async {
-    tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute);
-    if (now.isAfter(scheduledDate)) return false;
-    bool hasPermission = await checkNotificationPermission();
-    if (!hasPermission) {
-      bool isOpen = Get.isSnackbarOpen;
-      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败", message: "如果已设置权限，请重新保存");
-      return false;
-    }
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      id,
-      title,
-      body,
-      scheduledDate,
-      details ?? buildNotificationDetail(),
-      androidAllowWhileIdle: true,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-      payload: payload?.encode(),
-      matchDateTimeComponents: matchDateTimeComponents,
-    );
-    return true;
-  }
-
-  /// 检查待发送通知列表
-  static Future<List<PendingNotificationRequest>> checkPendingNotificationRequests() async {
-    return await flutterLocalNotificationsPlugin.pendingNotificationRequests();
-  }
-
-  /// 取消指定通知
-  static Future<void> cancelNotification(int id) async {
-    await flutterLocalNotificationsPlugin.cancel(id);
-  }
-
-  /// 取消所有通知
-  static Future<void> cancelAllNotifications() async {
-    await flutterLocalNotificationsPlugin.cancelAll();
-  }
-
-  /// 构建通知配置
-  static NotificationDetails buildNotificationDetail({
-    AndroidNotificationDetails? android,
-    IOSNotificationDetails? ios,
-    MacOSNotificationDetails? macOS,
-    LinuxNotificationDetails? linux,
-  }) {
-    //  安卓的通知设置
-    AndroidNotificationDetails? androidDetails;
-    // IOS的通知设置 可以修改音效等 暂时所有通知都用1
-    IOSNotificationDetails iosDetails = ios ?? const IOSNotificationDetails(threadIdentifier: "1");
-    // Mac的通知设置
-    MacOSNotificationDetails macOSDetails = macOS ?? const MacOSNotificationDetails();
-    LinuxNotificationDetails linuxDetails = linux ?? const LinuxNotificationDetails();
-    return NotificationDetails(android: android ?? androidDetails, iOS: iosDetails, macOS: macOSDetails, linux: linuxDetails);
-  }
-
-  /// 检查是否有通知权限
-  static Future<bool> checkNotificationPermission() async {
-    Permission notification = Permission.notification;
-    PermissionStatus status = await notification.status;
-    // 权限拒绝 一般是第一次
-    if (status == PermissionStatus.denied) {
-      return requestNotificationPermission();
-    }
-    // 权限永久拒绝 设置里面没开
-    else if (status == PermissionStatus.permanentlyDenied) {
-      //  询问用户是否打开设置
-      bool? isOpen = await showCupertinoDialog<bool>(
-        context: Get.context!,
-        builder: (context) {
-          return CupertinoAlertDialog(
-            title: const Text("没有通知权限"),
-            content: const Text("是否打开系统设置"),
-            actions: <Widget>[
-              CupertinoDialogAction(child: const Text("打开"), onPressed: () => RouteHelper.back(result: true)),
-              CupertinoDialogAction(child: const Text("取消"), onPressed: () => RouteHelper.back(result: false)),
-            ],
-          );
-        },
-      );
-      if (isOpen == true) {
-        isOpen = await openAppSettings();
-        if (isOpen == false) {
-          ToastHelper.toast(msg: "打开系统设置失败,请手动打开");
-        }
-      }
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  /// 请求通知权限
-  static Future<bool> requestNotificationPermission() async {
-    Permission notification = Permission.notification;
-    notification.shouldShowRequestRationale;
-    PermissionStatus status = await notification.request();
-    switch (status) {
-      case PermissionStatus.denied:
-        return false;
-      case PermissionStatus.granted:
-        return true;
-      case PermissionStatus.restricted:
-        return true;
-      case PermissionStatus.limited:
-        return true;
-      case PermissionStatus.permanentlyDenied:
-        return false;
-    }
+    NotificationType type = notificationPayload.type;
+    String? realPayload = notificationPayload.payload;
+    _log("回调执行");
+    type.callback(realPayload);
+    _log("发送新通知");
+    NotificationHelper._notification();
   }
 }

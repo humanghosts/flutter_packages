@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
 import 'package:hg_entity/hg_entity.dart';
 import 'package:hg_framework/ability/shared_preferences/prefs.dart';
 import 'package:hg_framework/app/app_config.dart';
@@ -30,12 +27,10 @@ class AppInit {
     await _presetDataInit(config.presetData);
     // 主题等数据加载
     await AppLogic.instance.onAppInit(config);
-    if (kIsWeb || Platform.isWindows) {
-      return;
-    }
-
     // 初始化通知服务
     await NotificationHelper.init();
+    // 初始化前台任务
+    await ForegroundWorkHelper.init();
   }
 }
 
