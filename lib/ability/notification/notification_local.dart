@@ -2,10 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/ability/export.dart';
+import 'package:hg_framework/hg_framework.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:scheduled_timer/scheduled_timer.dart';
 import 'package:timezone/data/latest_all.dart' as tzd;
@@ -25,7 +27,7 @@ class LocalNotificationHelper {
   /// 初始化通知组件
   static Future<bool?> init() async {
     // todo 如果是web或者是windows 由于插件没有相关功能，暂时使用应用内提醒
-    if (kIsWeb || Platform.isWindows) {
+    if (!Platform.isIOS && !Platform.isAndroid) {
       inAppNotificationsPlugin = InAppNotificationsPlugin(onSelectNotification);
       return true;
     }
@@ -62,12 +64,6 @@ class LocalNotificationHelper {
     String? body,
     NotificationDetails? details,
   }) async {
-    bool hasPermission = await checkNotificationPermission();
-    if (!hasPermission) {
-      bool isOpen = Get.isSnackbarOpen;
-      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败", message: "如果已设置权限，请重新保存");
-      return;
-    }
     inAppNotificationsPlugin?.show(
       id,
       title,
@@ -75,6 +71,13 @@ class LocalNotificationHelper {
       details ?? buildNotificationDetail(),
       payload: payload?.encode(),
     );
+    if (null == flutterLocalNotificationsPlugin) return;
+    bool hasPermission = await checkNotificationPermission();
+    if (!hasPermission) {
+      bool isOpen = Get.isSnackbarOpen;
+      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败");
+      return;
+    }
     // 发送通知
     await flutterLocalNotificationsPlugin?.show(
       id,
@@ -96,26 +99,27 @@ class LocalNotificationHelper {
     NotificationDetails? details,
     DateTimeComponents? matchDateTimeComponents,
   }) async {
-    tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute);
-    if (now.isAfter(scheduledDate)) return false;
-    bool hasPermission = await checkNotificationPermission();
-    if (!hasPermission) {
-      bool isOpen = Get.isSnackbarOpen;
-      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败", message: "如果已设置权限，请重新保存");
-      return false;
-    }
     inAppNotificationsPlugin?.zonedSchedule(
       id,
       title,
       body,
-      scheduledDate,
+      DateTime(dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute),
       details ?? buildNotificationDetail(),
       androidAllowWhileIdle: true,
       uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
       payload: payload?.encode(),
       matchDateTimeComponents: matchDateTimeComponents,
     );
+    if (null == flutterLocalNotificationsPlugin) return true;
+    tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute);
+    if (now.isAfter(scheduledDate)) return false;
+    bool hasPermission = await checkNotificationPermission();
+    if (!hasPermission) {
+      bool isOpen = Get.isSnackbarOpen;
+      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败");
+      return false;
+    }
     await flutterLocalNotificationsPlugin?.zonedSchedule(
       id,
       title,
@@ -139,12 +143,6 @@ class LocalNotificationHelper {
     String? body,
     NotificationDetails? details,
   }) async {
-    bool hasPermission = await checkNotificationPermission();
-    if (!hasPermission) {
-      bool isOpen = Get.isSnackbarOpen;
-      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败", message: "如果已设置权限，请重新保存");
-      return;
-    }
     inAppNotificationsPlugin?.periodicallyShow(
       id,
       title,
@@ -154,6 +152,13 @@ class LocalNotificationHelper {
       androidAllowWhileIdle: true,
       payload: payload?.encode(),
     );
+    if (flutterLocalNotificationsPlugin == null) return;
+    bool hasPermission = await checkNotificationPermission();
+    if (!hasPermission) {
+      bool isOpen = Get.isSnackbarOpen;
+      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败");
+      return;
+    }
     await flutterLocalNotificationsPlugin?.periodicallyShow(
       id,
       title,
@@ -298,7 +303,7 @@ class InAppNotificationsPlugin {
     NotificationDetails? notificationDetails, {
     String? payload,
   }) async {
-    await _show(id: id, title: title, body: body, payload: payload).show();
+    _show(id: id, title: title, body: body, payload: payload);
   }
 
   /// 定时通知
@@ -306,19 +311,18 @@ class InAppNotificationsPlugin {
     int id,
     String? title,
     String? body,
-    tz.TZDateTime scheduledDate,
+    DateTime scheduledDate,
     NotificationDetails notificationDetails, {
     required UILocalNotificationDateInterpretation uiLocalNotificationDateInterpretation,
     required bool androidAllowWhileIdle,
     String? payload,
     DateTimeComponents? matchDateTimeComponents,
   }) async {
-    SnackbarController controller = _show(id: id, title: title, body: body, payload: payload);
     late ScheduledTimer timer;
     timer = ScheduledTimer.fromId(
       id: id.toString(),
       onExecute: () async {
-        await controller.show();
+        _show(id: id, title: title, body: body, payload: payload);
         if (matchDateTimeComponents == null) return;
         DateTime? oldScheduledTime = timer.scheduledTime ?? DateTime.now();
         switch (matchDateTimeComponents) {
@@ -380,12 +384,11 @@ class InAppNotificationsPlugin {
     String? payload,
     bool androidAllowWhileIdle = false,
   }) async {
-    SnackbarController controller = _show(id: id, title: title, body: body, payload: payload);
     late ScheduledTimer timer;
     timer = ScheduledTimer.fromId(
       id: id.toString(),
       onExecute: () async {
-        await controller.show();
+        _show(id: id, title: title, body: body, payload: payload);
         DateTime? now = DateTime.now();
         switch (repeatInterval) {
           case RepeatInterval.everyMinute:
@@ -417,19 +420,20 @@ class InAppNotificationsPlugin {
     }
   }
 
-  SnackbarController _show({
+  void _show({
     required int id,
     String? title,
     String? body,
     String? payload,
   }) {
-    notificationCache[id] = PendingNotificationRequest(id, title, body, payload);
-    return Get.snackbar(
-      title ?? "",
-      body ?? "",
-      instantInit: false,
-      isDismissible: false,
-      onTap: (GetSnackBar snack) => onSelectNotification.call(payload),
+    ToastHelper.inAppNotification(
+      key: id.toString(),
+      message: body,
+      title: title,
+      leading: const Icon(Icons.alarm_outlined),
+      onTap: () {
+        onSelectNotification.call(payload);
+      },
     );
   }
 }

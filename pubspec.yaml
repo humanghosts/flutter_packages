@@ -69,6 +69,7 @@ dependencies:
   badges: ^2.0.2
 
   # 图标、动画、字体的库
+  animate_do: ^2.0.0
   ## 动画字体
   animated_text_kit:
   ## 字体

@@ -255,8 +255,11 @@ class NotificationHelper {
     _log("初始化通知助手");
     _log("初始化本地通知");
     await LocalNotificationHelper.init();
-    _log("注册应用启动回调，检测是否通过通知启动应用");
+    _log("查询数据库数据");
     await _findInDatabase();
+    _log("检查前台任务");
+    NotificationHelper.checkAutoNotification();
+    _log("注册应用启动回调，检测是否通过通知启动应用");
     AppLogic.instance.registerReadyCallback("notification", () {
       if (LocalNotificationHelper.notificationAppLaunchDetails?.didNotificationLaunchApp == true) {
         String? payload = LocalNotificationHelper.notificationAppLaunchDetails?.payload;
@@ -348,7 +351,10 @@ class NotificationHelper {
     _log("调用findInDatabase");
     if (oldDbCache.isEmpty) {
       _log("通知历史 内存缓存 不存在，查询数据库 并 处理数据 到 内存缓存");
-      oldDbCache.addAll(DatabaseHelper.kv.get(oldNotificationCache) ?? []);
+      for (dynamic value in DatabaseHelper.kv.get(oldNotificationCache) ?? []) {
+        if (null == value) continue;
+        oldDbCache.add(value.toString());
+      }
       // 遍历数据处理
       for (String oneDbCache in oldDbCache) {
         NotificationCacheNode? oneDbCacheNode = NotificationCacheNode.decode(oneDbCache);
@@ -368,9 +374,10 @@ class NotificationHelper {
       // 此刻
       DateTime now = DateTime.now();
       // 存储的数据
-      List<String> cloneDbCache = DatabaseHelper.kv.get(notificationCache) ?? [];
+      List cloneDbCache = DatabaseHelper.kv.get(notificationCache) ?? [];
       for (int i = 0; i < cloneDbCache.length; i++) {
-        String oneDbCache = cloneDbCache[i];
+        String? oneDbCache = cloneDbCache[i] as String?;
+        if (null == oneDbCache) continue;
         NotificationCacheNode? oneDbCacheNode = NotificationCacheNode.decode(oneDbCache);
         if (null == oneDbCacheNode) {
           _log("通知$oneDbCache解码失败，跳过");
@@ -504,7 +511,6 @@ class NotificationHelper {
         switch (type) {
           case NotificationCacheNodeType.normal:
             _log("通知类型为$type,发送定时通知，通知时间$dateTime，当前时间${DateTime.now()}");
-            LocalNotificationHelper.showNotification(id: id);
             await LocalNotificationHelper.scheduleNotification(
               id: id,
               dateTime: dateTime,
@@ -855,7 +861,7 @@ class NotificationCallback {
   static void _log(String msg) => LogHelper.debug("[本地通知回调]:$msg");
 
   /// 通知回调方法
-  static void callback(String? payload) {
+  static void callback(String? payload) async {
     _log("回调执行，原始负载:$payload");
     NotificationPayload? notificationPayload = NotificationPayload.decode(payload);
     if (null == notificationPayload) {
@@ -870,4 +876,53 @@ class NotificationCallback {
     _log("发送新通知");
     NotificationHelper._notification();
   }
+}
+
+/// 通知的负载
+@immutable
+class NotificationPayload {
+  /// 通知类型，用户触发回调等操作
+  final NotificationType type;
+  static const String _typeKey = "type";
+
+  /// 通知实质上携带的负载
+  final String? payload;
+  static const String _payloadKey = "payload";
+
+  const NotificationPayload({required this.type, this.payload});
+
+  /// 通知负载解码
+  static NotificationPayload? decode(String? notificationPayload) {
+    if (null == notificationPayload || notificationPayload.isEmpty) return null;
+    Map<String, dynamic> payloadMap = json.decode(notificationPayload);
+    NotificationType? callbackType = NotificationTypes.get(payloadMap[_typeKey]);
+    if (null == callbackType) return null;
+    return NotificationPayload(type: callbackType, payload: payloadMap[_payloadKey]);
+  }
+
+  /// 通知负载编码
+  String? encode() {
+    return json.encode({_typeKey: type.name, _payloadKey: payload});
+  }
+}
+
+/// 通知类型
+class NotificationTypes {
+  NotificationTypes._();
+
+  static final Map<String, NotificationType> _map = {};
+
+  static void put(NotificationType type) {
+    _map[type.name] = type;
+  }
+
+  static NotificationType? get(String name) => _map[name];
+}
+
+/// 通知类型
+abstract class NotificationType {
+  String get name;
+
+  /// 回调方法
+  Future<void> callback(String? payload);
 }

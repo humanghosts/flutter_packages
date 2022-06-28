@@ -39,6 +39,9 @@ abstract class AppConfig {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ];
+
+  /// 初始化回调
+  Future<void> afterInitCallback() async {}
 }
 
 /// 通知配置

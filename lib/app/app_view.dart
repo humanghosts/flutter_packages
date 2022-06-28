@@ -8,6 +8,7 @@ import 'package:hg_framework/app/app_logic.dart';
 import 'package:hg_framework/entity/theme_template.dart';
 
 import '../view/util/app_scroll_behavior.dart';
+import '../view/util/trick_provider.dart';
 
 /// 主程序
 abstract class App extends StatelessWidget with WidgetsBindingObserver {
@@ -75,7 +76,12 @@ abstract class App extends StatelessWidget with WidgetsBindingObserver {
               navigatorObservers: [
                 Observer(RouteHelper.observer, ObserverRouting()),
               ],
-              home: buildHome(context),
+              home: Stack(
+                children: [
+                  buildHome(context),
+                  buildNotification(),
+                ],
+              ),
               builder: EasyLoading.init(),
               locale: logic.config.locale,
               supportedLocales: logic.config.supportedLocales,
@@ -88,4 +94,63 @@ abstract class App extends StatelessWidget with WidgetsBindingObserver {
   }
 
   Widget buildHome(BuildContext context);
+
+  /// 构建蒙版
+  Widget buildNotification() {
+    return Positioned(
+      top: 0,
+      right: 0,
+      child: Obx(() {
+        logic.inAppNotificationUpdateFlag.value;
+        Map<int, Set<String>> indexKeys = logic.indexNotificationKeys;
+        if (indexKeys.isEmpty) return Container();
+        // 子通知
+        List<Widget> children = [];
+        // 通知
+        List<int> indexList = indexKeys.keys.toList();
+        indexList.sort();
+        for (int index in indexList) {
+          Set<String>? overlayKeySet = indexKeys[index];
+          if (null == overlayKeySet || overlayKeySet.isEmpty) continue;
+          for (String overlayKey in overlayKeySet) {
+            Widget? overlayWidget = logic.indexNotificationWidget[overlayKey];
+            if (null == overlayWidget) continue;
+
+            // 动画控制器
+            AnimationController controller = logic.notificationController.putIfAbsent(
+                overlayKey,
+                () => AnimationController(
+                      duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
+                      vsync: SimpleTickerProvider(),
+                    ));
+
+            Animation<double> animation =
+                Tween<double>(begin: (AppLogic.isDesktop ? 400 : Get.width), end: 0).animate(CurvedAnimation(parent: controller, curve: Curves.easeOut));
+            // 立即播放动画
+            Future.delayed(Duration.zero, () => controller.forward());
+
+            children.add(AnimatedBuilder(
+              key: ValueKey(overlayKey),
+              animation: controller,
+              builder: (BuildContext context, Widget? child) {
+                return Transform.translate(
+                  offset: Offset(animation.value, 0),
+                  child: child,
+                );
+              },
+              child: overlayWidget,
+            ));
+          }
+        }
+        if (children.isEmpty) return Container();
+        return Container(
+          width: AppLogic.isDesktop ? 400 : Get.width,
+          padding: EdgeInsets.only(top: Get.mediaQuery.padding.top),
+          child: SingleChildScrollView(
+            child: Column(children: children),
+          ),
+        );
+      }),
+    );
+  }
 }

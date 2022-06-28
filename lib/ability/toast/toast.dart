@@ -1,9 +1,11 @@
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:hg_entity/hg_entity.dart';
 import 'package:hg_framework/hg_framework.dart';
 
 import '../../view/components/popup_menu.dart';
@@ -17,16 +19,59 @@ class ToastHelper {
   }
 
   /// 应用内提示
-  static SnackbarController inAppNotification({String? title, String? message}) {
-    SnackbarController controller = Get.snackbar(
-      "",
-      "",
-      titleText: title == null ? null : Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-      messageText: message == null ? null : Text(message),
-      duration: const Duration(minutes: 1),
+  static void inAppNotification({
+    Widget? leading,
+    String? title,
+    String? message,
+    String? key,
+    VoidCallback? onTap,
+  }) {
+    String key = UUIDGenerator.instance.id;
+    AppLogic.instance.showNotification(
+      key,
+      Clickable(
+        child: Card(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            child: Row(
+              children: [
+                if (null != leading) ...[
+                  leading,
+                  const SizedBox(width: 12),
+                ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title ?? "",
+                        style: AppLogic.instance.themeData.textTheme.bodyText1,
+                      ),
+                      if (message != null || title != null)
+                        Text(
+                          message ?? title ?? "",
+                          style: AppLogic.instance.themeData.textTheme.bodyText2,
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Clickable(
+                  child: const Icon(Icons.close_outlined),
+                  onTap: () {
+                    AppLogic.instance.closeNotification(key);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+        onTap: () {
+          AppLogic.instance.closeNotification(key);
+          onTap?.call();
+        },
+      ),
     );
-    HapticFeedback.vibrate();
-    return controller;
   }
 
   /// 单选提示框

@@ -176,8 +176,46 @@ abstract class OverlayHelper {
   }
 }
 
+/// 应用内通知助手
+class InAppNotificationHelper {
+  /// 通知更新标识
+  RxInt inAppNotificationUpdateFlag = 0.obs;
+
+  /// ID:组件
+  Map<String, Widget> indexNotificationWidget = {};
+
+  /// 顺序:ID_SET
+  Map<int, Set<String>> indexNotificationKeys = {};
+
+  /// ID:顺序
+  Map<String, int> notificationKeyIndex = {};
+
+  /// 动画控制器
+  Map<String, AnimationController> notificationController = {};
+
+  /// 通知
+  void showNotification(String key, Widget widget, [int? index]) {
+    int order = index ?? indexNotificationKeys.length;
+    indexNotificationWidget[key] = widget;
+    notificationKeyIndex[key] = order;
+    indexNotificationKeys.putIfAbsent(order, () => {}).add(key);
+    inAppNotificationUpdateFlag++;
+  }
+
+  /// 关闭通知
+  void closeNotification(String key) async {
+    if (!indexNotificationWidget.containsKey(key)) return;
+    int order = notificationKeyIndex[key]!;
+    indexNotificationWidget.remove(key);
+    notificationKeyIndex.remove(key);
+    indexNotificationKeys[order]?.remove(key);
+    await notificationController[key]?.reverse();
+    inAppNotificationUpdateFlag++;
+  }
+}
+
 /// 主页控制器
-class AppLogic extends GetxController with OrientationListener, ThemeListener, AppLifecycleListener, OverlayHelper {
+class AppLogic extends GetxController with OrientationListener, ThemeListener, AppLifecycleListener, OverlayHelper, InAppNotificationHelper {
   AppLogic._();
 
   static AppLogic get instance => Get.put<AppLogic>(AppLogic._());

@@ -29,8 +29,7 @@ class AppInit {
     await AppLogic.instance.onAppInit(config);
     // 初始化通知服务
     await NotificationHelper.init();
-    // 初始化前台任务
-    await ForegroundWorkHelper.init();
+    await config.afterInitCallback();
   }
 }
 
@@ -86,14 +85,6 @@ Future<void> _presetDataInit(PresetData? presetData) async {
     }
   });
   await DatabaseHelper.database.kv.putSave(key, true);
-}
-
-/// 任务初始化
-Future<void> workInit() async {
-  // 暂时不需要
-  // await BackgroundWorkHelper.init();
-  // 前台人物初始化
-  await ForegroundWorkHelper.init();
 }
 
 /// 注册entity
