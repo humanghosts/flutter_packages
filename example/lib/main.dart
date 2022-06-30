@@ -24,7 +24,7 @@ class MyApp extends App {
   const MyApp({Key? key}) : super(key: key);
 
   @override
-  Widget buildHome() {
+  Widget buildHome(BuildContext context) {
     return Home(key: "home");
   }
 }

@@ -14,22 +14,20 @@ dependencies:
     sdk: flutter
 
   # TODO 本地用
-  #  hg_orm:
-  #    path: ../hg_orm
-  #  hg_entity:
-  #    path: ../hg_entity
-  #  scheduled_timer:
-  #    path: ../../scheduled_timer
+#  hg_orm:
+#    path: ../hg_orm
+#  hg_entity:
+#    path: ../hg_entity
+#  scheduled_timer:
+#    path: ../../scheduled_timer
 
   # TODO 提交用
   hg_orm:
-    git:
-      url: git@github.com:humanghosts/hg_orm.git
-      ref: dev
+    git: https://github.com/humanghosts/hg_orm.git
   hg_entity:
-    git: git@github.com:humanghosts/hg_entity.git
+    git: https://github.com/humanghosts/hg_entity.git
   scheduled_timer:
-    git: git@github.com:humanghosts/scheduled_timer.git
+    git: https://github.com/humanghosts/scheduled_timer.git
 
   # 框架类的库
   ## 依赖、状态管理、路由框架
