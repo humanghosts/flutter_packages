@@ -19,9 +19,15 @@ class HeaderCard extends View<HeaderCardLogic> {
     this.color,
     this.boldTitle = true,
     this.child,
+    this.canClose = true,
+    this.trailing,
   }) : super(key: key, logic: HeaderCardLogic());
 
+  final bool canClose;
+
   final Widget? leading;
+
+  final Widget? trailing;
 
   final Widget? title;
 
@@ -77,21 +83,24 @@ class HeaderCard extends View<HeaderCardLogic> {
                   leading: leading,
                   title: cardTitle,
                   subtitle: subtitle,
-                  trailing: Obx(() {
-                    return Clickable(
-                      onPressed: () => logic.isOpen.value = !logic.isOpen.value,
-                      tooltip: logic.isOpen.value ? "收起" : "展开",
-                      child: AnimatedSwitcher(
-                        duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
-                        child: Icon(
-                          logic.isOpen.value ? Icons.expand_less_outlined : Icons.expand_more_outlined,
-                          key: ValueKey(logic.isOpen.value),
-                          size: 32,
-                        ),
-                      ),
-                    );
-                  }),
-                  onTap: () => logic.isOpen.value = !logic.isOpen.value,
+                  trailing: trailing ??
+                      (!canClose
+                          ? null
+                          : Obx(() {
+                              return Clickable(
+                                onPressed: () => logic.isOpen.value = !logic.isOpen.value,
+                                tooltip: logic.isOpen.value ? "收起" : "展开",
+                                child: AnimatedSwitcher(
+                                  duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
+                                  child: Icon(
+                                    logic.isOpen.value ? Icons.expand_less_outlined : Icons.expand_more_outlined,
+                                    key: ValueKey(logic.isOpen.value),
+                                    size: 32,
+                                  ),
+                                ),
+                              );
+                            })),
+                  onTap: !canClose ? null : () => logic.isOpen.value = !logic.isOpen.value,
                 ),
               ),
             ),

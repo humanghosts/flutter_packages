@@ -138,7 +138,13 @@ abstract class App extends StatelessWidget with WidgetsBindingObserver {
                   child: child,
                 );
               },
-              child: overlayWidget,
+              child: Dismissible(
+                key: ValueKey(overlayKey),
+                child: overlayWidget,
+                onDismissed: (direction) {
+                  logic.closeNotification(overlayKey);
+                },
+              ),
             ));
           }
         }
