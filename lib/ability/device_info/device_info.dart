@@ -18,6 +18,7 @@ class DeviceInfoHelper {
     _baseDeviceInfo = await plugin.deviceInfo;
     if (kIsWeb) {
       WebBrowserInfo webInfo = deviceInfo as WebBrowserInfo;
+      print(webInfo.userAgent);
       isDesktop = !(webInfo.userAgent ?? "").contains("Mobile");
     } else {
       switch (defaultTargetPlatform) {
