@@ -23,7 +23,8 @@ dependencies:
 
   # TODO 提交用
   hg_orm:
-    git: git@github.com:humanghosts/hg_orm.git
+    git:
+      url: git@github.com:humanghosts/hg_orm.git
       ref: dev
   hg_entity:
     git: git@github.com:humanghosts/hg_entity.git
