@@ -27,7 +27,7 @@ class LocalNotificationHelper {
   /// 初始化通知组件
   static Future<bool?> init() async {
     // todo 如果是web或者是windows 由于插件没有相关功能，暂时使用应用内提醒
-    if (kIsWeb || !Platform.isIOS && !Platform.isAndroid) {
+    if (AppLogic.isDesktop) {
       inAppNotificationsPlugin = InAppNotificationsPlugin(onSelectNotification);
       return true;
     }
