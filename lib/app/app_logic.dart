@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
@@ -23,7 +22,7 @@ abstract class OrientationListener {
 
   /// 初始化
   void onWidgetBuildOrientation() {
-    if (!(Platform.isAndroid || Platform.isIOS)) return;
+    if (AppLogic.isDesktop) return;
     _subscription = OrientationPlugin.onOrientationChange.listen((value) {
       deviceOrientation = value;
     });
@@ -278,6 +277,8 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
 
   /// 是否是桌面平台
   static bool get isDesktop {
+    bool isWeb = kIsWeb;
+    if (isWeb) return true;
     switch (defaultTargetPlatform) {
       case TargetPlatform.fuchsia:
       case TargetPlatform.linux:
