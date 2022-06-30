@@ -276,20 +276,7 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
   }
 
   /// 是否是桌面平台
-  static bool get isDesktop {
-    bool isWeb = kIsWeb;
-    if (isWeb) return true;
-    switch (defaultTargetPlatform) {
-      case TargetPlatform.fuchsia:
-      case TargetPlatform.linux:
-      case TargetPlatform.windows:
-      case TargetPlatform.macOS:
-        return true;
-      case TargetPlatform.android:
-      case TargetPlatform.iOS:
-        return false;
-    }
-  }
+  static bool get isDesktop => DeviceInfoHelper.isDesktop;
 
   /// 是否移动平台
   static bool get isMobile => !isDesktop;
