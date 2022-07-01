@@ -104,7 +104,7 @@ class HeaderCard extends View<HeaderCardLogic> {
                 ),
               ),
             ),
-          Obx(() {
+          Expanded(child: Obx(() {
             return AnimatedSwitcher(
               duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
               transitionBuilder: (Widget child, Animation<double> animation) {
@@ -120,7 +120,7 @@ class HeaderCard extends View<HeaderCardLogic> {
                     )
                   : SizedBox.shrink(key: ValueKey(logic.isOpen.value)),
             );
-          }),
+          })),
         ],
       ),
     );

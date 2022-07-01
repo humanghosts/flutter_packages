@@ -6,6 +6,7 @@ class Clickable extends StatelessWidget {
   const Clickable({
     Key? key,
     required this.child,
+    this.showInk = true,
     this.cursor = MaterialStateMouseCursor.clickable,
     this.tooltip,
     this.forceTooltip = false,
@@ -77,6 +78,7 @@ class Clickable extends StatelessWidget {
   final String? tooltip;
   final bool forceTooltip;
   final bool? tooltipBelow;
+  final bool showInk;
 
   final Widget child;
 
@@ -280,7 +282,7 @@ class Clickable extends StatelessWidget {
         child: InkWell(
           mouseCursor: cursor,
           borderRadius: BorderRadius.circular(template.defaultRadius.value ?? 12),
-          hoverColor: theme.highlightColor,
+          hoverColor: showInk ? theme.highlightColor : Colors.transparent,
           onTap: onTap ?? onPressed,
           onDoubleTap: onDoubleTap,
           onHover: onHover,

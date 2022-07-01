@@ -132,30 +132,22 @@ class ThemeConfigView extends hg.Page<ThemeConfigViewLogic> {
         opacity: AppLogic.currentThemeTemplate.sysNavBarOpacity.value,
       ),
       child: Scaffold(
-        appBar: AppBar(
-          leading: const BackButton(),
-          title: const Text("主题选择"),
-          centerTitle: false,
-          actions: [
-            Obx(() {
-              ThemeTemplateViewType type = logic.templateViewType.value;
-              int nextIndex = type.index + 1;
-              int realNextIndex = nextIndex % ThemeTemplateViewType.values.length;
-              ThemeTemplateViewType nextType = ThemeTemplateViewType.values[realNextIndex];
-              return IconButton(
-                key: ValueKey(nextType.name),
-                onPressed: () => logic.changeTemplateViewType(nextType),
-                icon: AnimatedIcon(
-                  icon: AnimatedIcons.list_view,
-                  progress: logic.animationController,
-                ),
-                tooltip: "按${nextType.title}显示",
-              );
-            }),
-          ],
-        ),
-        extendBody: true,
-        extendBodyBehindAppBar: true,
+        backgroundColor: Colors.transparent,
+        floatingActionButton: Obx(() {
+          ThemeTemplateViewType type = logic.templateViewType.value;
+          int nextIndex = type.index + 1;
+          int realNextIndex = nextIndex % ThemeTemplateViewType.values.length;
+          ThemeTemplateViewType nextType = ThemeTemplateViewType.values[realNextIndex];
+          return FloatingActionButton(
+            key: ValueKey(nextType.name),
+            onPressed: () => logic.changeTemplateViewType(nextType),
+            tooltip: "按${nextType.title}显示",
+            child: AnimatedIcon(
+              icon: AnimatedIcons.list_view,
+              progress: logic.animationController,
+            ),
+          );
+        }),
         body: Obx(() {
           // 使用.value才能处罚绑定，否则Obx不生效
           log("主题列表展示方式:${logic.templateViewType.value.title}");
@@ -196,7 +188,7 @@ class ThemeConfigView extends hg.Page<ThemeConfigViewLogic> {
         mainAxisExtent: 64,
       ),
       padding: EdgeInsets.only(
-        top: kToolbarHeight + Get.mediaQuery.padding.top + 6,
+        top: Get.mediaQuery.padding.top + 6,
         bottom: Get.height * 0.4,
       ),
       itemCount: templateList.length,
@@ -268,7 +260,7 @@ class ThemeConfigView extends hg.Page<ThemeConfigViewLogic> {
         mainAxisSpacing: 12,
       ),
       padding: EdgeInsets.only(
-        top: kToolbarHeight + Get.mediaQuery.padding.top + 6,
+        top: Get.mediaQuery.padding.top + 6,
         left: 6,
         right: 6,
         bottom: Get.height * 0.4,
