@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +25,7 @@ class LocalNotificationHelper {
   /// 初始化通知组件
   static Future<bool?> init() async {
     // todo 如果是web或者是windows 由于插件没有相关功能，暂时使用应用内提醒
-    if (AppLogic.isDesktop) {
+    if (AppLogic.isDesktop || kIsWeb) {
       inAppNotificationsPlugin = InAppNotificationsPlugin(onSelectNotification);
       return true;
     }
@@ -37,7 +35,8 @@ class LocalNotificationHelper {
     final String timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(timeZoneName));
     // 是否通过通知启动应用 来判断应该进入哪个页面
-    notificationAppLaunchDetails = !kIsWeb && Platform.isLinux ? null : await flutterLocalNotificationsPlugin!.getNotificationAppLaunchDetails();
+    notificationAppLaunchDetails =
+        DeviceInfoHelper.platform == TargetPlatform.linux ? null : await flutterLocalNotificationsPlugin!.getNotificationAppLaunchDetails();
     //  app_icon是应用图标文件
     AndroidInitializationSettings android = const AndroidInitializationSettings('app_icon');
     // ios配置

@@ -41,10 +41,11 @@ class DeviceInfoHelper {
     return _baseDeviceInfo!;
   }
 
-// static TargetPlatform get platform {
-//   if(!kIsWeb)return defaultTargetPlatform;
-//   WebBrowserInfo webInfo = deviceInfo as WebBrowserInfo;
-//   String agent = webInfo.userAgent??"";
-//   // TODO 通过agent判断设备类型
-// }
+  /// TODO web判断设备类型
+  static TargetPlatform get platform {
+    if (!kIsWeb) return defaultTargetPlatform;
+    WebBrowserInfo webInfo = deviceInfo as WebBrowserInfo;
+    String agent = webInfo.userAgent ?? "";
+    return TargetPlatform.android;
+  }
 }

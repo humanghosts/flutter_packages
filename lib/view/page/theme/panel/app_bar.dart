@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:hg_framework/hg_framework.dart';
@@ -107,7 +105,7 @@ class AppBarView extends PanelView<AppBarLogic> {
           ),
         ),
         Visibility(
-          visible: Platform.isAndroid,
+          visible: DeviceInfoHelper.platform == TargetPlatform.android,
           child: SwitchListTileAdaptive(
             title: const Text('单色应用栏'),
             subtitle: const Text('开启使用一种颜色，关闭使用两种颜色'),

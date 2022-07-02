@@ -122,7 +122,7 @@ class ToastHelper {
     List<T> destructiveValue = const [],
     String cancelText = "取消",
   }) async {
-    switch (defaultTargetPlatform) {
+    switch (DeviceInfoHelper.platform) {
 
       /// TODO 安卓等其他平台处理
       case TargetPlatform.android:
@@ -189,7 +189,7 @@ class ToastHelper {
     List<T> destructiveValue = const [],
     String cancelText = "取消",
   }) async {
-    switch (defaultTargetPlatform) {
+    switch (DeviceInfoHelper.platform) {
       // TODO android
       case TargetPlatform.android:
       case TargetPlatform.fuchsia:

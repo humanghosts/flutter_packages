@@ -1,7 +1,7 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hg_entity/hg_entity.dart';
+import 'package:hg_framework/hg_framework.dart';
 
 import '../app/app_logic.dart';
 import 'theme_custom_value.dart';
@@ -681,7 +681,7 @@ extension FlexColorSchemeConvert on ThemeTemplate {
       // Custom font, modify in AppData class to change it.
       fontFamily: fontFamily.value,
       // The platform can be toggled in the app, but not saved.
-      platform: defaultTargetPlatform,
+      platform: DeviceInfoHelper.platform,
       // Opt-in/out of using Flutter SDK Material3 based theming
       // features. In Flutter SDK 2.10 and earlier it has almost no
       // effect, but it will later and then we can use this toggle
@@ -818,7 +818,7 @@ extension FlexColorSchemeConvert on ThemeTemplate {
       // ThemeData properties passed along directly to ThemeData.
       visualDensity: FlexColorScheme.comfortablePlatformDensity,
       fontFamily: fontFamily.value,
-      platform: defaultTargetPlatform,
+      platform: DeviceInfoHelper.platform,
       useMaterial3: true,
       primary: primaryDark.value.color,
       primaryContainer: primaryContainerDark.value.color,

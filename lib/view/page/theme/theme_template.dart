@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:flex_color_scheme/flex_color_scheme.dart';
@@ -220,7 +219,7 @@ class ThemeTemplateViewLogic extends PageLogic<ThemeTemplateViewArgs, ThemeTempl
   @override
   void onInit() {
     super.onInit();
-    if (Platform.isAndroid) {
+    if (DeviceInfoHelper.platform == TargetPlatform.android) {
       panelTypeList = TemplatePanelTypeExtension.androidValueList;
     } else {
       panelTypeList = TemplatePanelTypeExtension.valueList;
