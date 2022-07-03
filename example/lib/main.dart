@@ -39,13 +39,7 @@ class Home extends View<HomeLogic> {
   @override
   Widget buildView(BuildContext context) {
     return TextButton(
-      onPressed: () {
-        RouteHelper.to(
-          page: ThemeConfigView(
-            key: "theme_config",
-          ),
-        );
-      },
+      onPressed: () {},
       child: Text('\u{1f600}'),
     );
   }

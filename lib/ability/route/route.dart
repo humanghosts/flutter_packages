@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hg_framework/app/app_logic.dart';
 import 'package:hg_framework/hg_framework.dart';
-
-import 'observer.dart';
 
 /// 路由管理配置类
 class RouteHelper {
+  RouteHelper._();
+
   /// 中间件集合
   static Map<String, Function(ObserverRouting? routing)?> observerMap = {};
 

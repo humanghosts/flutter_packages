@@ -37,6 +37,8 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
   /// 第二内容宽度
   Rx<double> secondaryBodyWidth = (-1.0).obs;
 
+  BuildContext? context;
+
   /// 菜单是否打开
   Rx<bool> isMenuOpen = true.obs;
 
@@ -58,6 +60,26 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
   /// 抽屉菜单控制器
   ScrollController mobileController = ScrollController(initialScrollOffset: 0);
 
+  /// 组件开始起点
+  RxDouble dx = 0.0.obs;
+
+  /// 组件开始起点
+  RxDouble dy = 0.0.obs;
+
+  /// 最大宽度
+  double? _maxWidth;
+
+  /// 最大高度
+  double? _maxHeight;
+
+  double get maxWidth => _maxWidth ?? Get.width;
+
+  double get maxHeight => _maxHeight ?? Get.height;
+
+  set maxWidth(double value) => _maxWidth = value;
+
+  set maxHeight(double value) => _maxHeight = value;
+
   @override
   void afterArgsUpdate() {
     super.afterArgsUpdate();
@@ -68,11 +90,13 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
   /// 打开菜单
   void openMenu() {
     isMenuOpen.value = true;
+    if (null != context) Scaffold.of(context!).openDrawer();
   }
 
   /// 关闭菜单
   void closeMenu() {
     isMenuOpen.value = false;
+    if (null != context) Scaffold.of(context!).closeDrawer();
   }
 
   /// 打开或关闭菜单栏
@@ -93,12 +117,12 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
       if (secondaryBodyWidth.value < 0) {
         bool isMenuOpen = this.isMenuOpen.value;
         if (isMenuOpen) {
-          secondaryBodyWidth.value = (Get.width - menuWidth.value) / 2;
+          secondaryBodyWidth.value = (maxWidth - menuWidth.value) / 2;
         } else {
-          secondaryBodyWidth.value = (Get.width / 2);
+          secondaryBodyWidth.value = (maxWidth / 2);
         }
         // 初始长度不超过屏幕一半
-        secondaryBodyWidth.value = math.min(secondaryBodyWidth.value, Get.width / 2);
+        secondaryBodyWidth.value = math.min(secondaryBodyWidth.value, maxWidth / 2);
       }
     }
     if (null != isExpand) {
@@ -108,7 +132,7 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
       isSecondaryBodyOpen.value = true;
       if (AppLogic.isMobile) {
         mobileController.animateTo(
-          Get.width,
+          maxWidth,
           duration: AppLogic.appConfig.animationConfig.fastAnimationDuration,
           curve: Curves.linear,
         );
@@ -169,23 +193,41 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
   @override
   Widget buildView(BuildContext context) {
     ThemeTemplate themeTemplate = AppLogic.instance.themeTemplate;
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      key: const ValueKey("annotated_region"),
-      value: FlexColorScheme.themedSystemNavigationBar(
-        context,
-        systemNavBarStyle: themeTemplate.sysNavBarStyle.value.style,
-        useDivider: themeTemplate.useSysNavDivider.value,
-        opacity: themeTemplate.sysNavBarOpacity.value,
-      ),
-      child: Material(
-        key: const ValueKey("material"),
-        color: Colors.transparent,
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          body: AppLogic.isMobile ? buildMobile(context) : Obx(() => buildDesktop(context)),
+    return LayoutBuilder(builder: (context, constraints) {
+      logic.maxWidth = math.min(constraints.maxWidth, Get.width);
+      logic.maxHeight = math.min(constraints.maxHeight, Get.height);
+      Future.delayed(Duration.zero, () {
+        final RenderBox stack = context.findRenderObject()! as RenderBox;
+        Offset global = stack.localToGlobal(Offset.zero);
+        logic.dx.value = global.dx;
+        logic.dy.value = global.dy;
+      });
+      return Container(
+        constraints: BoxConstraints(
+          minHeight: constraints.minHeight,
+          minWidth: constraints.minWidth,
+          maxWidth: logic.maxWidth,
+          maxHeight: logic.maxHeight,
         ),
-      ),
-    );
+        child: AnnotatedRegion<SystemUiOverlayStyle>(
+          key: const ValueKey("annotated_region"),
+          value: FlexColorScheme.themedSystemNavigationBar(
+            context,
+            systemNavBarStyle: themeTemplate.sysNavBarStyle.value.style,
+            useDivider: themeTemplate.useSysNavDivider.value,
+            opacity: themeTemplate.sysNavBarOpacity.value,
+          ),
+          child: Material(
+            key: const ValueKey("material"),
+            color: Colors.transparent,
+            child: Scaffold(
+              backgroundColor: Colors.transparent,
+              body: AppLogic.isMobile ? buildMobile(context) : Obx(() => buildDesktop(context)),
+            ),
+          ),
+        ),
+      );
+    });
   }
 
   /// 抽屉式菜单
@@ -210,7 +252,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
                 delegate: SliverChildBuilderDelegate(
                   (context, index) => Scaffold(
                     drawer: SizedBox(
-                      width: Get.width * 0.8,
+                      width: logic.maxWidth * 0.8,
                       child: ClipRect(
                         child: BackdropFilter(
                           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
@@ -218,7 +260,10 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
                         ),
                       ),
                     ),
-                    body: buildBody(context),
+                    body: Builder(builder: (context) {
+                      logic.context = context;
+                      return buildBody(context);
+                    }),
                     backgroundColor: Colors.transparent,
                   ),
                   childCount: 1,
@@ -244,13 +289,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
   /// 构建菜单项
   Widget buildMenu(BuildContext context) {
     // 调用传入参数构建菜单项
-    return SizedBox.expand(
-      child: SingleChildScrollView(
-        controller: ScrollController(),
-        padding: EdgeInsets.only(bottom: Get.height * 0.4),
-        child: logic.args.menu,
-      ),
-    );
+    return SizedBox.expand(child: logic.args.menu);
   }
 
   /// 展开收起模式菜单
@@ -281,7 +320,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
                     ),
                     Expanded(
                       child: Container(
-                        constraints: BoxConstraints(minWidth: Get.width / 3),
+                        constraints: BoxConstraints(minWidth: logic.maxWidth / 3),
                         child: buildBody(context),
                       ),
                     ),
@@ -323,8 +362,10 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
               // 可拖拽的框
               buildDesktopDraggableDivider(context, (detail) {
                 Offset offset = detail.globalPosition;
-                // 菜单不能超过1/2
-                logic.menuWidth.value = math.max(math.min(math.max(4, offset.dx), Get.width / 3), Get.width / 8);
+                logic.menuWidth.value = math.max(
+                  math.min(offset.dx - logic.dx.value, logic.maxWidth / 3),
+                  logic.maxWidth / 8,
+                );
               }),
             ],
           ),
@@ -342,7 +383,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
 
     return SizedBox(
       key: const ValueKey("secondary_body_open"),
-      width: isExpandSecondary ? Get.width : math.min(logic.secondaryBodyWidth.value, Get.width / 2),
+      width: isExpandSecondary ? logic.maxWidth : math.min(logic.secondaryBodyWidth.value, logic.maxWidth / 2),
       child: MouseRegion(
         onEnter: (event) => logic.isHoverSecondaryBodyButton.value = true,
         onExit: (event) => logic.isHoverSecondaryBodyButton.value = false,
@@ -352,7 +393,10 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
             // 可拖拽的框
             buildDesktopDraggableDivider(context, (detail) {
               Offset offset = detail.globalPosition;
-              logic.secondaryBodyWidth.value = math.max(math.min(math.max(4, Get.width - offset.dx), Get.width / 2), Get.width / 4);
+              logic.secondaryBodyWidth.value = math.max(
+                math.min(logic.maxWidth - (offset.dx - logic.dx.value), logic.maxWidth / 2),
+                logic.maxWidth / 4,
+              );
             }),
             // 第二内容
             Expanded(child: buildSecondaryBody(context)),
@@ -376,7 +420,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
       }
       return AnimatedPositioned(
         duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
-        left: isExpand ? math.min(menuWidth, Get.width / 2) : 0,
+        left: isExpand ? math.min(menuWidth, logic.maxWidth / 2) : 0,
         child: MouseRegion(
           cursor: MaterialStateMouseCursor.clickable,
           onEnter: (event) => logic.isHoverMenuButton.value = true,
@@ -404,11 +448,15 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
       if (isOpen) {
         opacity = isHover ? 1 : 0;
       } else {
-        opacity = 1;
+        if (logic.secondaryBody.value == null) {
+          opacity = 0;
+        } else {
+          opacity = 1;
+        }
       }
       return AnimatedPositioned(
         duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
-        right: isOpen ? math.min(bodyWidth, Get.width / 2) : 0,
+        right: isOpen ? math.min(bodyWidth, logic.maxWidth / 2) : 0,
         child: MouseRegion(
           cursor: MaterialStateMouseCursor.clickable,
           onEnter: (event) => logic.isHoverSecondaryBodyButton.value = true,

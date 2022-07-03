@@ -182,7 +182,7 @@ class ToastHelper {
   static Future<T?> showContextMenu<T>(
     BuildContext context, {
     Widget? message,
-    RelativeRect? position,
+    Offset? position,
     required List<T> valueList,
     required Widget Function(T value) childBuilder,
     List<T> defaultValue = const [],
@@ -215,7 +215,7 @@ class ToastHelper {
     BuildContext context, {
     required List<T> valueList,
     required Widget Function(T value) childBuilder,
-    RelativeRect? pos,
+    Offset? pos,
   }) async {
     // 菜单项
     List<PopupMenuEntry<T>> items = [];
@@ -232,15 +232,19 @@ class ToastHelper {
     // 样式
     final PopupMenuThemeData popupMenuTheme = PopupMenuTheme.of(context);
     // 发起菜单的组件
-    final RenderBox button = context.findRenderObject()! as RenderBox;
-    Offset global = button.localToGlobal(Offset.zero);
-    RelativeRect position = pos ??
-        RelativeRect.fromLTRB(
-          global.dx + button.size.width,
-          global.dy,
-          Get.width,
-          Get.height,
-        );
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    print(pos);
+    // 点击的相对位置
+    Offset tap = button.globalToLocal(pos ?? Offset.zero);
+    // 父组件的起始位置
+    Offset start = button.localToGlobal(Offset.zero);
+    print(tap);
+    RelativeRect position = RelativeRect.fromLTRB(
+      tap.dx + button.size.width,
+      tap.dy,
+      start.dx,
+      start.dy,
+    );
     // 显示菜单
     return await showMenu<T?>(
       context: context,
