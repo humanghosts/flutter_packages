@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hg_framework/ability/export.dart';
 import 'package:hg_framework/hg_framework.dart';
 
 /// 页面外部参数

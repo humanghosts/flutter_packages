@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hg_framework/app/app_logic.dart';
 import 'package:hg_framework/hg_framework.dart';
 
 /// 页面外部参数
@@ -129,7 +128,10 @@ abstract class View<L extends ViewLogic> extends StatelessWidget {
       builder: (logic) {
         return Builder(builder: (context) {
           logic.onWidgetBuild(context);
-          return buildView(context);
+          return Obx(() {
+            AppLogic.instance.themeUpdateFlag.value;
+            return buildView(context);
+          });
         });
       },
     );

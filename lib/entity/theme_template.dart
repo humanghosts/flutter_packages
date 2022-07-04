@@ -3,9 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:hg_entity/hg_entity.dart';
 import 'package:hg_framework/hg_framework.dart';
 
-import '../app/app_logic.dart';
-import 'theme_custom_value.dart';
-
 class ThemeTemplate extends DataModel {
   /// 模板名称
   late final Attribute<String?> name;
@@ -55,8 +52,6 @@ class ThemeTemplate extends DataModel {
   late final Attribute<int> blendOnLevel;
   late final Attribute<int> blendOnLevelDark;
   late final Attribute<int> usedColors;
-  late final Attribute<bool> swapLightColors;
-  late final Attribute<bool> swapDarkColors;
   late final Attribute<bool> lightIsWhite;
   late final Attribute<bool> darkIsTrueBlack;
 
@@ -187,8 +182,6 @@ class ThemeTemplate extends DataModel {
     blendOnLevel = attributes.integer(name: "blendOnLevel", title: "混合水平", dvalue: 20);
     blendOnLevelDark = attributes.integer(name: "blendOnLevelDark", title: "混合水平黑暗", dvalue: 30);
     usedColors = attributes.integer(name: "usedColors", title: "输入的颜色数量", dvalue: 6);
-    swapLightColors = attributes.boolean(name: "swapLightColors", title: "交换浅色", dvalue: false);
-    swapDarkColors = attributes.boolean(name: "swapDarkColors", title: "交换深色", dvalue: false);
     lightIsWhite = attributes.boolean(name: "lightIsWhite", title: "光是白色的", dvalue: false);
     darkIsTrueBlack = attributes.boolean(name: "darkIsTrueBlack", title: "黑暗是真正的黑色", dvalue: false);
     blendLightOnColors = attributes.boolean(name: "blendLightOnColors", title: "混合灯光颜色", dvalue: false);
@@ -516,7 +509,7 @@ extension FlexColorSchemeConvert on ThemeTemplate {
       // Keep scaffold plain white in all blend modes.
       lightIsWhite: lightIsWhite.value,
       // Swap primary and secondary colors.
-      swapColors: swapLightColors.value,
+      swapColors: false,
       // If true, tooltip theme background will be light in light
       // theme, and dark in dark themes. The Flutter and Material
       // default and standard is the other way, tooltip background
@@ -708,7 +701,6 @@ extension FlexColorSchemeConvert on ThemeTemplate {
       appBarElevation: appBarElevationDark.value,
       tabBarStyle: tabBarStyle.value.style,
       darkIsTrueBlack: darkIsTrueBlack.value,
-      swapColors: swapDarkColors.value,
       tooltipsMatchBackground: tooltipsMatchBackground.value,
       //
       subThemesData: FlexSubThemesData(

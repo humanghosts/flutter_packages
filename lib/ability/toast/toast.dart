@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
@@ -22,8 +21,11 @@ class ToastHelper {
   static void inAppNotification({
     Widget? leading,
     String? title,
+    Widget? titleWidget,
     String? message,
+    Widget? messageWidget,
     String? key,
+    Color? background,
     VoidCallback? onTap,
   }) {
     String key = UUIDGenerator.instance.id;
@@ -31,6 +33,7 @@ class ToastHelper {
       key,
       Clickable(
         child: Card(
+          color: background,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             child: Row(
@@ -43,15 +46,17 @@ class ToastHelper {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        title ?? "",
-                        style: AppLogic.instance.themeData.textTheme.bodyText1,
-                      ),
-                      if (message != null || title != null)
-                        Text(
-                          message ?? title ?? "",
-                          style: AppLogic.instance.themeData.textTheme.bodyText2,
-                        ),
+                      titleWidget ??
+                          Text(
+                            title ?? "",
+                            style: AppLogic.instance.themeData.textTheme.bodyText1,
+                          ),
+                      if (message != null || title != null || messageWidget != null)
+                        messageWidget ??
+                            Text(
+                              message ?? title ?? "",
+                              style: AppLogic.instance.themeData.textTheme.bodyText2,
+                            ),
                     ],
                   ),
                 ),
@@ -131,7 +136,7 @@ class ToastHelper {
       case TargetPlatform.windows:
       case TargetPlatform.macOS:
       case TargetPlatform.iOS:
-        return await _showCupertinoPopup(
+        return await showCupertinoPopup(
           context,
           valueList: valueList,
           childBuilder: childBuilder,
@@ -182,7 +187,7 @@ class ToastHelper {
   static Future<T?> showContextMenu<T>(
     BuildContext context, {
     Widget? message,
-    Offset? position,
+    required Offset position,
     required List<T> valueList,
     required Widget Function(T value) childBuilder,
     List<T> defaultValue = const [],
@@ -196,9 +201,9 @@ class ToastHelper {
       case TargetPlatform.linux:
       case TargetPlatform.windows:
       case TargetPlatform.macOS:
-        return await _showDeskTopContextMenu(context, valueList: valueList, childBuilder: childBuilder, pos: position);
+        return await showDeskTopContextMenu(context, valueList: valueList, childBuilder: childBuilder, position: position);
       case TargetPlatform.iOS:
-        return await _showCupertinoPopup(
+        return await showCupertinoPopup(
           context,
           valueList: valueList,
           childBuilder: childBuilder,
@@ -211,11 +216,11 @@ class ToastHelper {
   }
 
   /// 桌面端菜单按钮
-  static Future<T?> _showDeskTopContextMenu<T>(
+  static Future<T?> showDeskTopContextMenu<T>(
     BuildContext context, {
     required List<T> valueList,
     required Widget Function(T value) childBuilder,
-    Offset? pos,
+    required Offset position,
   }) async {
     // 菜单项
     List<PopupMenuEntry<T>> items = [];
@@ -223,41 +228,34 @@ class ToastHelper {
       T value = valueList[i];
       items.add(RawPopupMenuItem(
         value: value,
+        padding: const EdgeInsets.symmetric(horizontal: 6),
         child: childBuilder(value),
       ));
       if (i != valueList.length - 1) {
-        items.add(const PopupMenuDivider());
+        items.add(const PopupMenuDivider(height: 6));
       }
     }
     // 样式
     final PopupMenuThemeData popupMenuTheme = PopupMenuTheme.of(context);
-    // 发起菜单的组件
-    final RenderBox button = context.findRenderObject() as RenderBox;
-    print(pos);
-    // 点击的相对位置
-    Offset tap = button.globalToLocal(pos ?? Offset.zero);
-    // 父组件的起始位置
-    Offset start = button.localToGlobal(Offset.zero);
-    print(tap);
-    RelativeRect position = RelativeRect.fromLTRB(
-      tap.dx + button.size.width,
-      tap.dy,
-      start.dx,
-      start.dy,
+    RelativeRect relativeRect = RelativeRect.fromLTRB(
+      position.dx,
+      position.dy,
+      Get.width - position.dx,
+      Get.height - position.dy,
     );
     // 显示菜单
     return await showMenu<T?>(
       context: context,
       elevation: popupMenuTheme.elevation,
       items: items,
-      position: position,
+      position: relativeRect,
       shape: popupMenuTheme.shape,
       color: popupMenuTheme.color,
     );
   }
 
   /// ios平台的弹出菜单
-  static Future<T?> _showCupertinoPopup<T>(
+  static Future<T?> showCupertinoPopup<T>(
     BuildContext context, {
     Widget? message,
     required List<T> valueList,

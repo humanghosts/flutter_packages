@@ -71,6 +71,7 @@ class HeaderCard extends View<HeaderCardLogic> {
       shape: shapeBorder,
       elevation: elevation,
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           if (useHeading)
             Material(

@@ -85,6 +85,14 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
     super.afterArgsUpdate();
     secondaryBody.value ??= args.secondBody;
     args.controller?.call(this);
+    menuWidth.value = math.max(
+      math.min(menuWidth.value, maxWidth / 3),
+      maxWidth / 8,
+    );
+    secondaryBodyWidth.value = math.max(
+      math.min(secondaryBodyWidth.value, maxWidth / 2),
+      maxWidth / 4,
+    );
   }
 
   /// 打开菜单

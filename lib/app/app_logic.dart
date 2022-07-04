@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -66,6 +65,9 @@ abstract class ThemeListener {
 
   bool get isDarkMode => brightness == Brightness.dark;
 
+  /// 主题更新标识
+  RxInt themeUpdateFlag = 0.obs;
+
   /// 应用渲染时调用
   void onWidgetBuildTheme() {
     brightness = window.platformBrightness;
@@ -115,13 +117,10 @@ abstract class ThemeListener {
     }
   }
 
-  /// 重新构建
-  Future<void> rebuild() async {
-    themeChangedReRender();
-  }
-
   /// 重新根据主题渲染
-  void themeChangedReRender();
+  void themeChangedReRender() {
+    themeUpdateFlag++;
+  }
 
   /// 系统亮度调整 用于WidgetsBindingObserver的方法调用
   void didChangePlatformBrightness() {
@@ -153,6 +152,7 @@ abstract class OverlayHelper {
 
   /// 显示蒙版 index越高越靠上
   void showOverlay({required String key, required Widget widget, Widget? background}) {
+    if (closeFuncMap.containsKey(key)) return;
     ToastHelper.overlayBuilder(
       (context) {
         return widget;
@@ -198,6 +198,76 @@ class InAppNotificationHelper {
     indexNotificationWidget[key] = widget;
     notificationKeyIndex[key] = order;
     indexNotificationKeys.putIfAbsent(order, () => {}).add(key);
+    if (indexNotificationWidget.length == 1) {
+      AppLogic.instance.showOverlay(
+        key: "in_app_notification",
+        widget: Obx(() {
+          inAppNotificationUpdateFlag.value;
+          Map<int, Set<String>> indexKeys = indexNotificationKeys;
+          if (indexKeys.isEmpty) return Container();
+          // 子通知
+          List<Widget> children = [];
+          // 通知
+          List<int> indexList = indexKeys.keys.toList();
+          indexList.sort();
+          for (int index in indexList) {
+            Set<String>? overlayKeySet = indexKeys[index];
+            if (null == overlayKeySet || overlayKeySet.isEmpty) continue;
+            for (String overlayKey in overlayKeySet) {
+              Widget? overlayWidget = indexNotificationWidget[overlayKey];
+              if (null == overlayWidget) continue;
+
+              // 动画控制器
+              AnimationController controller = notificationController.putIfAbsent(
+                  overlayKey,
+                  () => AnimationController(
+                        duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
+                        vsync: SimpleTickerProvider(),
+                      ));
+
+              Animation<double> animation =
+                  Tween<double>(begin: (AppLogic.isDesktop ? 400 : Get.width), end: 0).animate(CurvedAnimation(parent: controller, curve: Curves.easeOut));
+              // 立即播放动画
+              Future.delayed(Duration.zero, () => controller.forward());
+
+              children.add(AnimatedBuilder(
+                key: ValueKey(overlayKey),
+                animation: controller,
+                builder: (BuildContext context, Widget? child) {
+                  return Transform.translate(
+                    offset: Offset(animation.value, 0),
+                    child: child,
+                  );
+                },
+                child: Dismissible(
+                  key: ValueKey(overlayKey),
+                  child: overlayWidget,
+                  onDismissed: (direction) {
+                    closeNotification(overlayKey);
+                  },
+                ),
+              ));
+            }
+          }
+          if (children.isEmpty) return Container();
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: AppLogic.isDesktop ? 400 : Get.width,
+                padding: EdgeInsets.only(top: Get.mediaQuery.padding.top),
+                child: SingleChildScrollView(
+                  child: Column(children: children),
+                ),
+              ),
+            ],
+          );
+        }),
+        background: Container(),
+      );
+    }
     inAppNotificationUpdateFlag++;
   }
 
@@ -209,6 +279,9 @@ class InAppNotificationHelper {
     notificationKeyIndex.remove(key);
     indexNotificationKeys[order]?.remove(key);
     await notificationController[key]?.reverse();
+    if (indexNotificationWidget.isEmpty) {
+      AppLogic.instance.closeOverlay("in_app_notification");
+    }
     inAppNotificationUpdateFlag++;
   }
 }
@@ -260,7 +333,10 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
 
   /// 重新根据主题渲染
   @override
-  void themeChangedReRender() => update();
+  void themeChangedReRender() {
+    super.themeChangedReRender();
+    update();
+  }
 
   /// 生命周期改变回调
   @override

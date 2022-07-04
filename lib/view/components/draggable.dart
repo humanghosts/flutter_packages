@@ -12,6 +12,8 @@ class DraggableArgs extends ViewArgs {
   final double? initTop;
   final double? initRight;
   final double? initBottom;
+  final bool isLimitInParent;
+  final bool isLongPress;
 
   const DraggableArgs({
     required this.child,
@@ -19,20 +21,26 @@ class DraggableArgs extends ViewArgs {
     this.initTop,
     this.initBottom,
     this.initRight,
+    this.isLimitInParent = true,
+    this.isLongPress = false,
   });
 }
 
 /// 逻辑
 class DraggableLogic extends ViewLogicOnlyArgs<DraggableArgs> {
-  /// 浮动按钮需要的参数
-  double? dx;
-  double? dy;
-  double? buttonWidth;
-  double? buttonHeight;
-  double? parentDx;
-  double? parentDy;
-  double? parentWidth;
-  double? parentHeight;
+  /// 子组件起始位置
+  Offset? childOffset;
+
+  /// 子组件大小
+  Size? childSize;
+
+  /// 父组件起始位置
+  Offset? parentOffset;
+
+  /// 父组件大小
+  Size? parentSize;
+
+  /// 与父组件的边距
   final RxnDouble left = RxnDouble();
   final RxnDouble top = RxnDouble();
   final RxnDouble right = RxnDouble();
@@ -46,13 +54,20 @@ class DraggableLogic extends ViewLogicOnlyArgs<DraggableArgs> {
     bottom.value = args.initBottom;
   }
 
+  /// 计算边距
   void calculate() {
-    List<double?> list = [dx, dy, buttonWidth, buttonHeight, parentDx, parentDy, parentWidth, parentHeight];
-    for (double? value in list) {
+    List list = [childOffset, childSize, parentSize, parentOffset];
+    for (dynamic value in list) {
       if (value == null) return;
     }
-    left.value = math.min(parentWidth! - buttonWidth!, math.max(dx! - parentDx! - buttonWidth! / 2, 0));
-    top.value = math.min(parentHeight! - buttonHeight!, math.max(dy! - parentDy! - buttonWidth! / 2, 0));
+    double hor = childOffset!.dx - parentOffset!.dx;
+    double ver = childOffset!.dy - parentOffset!.dy;
+    if (args.isLimitInParent) {
+      hor = math.min(parentSize!.width - childSize!.width, math.max(0, hor));
+      ver = math.min(parentSize!.height - childSize!.height, math.max(0, ver));
+    }
+    left.value = hor;
+    top.value = ver;
     right.value = null;
     bottom.value = null;
   }
@@ -67,53 +82,67 @@ class DraggableWidget extends View<DraggableLogic> {
 
   @override
   Widget buildView(BuildContext context) {
-    return DragTarget(
-      builder: (context, candidateItems, rejectedItems) {
-        Future.delayed(Duration.zero, () {
-          final RenderBox stack = context.findRenderObject()! as RenderBox;
-          Offset global = stack.localToGlobal(Offset.zero);
-          logic.parentDx = global.dx;
-          logic.parentDy = global.dy;
-          logic.parentWidth = stack.size.width;
-          logic.parentHeight = stack.size.height;
-          logic.calculate();
-        });
-        return Stack(
-          children: [
-            Obx(() {
-              Widget button = Builder(builder: (context) {
-                Future.delayed(Duration.zero, () {
-                  final RenderBox button = context.findRenderObject()! as RenderBox;
-                  logic.buttonWidth = button.size.width;
-                  logic.buttonHeight = button.size.height;
-                  logic.calculate();
-                });
-                return args.child;
-              });
-              return Stack(
-                children: [
-                  Positioned(
-                    left: logic.left.value,
-                    top: logic.top.value,
-                    right: logic.right.value,
-                    bottom: logic.bottom.value,
-                    child: Draggable(
-                      child: button,
-                      feedback: button,
-                      childWhenDragging: Container(),
-                      onDragUpdate: (detail) {
-                        logic.dx = detail.localPosition.dx;
-                        logic.dy = detail.localPosition.dy;
-                        logic.calculate();
-                      },
-                    ),
-                  )
-                ],
-              );
-            }),
-          ],
-        );
-      },
+    GlobalKey childKey = GlobalKey();
+    GlobalKey parenKey = GlobalKey();
+    Widget child = Container(
+      key: childKey,
+      child: logic.args.child,
+    );
+    Future.delayed(Duration.zero, () {
+      final RenderBox? parentRenderBox = parenKey.currentContext?.findRenderObject() as RenderBox?;
+      if (null != parentRenderBox) {
+        Offset global = parentRenderBox.localToGlobal(Offset.zero);
+        logic.parentOffset = global;
+        logic.parentSize = parentRenderBox.size;
+      }
+      final RenderBox? childRenderBox = childKey.currentContext?.findRenderObject() as RenderBox?;
+      if (null != childRenderBox) {
+        logic.childSize = childRenderBox.size;
+      }
+      logic.calculate();
+    });
+    return Container(
+      key: parenKey,
+      child: DragTarget(
+        builder: (context, candidateItems, rejectedItems) {
+          return Obx(() {
+            return Stack(
+              children: [
+                Positioned(
+                  left: logic.left.value,
+                  top: logic.top.value,
+                  right: logic.right.value,
+                  bottom: logic.bottom.value,
+                  child: logic.args.isLongPress
+                      ? LongPressDraggable(
+                          feedback: child,
+                          childWhenDragging: Container(),
+                          onDragUpdate: (detail) {
+                            final RenderBox childRenderBox = childKey.currentContext!.findRenderObject()! as RenderBox;
+                            Offset global = childRenderBox.localToGlobal(Offset.zero);
+                            logic.childOffset = global;
+                            logic.calculate();
+                          },
+                          delay: const Duration(milliseconds: 200),
+                          child: child,
+                        )
+                      : Draggable(
+                          feedback: child,
+                          childWhenDragging: Container(),
+                          onDragUpdate: (detail) {
+                            final RenderBox childRenderBox = childKey.currentContext!.findRenderObject()! as RenderBox;
+                            Offset global = childRenderBox.localToGlobal(Offset.zero);
+                            logic.childOffset = global;
+                            logic.calculate();
+                          },
+                          child: child,
+                        ),
+                )
+              ],
+            );
+          });
+        },
+      ),
     );
   }
 }

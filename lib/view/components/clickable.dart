@@ -215,14 +215,31 @@ class Clickable extends StatelessWidget {
     if (null == tooltip) {
       widget = child;
     } else if (AppLogic.isDesktop) {
-      widget = Tooltip(message: tooltip, preferBelow: tooltipBelow, child: child);
+      widget = Tooltip(
+        message: tooltip,
+        preferBelow: tooltipBelow,
+        waitDuration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
+        child: child,
+      );
     } else {
       if (forceTooltip) {
-        widget = Tooltip(message: tooltip, preferBelow: tooltipBelow, child: child);
+        widget = Tooltip(
+          message: tooltip,
+          preferBelow: tooltipBelow,
+          waitDuration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
+          child: child,
+        );
       } else {
         widget = child;
       }
     }
+    VoidCallback? onTap;
+    if (this.onTap != null || onPressed != null) {
+      onTap = this.onTap ?? onPressed;
+    } else if (onTapUp != null || onTapDown != null || onTapCancel != null) {
+      onTap = () {};
+    }
+
     return GestureDetector(
       onSecondaryTap: onSecondaryTap,
       onSecondaryTapDown: onSecondaryTapDown,
@@ -283,7 +300,7 @@ class Clickable extends StatelessWidget {
           mouseCursor: cursor,
           borderRadius: BorderRadius.circular(template.defaultRadius.value ?? 12),
           hoverColor: showInk ? theme.highlightColor : Colors.transparent,
-          onTap: onTap ?? onPressed,
+          onTap: onTap,
           onDoubleTap: onDoubleTap,
           onHover: onHover,
           onTapDown: onTapDown,
