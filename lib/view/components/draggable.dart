@@ -4,25 +4,46 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/hg_framework.dart';
 
+@immutable
+class Position {
+  final double? left;
+  final double? top;
+  final double? right;
+  final double? bottom;
+
+  const Position({this.left, this.top, this.right, this.bottom});
+}
+
+/// 拖拽模式
+enum DraggableMode {
+  tap,
+  longPress,
+}
+
 /// 外部参数
 @immutable
 class DraggableArgs extends ViewArgs {
+  /// 子组件
   final Widget child;
-  final double? initLeft;
-  final double? initTop;
-  final double? initRight;
-  final double? initBottom;
+
+  /// 组件构建器
+  final Widget Function(BuildContext context, Widget child, void Function(DragUpdateDetails details) onDragUpdate)? builder;
+
+  /// 初始位置
+  final Position? initPosition;
+
+  /// 是否将拖拽位置限制在父组件内
   final bool isLimitInParent;
-  final bool isLongPress;
+
+  /// 拖拽模式
+  final DraggableMode mode;
 
   const DraggableArgs({
     required this.child,
-    this.initLeft,
-    this.initTop,
-    this.initBottom,
-    this.initRight,
+    this.initPosition,
+    this.builder,
     this.isLimitInParent = true,
-    this.isLongPress = false,
+    this.mode = DraggableMode.tap,
   });
 }
 
@@ -33,12 +54,14 @@ class DraggableLogic extends ViewLogicOnlyArgs<DraggableArgs> {
 
   /// 子组件大小
   Size? childSize;
+  Size? oldChildSize;
 
   /// 父组件起始位置
   Offset? parentOffset;
 
   /// 父组件大小
   Size? parentSize;
+  Size? oldParentSize;
 
   /// 与父组件的边距
   final RxnDouble left = RxnDouble();
@@ -48,18 +71,16 @@ class DraggableLogic extends ViewLogicOnlyArgs<DraggableArgs> {
 
   @override
   void onReady() {
-    left.value = args.initLeft;
-    top.value = args.initTop;
-    right.value = args.initRight;
-    bottom.value = args.initBottom;
+    left.value = args.initPosition?.left;
+    top.value = args.initPosition?.top;
+    right.value = args.initPosition?.right;
+    bottom.value = args.initPosition?.bottom;
   }
 
   /// 计算边距
-  void calculate() {
-    List list = [childOffset, childSize, parentSize, parentOffset];
-    for (dynamic value in list) {
-      if (value == null) return;
-    }
+  void calculate(bool force) {
+    bool cal = isCalculate(force);
+    if (!cal) return;
     double hor = childOffset!.dx - parentOffset!.dx;
     double ver = childOffset!.dy - parentOffset!.dy;
     if (args.isLimitInParent) {
@@ -70,6 +91,33 @@ class DraggableLogic extends ViewLogicOnlyArgs<DraggableArgs> {
     top.value = ver;
     right.value = null;
     bottom.value = null;
+  }
+
+  /// 是否计算
+  bool isCalculate(bool force) {
+    List list = [childOffset, childSize, parentSize, parentOffset];
+    for (dynamic value in list) {
+      if (value == null) return false;
+    }
+    if (force) return true;
+    bool childrenSizeChanged = !isSizeEquals(oldChildSize, childSize);
+    if (childrenSizeChanged) {
+      print("childSizeChanged:$oldChildSize->$childSize");
+      return true;
+    }
+
+    bool parentSizeChanged = !isSizeEquals(oldParentSize, parentSize);
+    bool isLimitInParent = args.isLimitInParent;
+    if (parentSizeChanged) {
+      print("parentSizeChanged:$oldParentSize->$parentSize");
+    }
+    return isLimitInParent && parentSizeChanged;
+  }
+
+  bool isSizeEquals(Size? a, Size? b) {
+    if (a == null && b == null) return true;
+    if (a != null && b != null) return a.width.toStringAsFixed(4) == b.width.toStringAsFixed(4) && a.height.toStringAsFixed(4) == b.height.toStringAsFixed(4);
+    return false;
   }
 }
 
@@ -82,27 +130,19 @@ class DraggableWidget extends View<DraggableLogic> {
 
   @override
   Widget buildView(BuildContext context) {
+    // 子组件key
     GlobalKey childKey = GlobalKey();
-    GlobalKey parenKey = GlobalKey();
+    // 父组件key
+    GlobalKey parentKey = GlobalKey();
+    // 子组件
     Widget child = Container(
       key: childKey,
       child: logic.args.child,
     );
-    Future.delayed(Duration.zero, () {
-      final RenderBox? parentRenderBox = parenKey.currentContext?.findRenderObject() as RenderBox?;
-      if (null != parentRenderBox) {
-        Offset global = parentRenderBox.localToGlobal(Offset.zero);
-        logic.parentOffset = global;
-        logic.parentSize = parentRenderBox.size;
-      }
-      final RenderBox? childRenderBox = childKey.currentContext?.findRenderObject() as RenderBox?;
-      if (null != childRenderBox) {
-        logic.childSize = childRenderBox.size;
-      }
-      logic.calculate();
-    });
+    // 初始化组件数据
+    initWidgetData(parentKey, childKey);
     return Container(
-      key: parenKey,
+      key: parentKey,
       child: DragTarget(
         builder: (context, candidateItems, rejectedItems) {
           return Obx(() {
@@ -113,30 +153,7 @@ class DraggableWidget extends View<DraggableLogic> {
                   top: logic.top.value,
                   right: logic.right.value,
                   bottom: logic.bottom.value,
-                  child: logic.args.isLongPress
-                      ? LongPressDraggable(
-                          feedback: child,
-                          childWhenDragging: Container(),
-                          onDragUpdate: (detail) {
-                            final RenderBox childRenderBox = childKey.currentContext!.findRenderObject()! as RenderBox;
-                            Offset global = childRenderBox.localToGlobal(Offset.zero);
-                            logic.childOffset = global;
-                            logic.calculate();
-                          },
-                          delay: const Duration(milliseconds: 200),
-                          child: child,
-                        )
-                      : Draggable(
-                          feedback: child,
-                          childWhenDragging: Container(),
-                          onDragUpdate: (detail) {
-                            final RenderBox childRenderBox = childKey.currentContext!.findRenderObject()! as RenderBox;
-                            Offset global = childRenderBox.localToGlobal(Offset.zero);
-                            logic.childOffset = global;
-                            logic.calculate();
-                          },
-                          child: child,
-                        ),
+                  child: buildChild(context, childKey, child),
                 )
               ],
             );
@@ -144,5 +161,63 @@ class DraggableWidget extends View<DraggableLogic> {
         },
       ),
     );
+  }
+
+  // 构建可拖拽的子组件
+  Widget buildChild(BuildContext context, GlobalKey childKey, Widget child) {
+    DraggableMode mode = logic.args.mode;
+    if (logic.args.builder != null) {
+      return logic.args.builder!(context, child, (details) {
+        onDragUpdate(details, childKey);
+      });
+    }
+    Widget draggable;
+    switch (mode) {
+      case DraggableMode.tap:
+        draggable = Draggable(
+          feedback: child,
+          childWhenDragging: Container(),
+          onDragUpdate: (details) => onDragUpdate(details, childKey),
+          child: child,
+        );
+        break;
+      case DraggableMode.longPress:
+        draggable = LongPressDraggable(
+          feedback: child,
+          childWhenDragging: Container(),
+          onDragUpdate: (details) => onDragUpdate(details, childKey),
+          delay: const Duration(milliseconds: 200),
+          child: child,
+        );
+        break;
+    }
+    return draggable;
+  }
+
+  /// 初始化组件数据
+  void initWidgetData(GlobalKey parentKey, GlobalKey childKey) {
+    Future.delayed(Duration.zero, () {
+      final RenderBox? parentRenderBox = parentKey.currentContext?.findRenderObject() as RenderBox?;
+      if (null != parentRenderBox) {
+        Offset global = parentRenderBox.localToGlobal(Offset.zero);
+        logic.parentOffset = global;
+        logic.oldParentSize = logic.parentSize;
+        logic.parentSize = parentRenderBox.size;
+      }
+      final RenderBox? childRenderBox = childKey.currentContext?.findRenderObject() as RenderBox?;
+      if (null != childRenderBox) {
+        logic.oldChildSize = logic.childSize;
+        logic.childSize = childRenderBox.size;
+      }
+      logic.calculate(false);
+    });
+  }
+
+  /// 拖拽更新
+  void onDragUpdate(DragUpdateDetails details, GlobalKey childKey) {
+    final RenderBox childRenderBox = childKey.currentContext!.findRenderObject()! as RenderBox;
+    Offset global = childRenderBox.localToGlobal(Offset.zero);
+    logic.childOffset = global;
+    logic.calculate(true);
   }
 }

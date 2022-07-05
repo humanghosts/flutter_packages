@@ -29,7 +29,7 @@ class SoundHelper {
   /// 播放音频
   static Future<void> playNotification(String soundPath, {String? prefix}) async {
     BaseDeviceInfo deviceInfo = DeviceInfoHelper.deviceInfo;
-    if (DeviceInfoHelper.platform == TargetPlatform.iOS) {
+    if (DeviceInfoHelper.targetPlatform == TargetPlatform.iOS) {
       IosDeviceInfo iosDeviceInfo = deviceInfo as IosDeviceInfo;
       String version = iosDeviceInfo.systemVersion ?? "12.0";
       double versionD = double.parse(version);

@@ -674,7 +674,7 @@ extension FlexColorSchemeConvert on ThemeTemplate {
       // Custom font, modify in AppData class to change it.
       fontFamily: fontFamily.value,
       // The platform can be toggled in the app, but not saved.
-      platform: DeviceInfoHelper.platform,
+      platform: DeviceInfoHelper.targetPlatform,
       // Opt-in/out of using Flutter SDK Material3 based theming
       // features. In Flutter SDK 2.10 and earlier it has almost no
       // effect, but it will later and then we can use this toggle
@@ -810,7 +810,7 @@ extension FlexColorSchemeConvert on ThemeTemplate {
       // ThemeData properties passed along directly to ThemeData.
       visualDensity: FlexColorScheme.comfortablePlatformDensity,
       fontFamily: fontFamily.value,
-      platform: DeviceInfoHelper.platform,
+      platform: DeviceInfoHelper.targetPlatform,
       useMaterial3: true,
       primary: primaryDark.value.color,
       primaryContainer: primaryContainerDark.value.color,

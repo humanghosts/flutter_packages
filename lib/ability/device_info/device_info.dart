@@ -13,10 +13,13 @@ class DeviceInfoHelper {
 
   static BaseDeviceInfo? _baseDeviceInfo;
 
+  /// 是否是web平台
+  static get isWeb => kIsWeb;
+
   /// 初始化
   static Future<void> init() async {
     _baseDeviceInfo = await plugin.deviceInfo;
-    if (kIsWeb) {
+    if (isWeb) {
       WebBrowserInfo webInfo = deviceInfo as WebBrowserInfo;
       print(webInfo.userAgent);
       isDesktop = !(webInfo.userAgent ?? "").contains("Mobile");
@@ -42,10 +45,31 @@ class DeviceInfoHelper {
   }
 
   /// TODO web判断设备类型
-  static TargetPlatform get platform {
+  static TargetPlatform get targetPlatform {
     if (!kIsWeb) return defaultTargetPlatform;
     WebBrowserInfo webInfo = deviceInfo as WebBrowserInfo;
     String agent = webInfo.userAgent ?? "";
     return TargetPlatform.android;
   }
+
+  /// TODO 实际类型
+  static DevicePlatform get devicePlatform {
+    return DevicePlatform.iOS;
+  }
+}
+
+enum DevicePlatform {
+  iOS,
+  iPadOS,
+  android,
+  macOS,
+  windows,
+  linux,
+  web,
+  webIos,
+  webAndroid,
+  webIPadOS,
+  webMacOS,
+  webWindows,
+  webLinux,
 }

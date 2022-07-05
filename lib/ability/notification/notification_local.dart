@@ -35,7 +35,7 @@ class LocalNotificationHelper {
     tz.setLocalLocation(tz.getLocation(timeZoneName));
     // 是否通过通知启动应用 来判断应该进入哪个页面
     notificationAppLaunchDetails =
-        DeviceInfoHelper.platform == TargetPlatform.linux ? null : await flutterLocalNotificationsPlugin!.getNotificationAppLaunchDetails();
+        DeviceInfoHelper.targetPlatform == TargetPlatform.linux ? null : await flutterLocalNotificationsPlugin!.getNotificationAppLaunchDetails();
     //  app_icon是应用图标文件
     AndroidInitializationSettings android = const AndroidInitializationSettings('app_icon');
     // ios配置
