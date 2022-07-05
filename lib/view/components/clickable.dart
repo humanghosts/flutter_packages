@@ -299,7 +299,7 @@ class Clickable extends StatelessWidget {
         child: InkWell(
           mouseCursor: cursor,
           borderRadius: BorderRadius.circular(template.defaultRadius.value ?? 12),
-          hoverColor: showInk ? theme.highlightColor : Colors.transparent,
+          hoverColor: showInk ? null : Colors.transparent,
           onTap: onTap,
           onDoubleTap: onDoubleTap,
           onHover: onHover,

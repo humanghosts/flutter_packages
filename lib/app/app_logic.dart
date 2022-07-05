@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/hg_framework.dart';
 import 'package:hg_framework/service/theme.dart';
@@ -105,7 +106,7 @@ abstract class ThemeListener {
 
   /// 添加一个主题
   /// [addToUse] 表示是否同时使用这个主题
-  void addThemeTemplate(ThemeTemplate template, {bool addToUse = false}) async {
+  Future<void> addThemeTemplate(ThemeTemplate template, {bool addToUse = false}) async {
     Set<String> templateIdMap = themeConfig.templateList.value.map((e) => e.id.value).toSet();
     String id = template.id.value;
     if (templateIdMap.contains(id)) return;
@@ -149,6 +150,18 @@ abstract class AppLifecycleListener {
 abstract class OverlayHelper {
   /// 蒙版关闭缓存
   Map<String, VoidCallback> closeFuncMap = {};
+
+  void showLoading(String key) {
+    showOverlay(
+      key: key,
+      widget: Material(
+        color: Colors.transparent,
+        child: SpinKitCircle(color: AppLogic.instance.themeData.iconTheme.color),
+      ),
+    );
+  }
+
+  void closeLoading(String key) => closeOverlay(key);
 
   /// 显示蒙版 index越高越靠上
   void showOverlay({required String key, required Widget widget, Widget? background}) {
