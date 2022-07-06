@@ -48,7 +48,8 @@ abstract class OrientationListener {
 /// 主题监听器
 abstract class ThemeListener {
   /// 主题服务
-  ThemeConfigService themeConfigService = ThemeConfigService.instance;
+  ThemeConfigService get themeConfigService => ThemeConfigService.instance;
+  ThemeTemplateService get themeTemplateService => ThemeTemplateService.instance;
 
   /// 主题配置
   ThemeConfig themeConfig = ThemeConfig();
@@ -76,14 +77,18 @@ abstract class ThemeListener {
 
   /// 查询主题配置 在应用启动时候初始化完数据库调用
   Future<void> onAppInitTheme() async {
-    themeConfig = await ThemeConfigService.instance.find();
+    themeConfig = await themeConfigService.find();
+  }
+
+  Future<void> saveConfig() async {
+    await themeConfigService.save(themeConfig);
   }
 
   /// 更新主题
   Future<void> updateThemeTemplate(ThemeTemplate template) async {
     String id = template.id.value;
     String inUseId = themeConfig.templateInUse.value.id.value;
-    await ThemeTemplateService.instance.dao.save(template);
+    await themeTemplateService.save(template);
     if (id == inUseId) themeChangedReRender();
   }
 
@@ -92,15 +97,19 @@ abstract class ThemeListener {
     String id = template.id.value;
     String inUseId = themeConfig.templateInUse.value.id.value;
     if (id == inUseId) {
-      ToastHelper.toast(msg: "主题正在使用中，无法删除");
+      ToastHelper.toast(msg: "主题${template.name.value ?? "未命名"}正在使用中，无法删除");
     }
-    await ThemeTemplateService.instance.dao.remove(template);
+    ThemeConfigService.instance.transaction((tx) async {
+      await themeTemplateService.remove(template, tx: tx);
+      themeConfig.templateList.removeWhere((element) => element.id.value == template.id.value);
+      themeConfigService.save(themeConfig);
+    });
   }
 
   /// 使用主题
   Future<void> useThemeTemplate(ThemeTemplate template) async {
     themeConfig.templateInUse.value = template;
-    await ThemeConfigService.instance.dao.save(themeConfig);
+    await themeConfigService.save(themeConfig);
     themeChangedReRender();
   }
 
@@ -114,7 +123,7 @@ abstract class ThemeListener {
     if (addToUse) {
       await useThemeTemplate(template);
     } else {
-      await ThemeConfigService.instance.dao.save(themeConfig);
+      await themeConfigService.save(themeConfig);
     }
   }
 
@@ -232,14 +241,17 @@ class InAppNotificationHelper {
 
               // 动画控制器
               AnimationController controller = notificationController.putIfAbsent(
-                  overlayKey,
-                  () => AnimationController(
-                        duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
-                        vsync: SimpleTickerProvider(),
-                      ));
+                overlayKey,
+                () => AnimationController(
+                  duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
+                  vsync: SimpleTickerProvider(),
+                ),
+              );
 
-              Animation<double> animation =
-                  Tween<double>(begin: (AppLogic.isDesktop ? 400 : Get.width), end: 0).animate(CurvedAnimation(parent: controller, curve: Curves.easeOut));
+              Animation<double> animation = Tween<double>(begin: (AppLogic.isDesktop ? 400 : Get.width), end: 0).animate(CurvedAnimation(
+                parent: controller,
+                curve: Curves.easeOut,
+              ));
               // 立即播放动画
               Future.delayed(Duration.zero, () => controller.forward());
 

@@ -21,7 +21,7 @@ class DeviceInfoHelper {
     _baseDeviceInfo = await plugin.deviceInfo;
     if (isWeb) {
       WebBrowserInfo webInfo = deviceInfo as WebBrowserInfo;
-      print(webInfo.userAgent);
+      debugPrint(webInfo.userAgent);
       isDesktop = !(webInfo.userAgent ?? "").contains("Mobile");
     } else {
       switch (defaultTargetPlatform) {
@@ -47,8 +47,8 @@ class DeviceInfoHelper {
   /// TODO web判断设备类型
   static TargetPlatform get targetPlatform {
     if (!kIsWeb) return defaultTargetPlatform;
-    WebBrowserInfo webInfo = deviceInfo as WebBrowserInfo;
-    String agent = webInfo.userAgent ?? "";
+    // WebBrowserInfo webInfo = deviceInfo as WebBrowserInfo;
+    // String agent = webInfo.userAgent ?? "";
     return TargetPlatform.android;
   }
 

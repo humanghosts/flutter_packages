@@ -32,11 +32,22 @@ class DraggableArgs extends ViewArgs {
   /// 初始位置
   final Position? initPosition;
 
+  /// 可改变大小的锚点位置
+  final Position? resizePosition;
+
   /// 是否将拖拽位置限制在父组件内
   final bool isLimitInParent;
 
   /// 拖拽模式
   final DraggableMode mode;
+
+  /// 大小限制
+  final BoxConstraints? constraints;
+
+  /// 是否可以调整大小
+  final bool resizeable;
+
+  final Size? resizeAreaSize;
 
   const DraggableArgs({
     required this.child,
@@ -44,6 +55,10 @@ class DraggableArgs extends ViewArgs {
     this.builder,
     this.isLimitInParent = true,
     this.mode = DraggableMode.tap,
+    this.resizePosition,
+    this.constraints,
+    this.resizeable = false,
+    this.resizeAreaSize,
   });
 }
 
@@ -53,7 +68,7 @@ class DraggableLogic extends ViewLogicOnlyArgs<DraggableArgs> {
   Offset? childOffset;
 
   /// 子组件大小
-  Size? childSize;
+  Rxn<Size> childSize = Rxn();
   Size? oldChildSize;
 
   /// 父组件起始位置
@@ -77,6 +92,19 @@ class DraggableLogic extends ViewLogicOnlyArgs<DraggableArgs> {
     bottom.value = args.initPosition?.bottom;
   }
 
+  /// 重置父组件大小
+  void resizeParent(Size size) {
+    oldParentSize = parentSize;
+    parentSize = size;
+  }
+
+  /// 重置子组件大小
+  void resizeChild(Size size) {
+    if (childSize.value != null && !args.resizeable) return;
+    oldChildSize = childSize.value;
+    childSize.value = size;
+  }
+
   /// 计算边距
   void calculate(bool force) {
     bool cal = isCalculate(force);
@@ -84,8 +112,8 @@ class DraggableLogic extends ViewLogicOnlyArgs<DraggableArgs> {
     double hor = childOffset!.dx - parentOffset!.dx;
     double ver = childOffset!.dy - parentOffset!.dy;
     if (args.isLimitInParent) {
-      hor = math.min(parentSize!.width - childSize!.width, math.max(0, hor));
-      ver = math.min(parentSize!.height - childSize!.height, math.max(0, ver));
+      hor = math.min(parentSize!.width - childSize.value!.width, math.max(0, hor));
+      ver = math.min(parentSize!.height - childSize.value!.height, math.max(0, ver));
     }
     left.value = hor;
     top.value = ver;
@@ -100,16 +128,16 @@ class DraggableLogic extends ViewLogicOnlyArgs<DraggableArgs> {
       if (value == null) return false;
     }
     if (force) return true;
-    bool childrenSizeChanged = !isSizeEquals(oldChildSize, childSize);
+    bool childrenSizeChanged = !isSizeEquals(oldChildSize, childSize.value);
     if (childrenSizeChanged) {
-      print("childSizeChanged:$oldChildSize->$childSize");
+      debugPrint("childSizeChanged:$oldChildSize->$childSize");
       return true;
     }
 
     bool parentSizeChanged = !isSizeEquals(oldParentSize, parentSize);
     bool isLimitInParent = args.isLimitInParent;
     if (parentSizeChanged) {
-      print("parentSizeChanged:$oldParentSize->$parentSize");
+      debugPrint("parentSizeChanged:$oldParentSize->$parentSize");
     }
     return isLimitInParent && parentSizeChanged;
   }
@@ -134,15 +162,64 @@ class DraggableWidget extends View<DraggableLogic> {
     GlobalKey childKey = GlobalKey();
     // 父组件key
     GlobalKey parentKey = GlobalKey();
-    // 子组件
-    Widget child = Container(
-      key: childKey,
-      child: logic.args.child,
+    Widget resize = Card(
+      color: Colors.transparent,
+      margin: EdgeInsets.zero,
+      child: SizedBox(
+        height: logic.args.resizeAreaSize?.height ?? 12,
+        width: logic.args.resizeAreaSize?.width ?? 12,
+        child: Ink(
+          child: InkWell(
+            mouseCursor: SystemMouseCursors.resizeUpLeftDownRight,
+            onTap: () {},
+            onHover: (value) {},
+          ),
+        ),
+      ),
     );
+
+    // 子组件
+    Widget child = Obx(() {
+      return AnimatedSize(
+        duration: logic.middleAnimationDuration,
+        child: Container(
+          key: childKey,
+          width: logic.childSize.value?.width,
+          height: logic.childSize.value?.height,
+          constraints: logic.args.constraints,
+          child: !logic.args.resizeable
+              ? logic.args.child
+              : Stack(
+                  children: [
+                    logic.args.child,
+                    Positioned(
+                      bottom: logic.args.resizePosition?.bottom ?? 0,
+                      right: logic.args.resizePosition?.right ?? 0,
+                      left: logic.args.resizePosition?.left,
+                      top: logic.args.resizePosition?.top,
+                      child: Draggable(
+                        childWhenDragging: Container(),
+                        feedback: resize,
+                        child: resize,
+                        onDragUpdate: (details) {
+                          final RenderBox? childRenderBox = childKey.currentContext?.findRenderObject() as RenderBox?;
+                          if (null == childRenderBox) return;
+                          Offset global = childRenderBox.localToGlobal(Offset.zero);
+                          Offset pos = details.globalPosition;
+                          logic.resizeChild(Size(math.max(10, pos.dx - global.dx), math.max(10, pos.dy - global.dy)));
+                        },
+                      ),
+                    )
+                  ],
+                ),
+        ),
+      );
+    });
     // 初始化组件数据
     initWidgetData(parentKey, childKey);
     return Container(
       key: parentKey,
+      alignment: Alignment.center,
       child: DragTarget(
         builder: (context, candidateItems, rejectedItems) {
           return Obx(() {
@@ -201,13 +278,11 @@ class DraggableWidget extends View<DraggableLogic> {
       if (null != parentRenderBox) {
         Offset global = parentRenderBox.localToGlobal(Offset.zero);
         logic.parentOffset = global;
-        logic.oldParentSize = logic.parentSize;
-        logic.parentSize = parentRenderBox.size;
+        logic.resizeParent(parentRenderBox.size);
       }
       final RenderBox? childRenderBox = childKey.currentContext?.findRenderObject() as RenderBox?;
       if (null != childRenderBox) {
-        logic.oldChildSize = logic.childSize;
-        logic.childSize = childRenderBox.size;
+        logic.resizeChild(childRenderBox.size);
       }
       logic.calculate(false);
     });

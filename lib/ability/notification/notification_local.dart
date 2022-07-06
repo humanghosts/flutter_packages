@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
@@ -23,11 +22,25 @@ class LocalNotificationHelper {
 
   /// 初始化通知组件
   static Future<bool?> init() async {
-    // todo 如果是web或者是windows 由于插件没有相关功能，暂时使用应用内提醒
-    if (AppLogic.isDesktop || kIsWeb) {
-      inAppNotificationsPlugin = InAppNotificationsPlugin(onSelectNotification);
-      return true;
-    }
+    if (DeviceInfoHelper.isWeb) return await initWeb();
+    if (DeviceInfoHelper.isDesktop) return await initDesktop();
+    return await initMobile();
+  }
+
+  /// 桌面端通知 TODO 应用内提醒 local_notifier
+  static Future<bool?> initDesktop() async {
+    inAppNotificationsPlugin = InAppNotificationsPlugin(onSelectNotification);
+    return true;
+  }
+
+  /// web端通知
+  static Future<bool?> initWeb() async {
+    inAppNotificationsPlugin = InAppNotificationsPlugin(onSelectNotification);
+    return true;
+  }
+
+  /// 移动端通知
+  static Future<bool?> initMobile() async {
     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
     // 时区初始化
     tzd.initializeTimeZones();
@@ -62,6 +75,12 @@ class LocalNotificationHelper {
     String? body,
     NotificationDetails? details,
   }) async {
+    bool hasPermission = await checkNotificationPermission();
+    if (!hasPermission) {
+      bool isOpen = Get.isSnackbarOpen;
+      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败");
+      return;
+    }
     inAppNotificationsPlugin?.show(
       id,
       title,
@@ -69,13 +88,6 @@ class LocalNotificationHelper {
       details ?? buildNotificationDetail(),
       payload: payload?.encode(),
     );
-    if (null == flutterLocalNotificationsPlugin) return;
-    bool hasPermission = await checkNotificationPermission();
-    if (!hasPermission) {
-      bool isOpen = Get.isSnackbarOpen;
-      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败");
-      return;
-    }
     // 发送通知
     await flutterLocalNotificationsPlugin?.show(
       id,
@@ -97,6 +109,12 @@ class LocalNotificationHelper {
     NotificationDetails? details,
     DateTimeComponents? matchDateTimeComponents,
   }) async {
+    bool hasPermission = await checkNotificationPermission();
+    if (!hasPermission) {
+      bool isOpen = Get.isSnackbarOpen;
+      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败");
+      return false;
+    }
     inAppNotificationsPlugin?.zonedSchedule(
       id,
       title,
@@ -112,12 +130,6 @@ class LocalNotificationHelper {
     tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute);
     if (now.isAfter(scheduledDate)) return false;
-    bool hasPermission = await checkNotificationPermission();
-    if (!hasPermission) {
-      bool isOpen = Get.isSnackbarOpen;
-      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败");
-      return false;
-    }
     await flutterLocalNotificationsPlugin?.zonedSchedule(
       id,
       title,
@@ -141,6 +153,12 @@ class LocalNotificationHelper {
     String? body,
     NotificationDetails? details,
   }) async {
+    bool hasPermission = await checkNotificationPermission();
+    if (!hasPermission) {
+      bool isOpen = Get.isSnackbarOpen;
+      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败");
+      return;
+    }
     inAppNotificationsPlugin?.periodicallyShow(
       id,
       title,
@@ -150,13 +168,6 @@ class LocalNotificationHelper {
       androidAllowWhileIdle: true,
       payload: payload?.encode(),
     );
-    if (flutterLocalNotificationsPlugin == null) return;
-    bool hasPermission = await checkNotificationPermission();
-    if (!hasPermission) {
-      bool isOpen = Get.isSnackbarOpen;
-      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败");
-      return;
-    }
     await flutterLocalNotificationsPlugin?.periodicallyShow(
       id,
       title,

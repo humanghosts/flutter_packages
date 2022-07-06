@@ -95,6 +95,10 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
   AnimationConfig get animationConfig => appConfig.animationConfig;
 
   Duration get middleAnimationDuration => animationConfig.middleAnimationDuration;
+
+  void showLoading() => AppLogic.instance.showLoading(runtimeType.toString());
+
+  void closeLoading() => AppLogic.instance.closeLoading(runtimeType.toString());
 }
 
 /// 页面组件

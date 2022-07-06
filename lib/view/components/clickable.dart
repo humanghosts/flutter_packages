@@ -209,7 +209,6 @@ class Clickable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = AppLogic.instance.themeData;
     ThemeTemplate template = AppLogic.currentThemeTemplate;
     Widget widget;
     if (null == tooltip) {

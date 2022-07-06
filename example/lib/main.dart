@@ -40,7 +40,7 @@ class Home extends View<HomeLogic> {
   Widget buildView(BuildContext context) {
     return TextButton(
       onPressed: () {},
-      child: Text('\u{1f600}'),
+      child: const Text('\u{1f600}'),
     );
   }
 }
