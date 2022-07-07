@@ -2,21 +2,35 @@ import 'package:get/get.dart';
 import 'package:hg_entity/hg_entity.dart';
 import 'package:hg_orm/hg_orm.dart';
 
-abstract class DataModelService<M extends DataModel> extends GetxService {
+abstract class ModelService<M extends Model, D extends Dao<M>> extends GetxService {
   /// 获取模型
   M get sampleModel => ConstructorCache.get(M);
 
   /// 获取dao
-  DataDao<M> get dao => DaoCache.getByType(M) as DataDao<M>;
+  D get dao => DaoCache.getByType(M) as D;
 
+  /// 加入事务
   Future<void> withTransaction(Transaction? tx, Future<void> Function(Transaction tx) action) async {
     await dao.withTransaction(tx, action);
   }
 
+  /// 开启事务
   Future<void> transaction(Future<void> Function(Transaction tx) action) async {
     await dao.transaction(action);
   }
 
+  Future<List<M>> findAll();
+
+  Future<void> save(M model, {Transaction? tx}) async {
+    await dao.save(model, tx: tx);
+  }
+
+  Future<void> remove(M model, {Transaction? tx}) async {
+    await dao.remove(model, tx: tx);
+  }
+}
+
+class DataModelService<M extends DataModel> extends ModelService<M, DataDao<M>> {
   Future<List<M>> find({Transaction? tx}) async {
     return await dao.find(tx: tx);
   }
@@ -29,36 +43,24 @@ abstract class DataModelService<M extends DataModel> extends GetxService {
     return await dao.findByID(id);
   }
 
-  Future<void> save(M model, {Transaction? tx}) async {
-    await dao.save(model, tx: tx);
-  }
-
   Future<void> saveList(List<M> modelList, {Transaction? tx}) async {
     await dao.saveList(modelList, tx: tx);
   }
 
-  Future<void> remove(M model, {Transaction? tx}) async {
-    await dao.remove(model, tx: tx);
+  @override
+  Future<List<M>> findAll({Transaction? tx}) async {
+    return await dao.find(tx: tx);
   }
 }
 
-abstract class SimpleModelService<M extends SimpleModel> extends GetxService {
-  /// 获取模型
-  M get sampleModel => ConstructorCache.get(M);
-
-  /// 获取dao
-  SimpleDao<M> get dao => DaoCache.getByType(M) as SimpleDao<M>;
-
-  Future<void> withTransaction(Transaction? tx, Future<void> Function(Transaction tx) action) async {
-    await dao.withTransaction(tx, action);
-  }
-
-  Future<void> transaction(Future<void> Function(Transaction tx) action) async {
-    await dao.transaction(action);
-  }
-
+class SimpleModelService<M extends SimpleModel> extends ModelService<M, SimpleDao<M>> {
   /// 查询
   Future<M> find({Transaction? tx}) async {
+    return (await findAll(tx: tx))[0];
+  }
+
+  @override
+  Future<List<M>> findAll({Transaction? tx}) async {
     List<M> resultLst = [];
     await withTransaction(tx, (tx) async {
       List<M> modelList = await dao.find(tx: tx);
@@ -70,10 +72,6 @@ abstract class SimpleModelService<M extends SimpleModel> extends GetxService {
         resultLst.add(modelList.first);
       }
     });
-    return resultLst[0];
-  }
-
-  Future<void> save(M model, {Transaction? tx}) async {
-    await dao.save(model, tx: tx);
+    return resultLst;
   }
 }

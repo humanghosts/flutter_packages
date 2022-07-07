@@ -54,14 +54,12 @@ class ThemeTemplate extends DataModel {
   late final Attribute<int> usedColors;
   late final Attribute<bool> lightIsWhite;
   late final Attribute<bool> darkIsTrueBlack;
-
-  // On color blending ON/OFF
   late final Attribute<bool> blendLightOnColors;
   late final Attribute<bool> blendDarkOnColors;
   late final Attribute<bool> blendLightTextTheme;
   late final Attribute<bool> blendDarkTextTheme;
 
-  // InputDecorator SETTINGS.
+  // 文本输入框设置
   // ===========================================================================
   late final Attribute<SchemeColorValue> inputDecoratorSchemeColorLight;
   late final Attribute<SchemeColorValue> inputDecoratorSchemeColorDark;
@@ -71,7 +69,7 @@ class ThemeTemplate extends DataModel {
   late final Attribute<bool> inputDecoratorUnfocusedHasBorder;
   late final Attribute<bool> inputDecoratorUnfocusedBorderIsColored;
 
-  // AppBar SETTINGS.
+  // 应用栏设置 SETTINGS.
   // ===========================================================================
   late final Attribute<FlexAppBarStyleValue> appBarStyleLight;
   late final Attribute<FlexAppBarStyleValue> appBarStyleDark;
@@ -83,7 +81,7 @@ class ThemeTemplate extends DataModel {
   late final Attribute<SchemeColorValue> appBarBackgroundSchemeColorLight;
   late final Attribute<SchemeColorValue> appBarBackgroundSchemeColorDark;
 
-  // TabBar SETTINGS.
+  // 标签页栏设置
   // ===========================================================================
   late final Attribute<FlexTabBarStyleValue> tabBarStyle;
   late final Attribute<SchemeColorValue> tabBarIndicatorLight;
@@ -91,17 +89,17 @@ class ThemeTemplate extends DataModel {
   late final Attribute<SchemeColorValue> tabBarItemSchemeColorLight;
   late final Attribute<SchemeColorValue> tabBarItemSchemeColorDark;
 
-  // BottomSheet SETTINGS.
+  // 底部弹框
   // ===========================================================================
   late final Attribute<double?> bottomSheetBorderRadius;
 
-  // Android System Navigator bar SETTINGS.
+  // 安卓导航栏设置
   // ===========================================================================
   late final Attribute<FlexSystemNavBarStyleValue> sysNavBarStyle;
   late final Attribute<double> sysNavBarOpacity;
   late final Attribute<bool> useSysNavDivider;
 
-  // BottomNavigationBar SETTINGS.
+  // 底部导航栏设置
   // ===========================================================================
   late final Attribute<SchemeColorValue> bottomNavBarBackgroundSchemeColor;
   late final Attribute<double> bottomNavigationBarOpacity;
@@ -112,7 +110,7 @@ class ThemeTemplate extends DataModel {
   late final Attribute<bool> bottomNavShowSelectedLabels;
   late final Attribute<bool> bottomNavShowUnselectedLabels;
 
-  // NavigationBar SETTINGS.
+  // 导航栏设置
   // ===========================================================================
   late final Attribute<SchemeColorValue> navBarBackgroundSchemeColor;
   late final Attribute<double> navBarOpacity;
@@ -124,7 +122,7 @@ class ThemeTemplate extends DataModel {
   late final Attribute<double?> navBarIndicatorOpacity;
   late final Attribute<NavigationDestinationLabelBehaviorValue> navBarLabelBehavior;
 
-  // NavigationRail SETTINGS.
+  // 侧导航栏设置
   // ===========================================================================
   late final Attribute<SchemeColorValue> navRailBackgroundSchemeColor;
   late final Attribute<double> navRailOpacity;
@@ -137,7 +135,7 @@ class ThemeTemplate extends DataModel {
   late final Attribute<SchemeColorValue> navRailIndicatorSchemeColor;
   late final Attribute<double?> navRailIndicatorOpacity;
 
-  // Button SETTINGS.
+  // 按钮设置
   // ===========================================================================
   late final Attribute<SchemeColorValue> textButtonSchemeColor;
   late final Attribute<double?> textButtonBorderRadius;
@@ -146,7 +144,7 @@ class ThemeTemplate extends DataModel {
   late final Attribute<SchemeColorValue> outlinedButtonSchemeColor;
   late final Attribute<double?> outlinedButtonBorderRadius;
 
-  // Toggleable SETTINGS.
+  // 可切换组件设置
   // ===========================================================================
   late final Attribute<SchemeColorValue> toggleButtonsSchemeColor;
   late final Attribute<double?> toggleButtonsBorderRadius;
@@ -155,7 +153,7 @@ class ThemeTemplate extends DataModel {
   late final Attribute<SchemeColorValue> checkboxSchemeColor;
   late final Attribute<SchemeColorValue> radioSchemeColor;
 
-  // Fab, Chip, SnackBar, Popup, Card nad Dialog SETTINGS.
+  // 其他组件设置
   // ===========================================================================
   late final Attribute<double?> fabBorderRadius;
   late final Attribute<SchemeColorValue> fabSchemeColor;
@@ -164,144 +162,162 @@ class ThemeTemplate extends DataModel {
   late final Attribute<SchemeColorValue> snackBarSchemeColor;
   late final Attribute<double> popupMenuOpacity;
   late final Attribute<double?> popupMenuBorderRadius;
+  late final Attribute<double?> popupMenuElevation;
   late final Attribute<double?> cardBorderRadius;
+  late final Attribute<double?> cardElevation;
   late final Attribute<SchemeColorValue> dialogBackgroundSchemeColor;
   late final Attribute<double?> dialogBorderRadius;
+  late final Attribute<double?> dialogElevation;
   late final Attribute<bool> tooltipsMatchBackground;
 
   ThemeTemplate() {
-    name = attributes.stringNullable(name: "name", title: "名称");
-    fontFamily = attributes.stringNullable(name: "fontFamily", title: "字体");
-    themeMode = attributes.custom(name: "themeMode", title: "主题模式");
-    defaultRadius = attributes.floatNullable(name: "defaultRadius", title: "默认半径");
+    name = attributes.stringNullable(name: "name", title: "主题名称");
+    fontFamily = attributes.stringNullable(name: "font_family", title: "字体");
+    themeMode = attributes.custom(name: "theme_mode", title: "主题模式");
+    defaultRadius = attributes.floatNullable(name: "default_radius", title: "默认圆角半径");
 
-    surfaceModeLight = attributes.custom(name: "surfaceModeLight", title: "表面模式光");
-    surfaceModeDark = attributes.custom(name: "surfaceModeDark", title: "表面模式暗");
-    blendLevel = attributes.integer(name: "blendLevel", title: "混合级别", dvalue: 20);
-    blendLevelDark = attributes.integer(name: "blendLevelDark", title: "混合水平黑暗", dvalue: 15);
-    blendOnLevel = attributes.integer(name: "blendOnLevel", title: "混合水平", dvalue: 20);
-    blendOnLevelDark = attributes.integer(name: "blendOnLevelDark", title: "混合水平黑暗", dvalue: 30);
-    usedColors = attributes.integer(name: "usedColors", title: "输入的颜色数量", dvalue: 6);
-    lightIsWhite = attributes.boolean(name: "lightIsWhite", title: "光是白色的", dvalue: false);
-    darkIsTrueBlack = attributes.boolean(name: "darkIsTrueBlack", title: "黑暗是真正的黑色", dvalue: false);
-    blendLightOnColors = attributes.boolean(name: "blendLightOnColors", title: "混合灯光颜色", dvalue: false);
-    blendDarkOnColors = attributes.boolean(name: "blendDarkOnColors", title: "混合深色", dvalue: true);
-    blendLightTextTheme = attributes.boolean(name: "blendLightTextTheme", title: "混合轻文本主题", dvalue: true);
-    blendDarkTextTheme = attributes.boolean(name: "blendDarkTextTheme", title: "混合深色文本主题", dvalue: true);
+    primaryLight = attributes.custom(name: "primary_light", title: ColorType.primary.title, dvalue: ColorValue(color: const Color(0xFF004881)));
+    primaryContainerLight =
+        attributes.custom(name: "primary_container_light", title: ColorType.primaryContainer.title, dvalue: ColorValue(color: const Color(0xFFD0E4FF)));
+    secondaryLight = attributes.custom(name: "secondary_light", title: ColorType.secondary.title, dvalue: ColorValue(color: const Color(0xFFAC3306)));
+    secondaryContainerLight =
+        attributes.custom(name: "secondary_container_light", title: ColorType.secondaryContainer.title, dvalue: ColorValue(color: const Color(0xFFFFDBCF)));
+    tertiaryLight = attributes.custom(name: "tertiary_light", title: ColorType.tertiary.title, dvalue: ColorValue(color: const Color(0xFF006875)));
+    tertiaryContainerLight =
+        attributes.custom(name: "tertiary_container_light", title: ColorType.tertiaryContainer.title, dvalue: ColorValue(color: const Color(0xFF95F0FF)));
+    primaryDark = attributes.custom(name: "primary_dark", title: "${ColorType.primary.title}(深色模式)", dvalue: ColorValue(color: const Color(0xFF9FC9FF)));
+    primaryContainerDark = attributes.custom(
+        name: "primary_container_dark", title: "${ColorType.primaryContainer.title}(深色模式)", dvalue: ColorValue(color: const Color(0xFF00325B)));
+    secondaryDark = attributes.custom(name: "secondary_dark", title: "${ColorType.secondary.title}(深色模式)", dvalue: ColorValue(color: const Color(0xFFFFB59D)));
+    secondaryContainerDark = attributes.custom(
+        name: "secondary_container_dark", title: "${ColorType.secondaryContainer.title}(深色模式)", dvalue: ColorValue(color: const Color(0xFF872100)));
+    tertiaryDark = attributes.custom(name: "tertiary_dark", title: "${ColorType.tertiary.title}(深色模式)", dvalue: ColorValue(color: const Color(0xFF872100)));
+    tertiaryContainerDark = attributes.custom(
+        name: "tertiary_container_dark", title: "${ColorType.tertiaryContainer.title}(深色模式)", dvalue: ColorValue(color: const Color(0xFF004E59)));
 
-    useKeyColors = attributes.boolean(name: "useKeyColors", title: "使用关键颜色", dvalue: false);
-    useSecondary = attributes.boolean(name: "useSecondary", title: "使用次要", dvalue: false);
-    useTertiary = attributes.boolean(name: "useTertiary", title: "使用第三", dvalue: false);
-    keepPrimary = attributes.boolean(name: "keepPrimary", title: "保持主要", dvalue: false);
-    keepSecondary = attributes.boolean(name: "keepSecondary", title: "保持次要", dvalue: false);
-    keepTertiary = attributes.boolean(name: "keepTertiary", title: "保持大专", dvalue: false);
-    keepPrimaryContainer = attributes.boolean(name: "keepPrimaryContainer", title: "保留主容器", dvalue: false);
-    keepSecondaryContainer = attributes.boolean(name: "keepSecondaryContainer", title: "保留辅助容器", dvalue: false);
-    keepTertiaryContainer = attributes.boolean(name: "keepTertiaryContainer", title: "保留第三级容器", dvalue: false);
-    keepDarkPrimary = attributes.boolean(name: "keepDarkPrimary", title: "保持黑暗初级", dvalue: false);
-    keepDarkSecondary = attributes.boolean(name: "keepDarkSecondary", title: "保持黑暗中学", dvalue: false);
-    keepDarkTertiary = attributes.boolean(name: "keepDarkTertiary", title: "保持黑暗第三", dvalue: false);
-    keepDarkPrimaryContainer = attributes.boolean(name: "keepDarkPrimaryContainer", title: "保留暗主容器", dvalue: false);
-    keepDarkSecondaryContainer = attributes.boolean(name: "keepDarkSecondaryContainer", title: "保持黑暗辅助容器", dvalue: false);
-    keepDarkTertiaryContainer = attributes.boolean(name: "keepDarkTertiaryContainer", title: "保持暗三级容器", dvalue: false);
-    usedFlexToneSetup = attributes.integer(name: "usedFlexToneSetup", title: "使用 Flex Tone 设置", dvalue: 1);
+    surfaceModeLight = attributes.custom(name: "surface_mode_light", title: "前景模式");
+    surfaceModeDark = attributes.custom(name: "surface_mode_dark", title: "前景模式(深色模式)");
+    blendLevel = attributes.integer(name: "blend_level", title: "混合级别", dvalue: 20);
+    blendLevelDark = attributes.integer(name: "blend_level_dark", title: "混合级别(深色模式)", dvalue: 15);
+    blendOnLevel = attributes.integer(name: "blend_on_level", title: "表面混合水平", dvalue: 20);
+    blendOnLevelDark = attributes.integer(name: "blend_on_level_dark", title: "表面混合水平(深色模式)", dvalue: 30);
+    usedColors = attributes.integer(name: "used_colors", title: "输入的颜色数量", dvalue: 6);
+    lightIsWhite = attributes.boolean(name: "light_is_white", title: "纯白(亮色模式)", dvalue: false);
+    darkIsTrueBlack = attributes.boolean(name: "dark_is_true_black", title: "纯黑(深色模式)", dvalue: false);
+    blendLightOnColors = attributes.boolean(name: "blend_light_on_colors", title: "混合表面色", dvalue: false);
+    blendDarkOnColors = attributes.boolean(name: "blend_dark_on_colors", title: "混合表面色(深色模式)", dvalue: true);
+    blendLightTextTheme = attributes.boolean(name: "blend_light_text_theme", title: "混合文本", dvalue: true);
+    blendDarkTextTheme = attributes.boolean(name: "blend_dark_text_theme", title: "混合文本(深色模式)", dvalue: true);
 
-    inputDecoratorSchemeColorLight = attributes.custom(name: "inputDecoratorSchemeColorLight", title: "输入装饰方案颜色光");
-    inputDecoratorSchemeColorDark = attributes.custom(name: "inputDecoratorSchemeColorDark", title: "输入装饰方案颜色深");
-    inputDecoratorIsFilled = attributes.boolean(name: "inputDecoratorIsFilled", title: "输入装饰器已填充", dvalue: true);
-    inputDecoratorBorderType = attributes.custom(name: "inputDecoratorBorderType", title: "输入装饰器边框类型");
-    inputDecoratorBorderRadius = attributes.floatNullable(name: "inputDecoratorBorderRadius", title: "输入装饰器边框半径");
-    inputDecoratorUnfocusedHasBorder = attributes.boolean(name: "inputDecoratorUnfocusedHasBorder", title: "输入装饰器无焦点有边框", dvalue: true);
-    inputDecoratorUnfocusedBorderIsColored = attributes.boolean(name: "inputDecoratorUnfocusedBorderIsColored", title: "输入装饰器未聚焦的边框是彩色的", dvalue: true);
+    useKeyColors = attributes.boolean(name: "use_key_colors", title: "使用生成色彩", dvalue: false);
+    useSecondary = attributes.boolean(name: "use_secondary", title: "使用${ColorType.secondary.title}", dvalue: false);
+    useTertiary = attributes.boolean(name: "use_tertiary", title: "使用${ColorType.tertiary.title}", dvalue: false);
+    keepPrimary = attributes.boolean(name: "keep_primary", title: "锁定${ColorType.primary.title}输入", dvalue: false);
+    keepSecondary = attributes.boolean(name: "keep_secondary", title: "锁定${ColorType.secondary.title}输入", dvalue: false);
+    keepTertiary = attributes.boolean(name: "keep_tertiary", title: "锁定${ColorType.tertiary.title}输入", dvalue: false);
+    keepPrimaryContainer = attributes.boolean(name: "keep_primary_container", title: "锁定${ColorType.primaryContainer.title}", dvalue: false);
+    keepSecondaryContainer = attributes.boolean(name: "keep_secondary_container", title: "锁定${ColorType.secondaryContainer.title}", dvalue: false);
+    keepTertiaryContainer = attributes.boolean(name: "keep_tertiary_container", title: "锁定${ColorType.tertiaryContainer.title}", dvalue: false);
+    keepDarkPrimary = attributes.boolean(name: "keep_dark_primary", title: "锁定${ColorType.primary.title}(深色模式)", dvalue: false);
+    keepDarkSecondary = attributes.boolean(name: "keep_dark_secondary", title: "锁定${ColorType.secondary.title}(深色模式)", dvalue: false);
+    keepDarkTertiary = attributes.boolean(name: "keep_dark_tertiary", title: "锁定${ColorType.tertiary.title}(深色模式)", dvalue: false);
+    keepDarkPrimaryContainer = attributes.boolean(name: "keep_dark_primary_container", title: "锁定${ColorType.primaryContainer.title}(深色模式)", dvalue: false);
+    keepDarkSecondaryContainer =
+        attributes.boolean(name: "keep_dark_secondary_container", title: "锁定${ColorType.secondaryContainer.title}(深色模式)", dvalue: false);
+    keepDarkTertiaryContainer = attributes.boolean(name: "keep_dark_tertiary_container", title: "锁定${ColorType.tertiaryContainer.title}(深色模式)", dvalue: false);
+    usedFlexToneSetup = attributes.integer(name: "used_flex_tone_setup", title: "使用色调设置", dvalue: 1);
 
-    appBarStyleLight = attributes.custom(name: "appBarStyleLight", title: "亮色AppBar风格");
-    appBarStyleDark = attributes.custom(name: "appBarStyleDark", title: "暗色AppBar风格", dvalue: FlexAppBarStyleValue(style: FlexAppBarStyle.background));
-    appBarOpacityLight = attributes.float(name: "appBarOpacityLight", title: "应用栏不透明度灯", dvalue: 0.95);
-    appBarOpacityDark = attributes.float(name: "appBarOpacityDark", title: "应用程序栏不透明度深色", dvalue: 0.9);
-    appBarElevationLight = attributes.float(name: "appBarElevationLight", title: "亮色AppBar高度", dvalue: 0.0);
-    appBarElevationDark = attributes.float(name: "appBarElevationDark", title: "暗色AppBar高度", dvalue: 0.0);
-    transparentStatusBar = attributes.boolean(name: "transparentStatusBar", title: "透明状态栏", dvalue: true);
-    appBarBackgroundSchemeColorLight = attributes.custom(name: "appBarBackgroundSchemeColorLight", title: "应用栏背景方案颜色光");
-    appBarBackgroundSchemeColorDark = attributes.custom(name: "appBarBackgroundSchemeColorDark", title: "应用栏背景方案颜色深");
+    inputDecoratorSchemeColorLight = attributes.custom(name: "input_decorator_scheme_color_light", title: "输入框主题");
+    inputDecoratorSchemeColorDark = attributes.custom(name: "input_decorator_scheme_color_dark", title: "输入框主题(深色模式)");
+    inputDecoratorIsFilled = attributes.boolean(name: "input_decorator_is_filled", title: "填充输入框", dvalue: true);
+    inputDecoratorBorderType = attributes.custom(name: "input_decorator_border_type", title: "输入框边框类型");
+    inputDecoratorBorderRadius = attributes.floatNullable(name: "input_decorator_border_radius", title: "输入框边框圆角半径");
+    inputDecoratorUnfocusedHasBorder = attributes.boolean(name: "input_decorator_unfocused_has_border", title: "失焦输入框边框", dvalue: true);
+    inputDecoratorUnfocusedBorderIsColored = attributes.boolean(name: "input_decorator_unfocused_border_is_colored", title: "失焦输入框颜色", dvalue: true);
 
-    tabBarStyle = attributes.custom(name: "tabBarStyle", title: "选项卡栏样式");
-    tabBarIndicatorLight = attributes.custom(name: "tabBarIndicatorLight", title: "选项卡栏指示灯");
-    tabBarIndicatorDark = attributes.custom(name: "tabBarIndicatorDark", title: "选项卡栏暗");
-    tabBarItemSchemeColorLight = attributes.custom(name: "tabBarItemSchemeColorLight", title: "选项卡栏项目方案颜色灯");
-    tabBarItemSchemeColorDark = attributes.custom(name: "tabBarItemSchemeColorDark", title: "选项卡栏项目方案颜色深");
+    appBarStyleLight = attributes.custom(name: "app_bar_style_light", title: "应用栏样式");
+    appBarStyleDark = attributes.custom(name: "app_bar_style_dark", title: "应用栏样式(深色模式)", dvalue: FlexAppBarStyleValue(style: FlexAppBarStyle.background));
+    appBarOpacityLight = attributes.float(name: "app_bar_opacity_light", title: "应用栏不透明度", dvalue: 0.95);
+    appBarOpacityDark = attributes.float(name: "app_bar_opacity_dark", title: "应用栏不透明度(深色模式)", dvalue: 0.9);
+    appBarElevationLight = attributes.float(name: "app_bar_elevation_light", title: "应用栏海拔", dvalue: 0.0);
+    appBarElevationDark = attributes.float(name: "app_bar_elevation_dark", title: "应用栏海拔(深色模式)", dvalue: 0.0);
+    transparentStatusBar = attributes.boolean(name: "transparent_status_bar", title: "状态栏透明", dvalue: true);
+    appBarBackgroundSchemeColorLight = attributes.custom(name: "app_bar_background_scheme_color_light", title: "应用栏背景色");
+    appBarBackgroundSchemeColorDark = attributes.custom(name: "app_bar_background_scheme_color_dark", title: "应用栏背景色(深色模式)");
 
-    bottomSheetBorderRadius = attributes.floatNullable(name: "bottomSheetBorderRadius", title: "底部工作表边框半径");
-    sysNavBarStyle = attributes.custom(name: "sysNavBarStyle", title: "sys 导航栏样式");
-    sysNavBarOpacity = attributes.float(name: "sysNavBarOpacity", title: "sys 导航栏不透明度", dvalue: 1.0);
-    useSysNavDivider = attributes.boolean(name: "useSysNavDivider", title: "使用系统分割栏", dvalue: false);
+    tabBarStyle = attributes.custom(name: "tab_bar_style", title: "标签页栏样式");
+    tabBarIndicatorLight = attributes.custom(name: "tab_bar_indicator_light", title: "标签页栏指示器");
+    tabBarIndicatorDark = attributes.custom(name: "tab_bar_indicator_dark", title: "标签页栏指示器(深色模式)");
+    tabBarItemSchemeColorLight = attributes.custom(name: "tab_bar_item_scheme_color_light", title: "标签页栏目");
+    tabBarItemSchemeColorDark = attributes.custom(name: "tab_bar_item_scheme_color_dark", title: "标签页栏目(深色模式)");
 
-    bottomNavBarBackgroundSchemeColor = attributes.custom(name: "bottomNavBarBackgroundSchemeColor", title: "底部导航栏背景方案颜色");
-    bottomNavigationBarOpacity = attributes.float(name: "bottomNavigationBarOpacity", title: "底部导航栏不透明度", dvalue: 1.0);
-    bottomNavigationBarElevation = attributes.float(name: "bottomNavigationBarElevation", title: "底部导航栏高度", dvalue: 0);
-    bottomNavBarSelectedSchemeColor = attributes.custom(name: "bottomNavBarSelectedSchemeColor", title: "底部导航栏选择的方案颜色");
-    bottomNavBarUnselectedSchemeColor = attributes.custom(name: "bottomNavBarUnselectedSchemeColor", title: "底部导航栏未选择的方案颜色");
-    bottomNavBarMuteUnselected = attributes.boolean(name: "bottomNavBarMuteUnselected", title: "底部导航栏静音未选中", dvalue: true);
-    bottomNavShowSelectedLabels = attributes.boolean(name: "bottomNavShowSelectedLabels", title: "底部导航显示选定的标签", dvalue: true);
-    bottomNavShowUnselectedLabels = attributes.boolean(name: "bottomNavShowUnselectedLabels", title: "底部导航显示未选择的标签", dvalue: true);
+    bottomSheetBorderRadius = attributes.floatNullable(name: "bottom_sheet_border_radius", title: "底部弹框边框圆角");
+    sysNavBarStyle = attributes.custom(name: "sys_nav_bar_style", title: "系统导航栏样式");
+    sysNavBarOpacity = attributes.float(name: "sys_nav_bar_opacity", title: "系统导航栏不透明度", dvalue: 1.0);
+    useSysNavDivider = attributes.boolean(name: "use_sys_nav_divider", title: "系统导航栏分隔符", dvalue: false);
 
-    navBarBackgroundSchemeColor = attributes.custom(name: "navBarBackgroundSchemeColor", title: "导航栏背景方案颜色");
-    navBarOpacity = attributes.float(name: "navBarOpacity", title: "导航栏不透明度", dvalue: 1.0);
-    navBarHeight = attributes.floatNullable(name: "navBarHeight", title: "导航栏高度");
-    navBarSelectedSchemeColor = attributes.custom(name: "navBarSelectedSchemeColor", title: "导航栏选择的方案颜色");
-    navBarUnselectedSchemeColor = attributes.custom(name: "navBarUnselectedSchemeColor", title: "导航栏未选择的方案颜色");
-    navBarMuteUnselected = attributes.boolean(name: "navBarMuteUnselected", title: "导航栏静音未选中", dvalue: true);
-    navBarIndicatorSchemeColor = attributes.custom(name: "navBarIndicatorSchemeColor", title: "导航栏指示器方案颜色");
-    navBarIndicatorOpacity = attributes.floatNullable(name: "navBarIndicatorOpacity", title: "导航栏指示器不透明度");
-    navBarLabelBehavior = attributes.custom(name: "navBarLabelBehavior", title: "导航栏标签行为");
+    bottomNavBarBackgroundSchemeColor = attributes.custom(name: "bottom_nav_bar_background_scheme_color", title: "底部导航栏背景色");
+    bottomNavigationBarOpacity = attributes.float(name: "bottom_navigation_bar_opacity", title: "底部导航栏不透明度", dvalue: 1.0);
+    bottomNavigationBarElevation = attributes.float(name: "bottom_navigation_bar_elevation", title: "底部导航栏海拔", dvalue: 0);
+    bottomNavBarSelectedSchemeColor = attributes.custom(name: "bottom_nav_bar_selected_scheme_color", title: "底部导航栏选中颜色");
+    bottomNavBarUnselectedSchemeColor = attributes.custom(name: "bottom_nav_bar_unselected_scheme_color", title: "底部导航栏未选中颜色");
+    bottomNavBarMuteUnselected = attributes.boolean(name: "bottom_nav_bar_mute_unselected", title: "底部导航栏屏蔽未选中", dvalue: true);
+    bottomNavShowSelectedLabels = attributes.boolean(name: "bottom_nav_show_selected_labels", title: "底部导航显示选中标签", dvalue: true);
+    bottomNavShowUnselectedLabels = attributes.boolean(name: "bottom_nav_show_unselected_labels", title: "底部导航显示未选中标签", dvalue: true);
 
-    navRailBackgroundSchemeColor = attributes.custom(name: "navRailBackgroundSchemeColor", title: "导航栏背景方案颜色");
-    navRailOpacity = attributes.float(name: "navRailOpacity", title: "nav 铁路不透明度", dvalue: 1.0);
-    navigationRailElevation = attributes.float(name: "navigationRailElevation", title: "导航 铁路标高", dvalue: 0);
-    navRailSelectedSchemeColor = attributes.custom(name: "navRailSelectedSchemeColor", title: "nav Rail 所选方案颜色");
-    navRailUnselectedSchemeColor = attributes.custom(name: "navRailUnselectedSchemeColor", title: "nav Rail 未选择的方案颜色");
-    navRailMuteUnselected = attributes.boolean(name: "navRailMuteUnselected", title: "nav Rail Mute 未选择", dvalue: true);
-    navRailLabelType = attributes.custom(name: "navRailLabelType", title: "nav 导轨标签类型");
-    navRailUseIndicator = attributes.boolean(name: "navRailUseIndicator", title: "nav 铁路使用指示器", dvalue: true);
-    navRailIndicatorSchemeColor = attributes.custom(name: "navRailIndicatorSchemeColor", title: "nav 铁路指示器方案颜色");
-    navRailIndicatorOpacity = attributes.floatNullable(name: "navRailIndicatorOpacity", title: "nav 轨道指示器不透明度");
+    navBarBackgroundSchemeColor = attributes.custom(name: "nav_bar_background_scheme_color", title: "导航栏背景色");
+    navBarOpacity = attributes.float(name: "nav_bar_opacity", title: "导航栏不透明度", dvalue: 1.0);
+    navBarHeight = attributes.floatNullable(name: "nav_bar_height", title: "导航栏海拔");
+    navBarSelectedSchemeColor = attributes.custom(name: "nav_bar_selected_scheme_color", title: "导航栏选中颜色");
+    navBarUnselectedSchemeColor = attributes.custom(name: "nav_bar_unselected_scheme_color", title: "导航栏未选中颜色");
+    navBarMuteUnselected = attributes.boolean(name: "nav_bar_mute_unselected", title: "导航栏屏蔽未选中", dvalue: true);
+    navBarIndicatorSchemeColor = attributes.custom(name: "nav_bar_indicator_scheme_color", title: "导航栏指示器颜色");
+    navBarIndicatorOpacity = attributes.floatNullable(name: "nav_bar_indicator_opacity", title: "导航栏指示器不透明度");
+    navBarLabelBehavior = attributes.custom(name: "nav_bar_label_behavior", title: "导航栏标签行为");
 
-    textButtonSchemeColor = attributes.custom(name: "textButtonSchemeColor", title: "文本按钮方案颜色");
-    textButtonBorderRadius = attributes.floatNullable(name: "textButtonBorderRadius", title: "文本按钮边框半径");
-    elevatedButtonSchemeColor = attributes.custom(name: "elevatedButtonSchemeColor", title: "提升按钮方案颜色");
-    elevatedButtonBorderRadius = attributes.floatNullable(name: "elevatedButtonBorderRadius", title: "升高的按钮边框半径");
-    outlinedButtonSchemeColor = attributes.custom(name: "outlinedButtonSchemeColor", title: "概述按钮方案颜色");
-    outlinedButtonBorderRadius = attributes.floatNullable(name: "outlinedButtonBorderRadius", title: "概述按钮边框半径");
-    toggleButtonsSchemeColor = attributes.custom(name: "toggleButtonsSchemeColor", title: "切换按钮方案颜色");
-    toggleButtonsBorderRadius = attributes.floatNullable(name: "toggleButtonsBorderRadius", title: "切换按钮边框半径");
-    unselectedToggleIsColored = attributes.boolean(name: "unselectedToggleIsColored", title: "未选中 切换为彩色", dvalue: false);
-    switchSchemeColor = attributes.custom(name: "switchSchemeColor", title: "切换方案颜色");
-    checkboxSchemeColor = attributes.custom(name: "checkboxSchemeColor", title: "复选框方案颜色");
-    radioSchemeColor = attributes.custom(name: "radioSchemeColor", title: "收音机方案颜色");
+    navRailBackgroundSchemeColor = attributes.custom(name: "nav_rail_background_scheme_color", title: "侧导航栏背景色");
+    navRailOpacity = attributes.float(name: "nav_rail_opacity", title: "侧导航栏不透明度", dvalue: 1.0);
+    navigationRailElevation = attributes.float(name: "navigation_rail_elevation", title: "侧导航栏海拔", dvalue: 0);
+    navRailSelectedSchemeColor = attributes.custom(name: "nav_rail_selected_scheme_color", title: "侧导航栏选中颜色");
+    navRailUnselectedSchemeColor = attributes.custom(name: "nav_rail_unselected_scheme_color", title: "侧导航栏未选中颜色");
+    navRailMuteUnselected = attributes.boolean(name: "nav_rail_mute_unselected", title: "侧导航栏屏蔽未选中", dvalue: true);
+    navRailLabelType = attributes.custom(name: "nav_rail_label_type", title: "侧导航栏标签行为");
+    navRailUseIndicator = attributes.boolean(name: "nav_rail_use_indicator", title: "侧导航栏指示器", dvalue: true);
+    navRailIndicatorSchemeColor = attributes.custom(name: "nav_rail_indicator_scheme_color", title: "侧导航栏指示器颜色");
+    navRailIndicatorOpacity = attributes.floatNullable(name: "nav_rail_indicator_opacity", title: "侧导航栏指示器不透明度");
 
-    fabBorderRadius = attributes.floatNullable(name: "fabBorderRadius", title: "晶圆厂边界半径");
-    fabSchemeColor = attributes.custom(name: "fabSchemeColor", title: "晶圆厂方案颜色");
-    chipSchemeColor = attributes.custom(name: "chipSchemeColor", title: "芯片方案颜色");
-    chipBorderRadius = attributes.floatNullable(name: "chipBorderRadius", title: "芯片边界半径");
-    snackBarSchemeColor = attributes.custom(name: "snackBarSchemeColor", title: "小吃店方案颜色");
-    popupMenuOpacity = attributes.float(name: "popupMenuOpacity", title: "弹出菜单不透明度", dvalue: 1.0);
-    popupMenuBorderRadius = attributes.floatNullable(name: "popupMenuBorderRadius", title: "弹出菜单边框半径");
-    cardBorderRadius = attributes.floatNullable(name: "cardBorderRadius", title: "卡片边框半径");
-    dialogBackgroundSchemeColor = attributes.custom(name: "dialogBackgroundSchemeColor", title: "对话框背景方");
-    dialogBorderRadius = attributes.floatNullable(name: "dialogBorderRadius", title: "对话框边框半径");
-    tooltipsMatchBackground = attributes.boolean(name: "tooltipsMatchBackground", title: "tooltip是否匹配背景", dvalue: false);
+    textButtonSchemeColor = attributes.custom(name: "text_button_scheme_color", title: "文本按钮颜色");
+    textButtonBorderRadius = attributes.floatNullable(name: "text_button_border_radius", title: "文本按钮边框圆角半径");
+    elevatedButtonSchemeColor = attributes.custom(name: "elevated_button_scheme_color", title: "浮动按钮颜色");
+    elevatedButtonBorderRadius = attributes.floatNullable(name: "elevated_button_border_radius", title: "浮动按钮边框圆角半径");
+    outlinedButtonSchemeColor = attributes.custom(name: "outlined_button_scheme_color", title: "轮廓按钮颜色");
+    outlinedButtonBorderRadius = attributes.floatNullable(name: "outlined_button_border_radius", title: "轮廓按钮边框圆角半径");
+    toggleButtonsSchemeColor = attributes.custom(name: "toggle_buttons_scheme_color", title: "可切换按钮颜色");
+    toggleButtonsBorderRadius = attributes.floatNullable(name: "toggle_buttons_border_radius", title: "可切换按钮边框圆角半径");
+    unselectedToggleIsColored = attributes.boolean(name: "unselected_toggle_is_colored", title: "可切换按钮未选中颜色", dvalue: false);
+    switchSchemeColor = attributes.custom(name: "switch_scheme_color", title: "开关颜色");
+    checkboxSchemeColor = attributes.custom(name: "checkbox_scheme_color", title: "复选框颜色");
+    radioSchemeColor = attributes.custom(name: "radio_scheme_color", title: "单选框颜色");
 
-    primaryLight = attributes.custom(name: "primaryLight", title: "主要色彩", dvalue: ColorValue(color: const Color(0xFF004881)));
-    primaryContainerLight = attributes.custom(name: "primaryContainerLight", title: "主要容器色彩", dvalue: ColorValue(color: const Color(0xFFD0E4FF)));
-    secondaryLight = attributes.custom(name: "secondaryLight", title: "二级色彩", dvalue: ColorValue(color: const Color(0xFFAC3306)));
-    secondaryContainerLight = attributes.custom(name: "secondaryContainerLight", title: "二级容器色彩", dvalue: ColorValue(color: const Color(0xFFFFDBCF)));
-    tertiaryLight = attributes.custom(name: "tertiaryLight", title: "三级色彩", dvalue: ColorValue(color: const Color(0xFF006875)));
-    tertiaryContainerLight = attributes.custom(name: "tertiaryContainerLight", title: "三级容器色彩", dvalue: ColorValue(color: const Color(0xFF95F0FF)));
-    primaryDark = attributes.custom(name: "primaryDark", title: "主要暗色", dvalue: ColorValue(color: const Color(0xFF9FC9FF)));
-    primaryContainerDark = attributes.custom(name: "primaryContainerDark", title: "主要暗色容器", dvalue: ColorValue(color: const Color(0xFF00325B)));
-    secondaryDark = attributes.custom(name: "secondaryDark", title: "二级暗色", dvalue: ColorValue(color: const Color(0xFFFFB59D)));
-    secondaryContainerDark = attributes.custom(name: "secondaryContainerDark", title: "二级暗色容器", dvalue: ColorValue(color: const Color(0xFF872100)));
-    tertiaryDark = attributes.custom(name: "tertiaryDark", title: "三级暗色", dvalue: ColorValue(color: const Color(0xFF872100)));
-    tertiaryContainerDark = attributes.custom(name: "tertiaryContainerDark", title: "三级暗色容器", dvalue: ColorValue(color: const Color(0xFF004E59)));
+    fabBorderRadius = attributes.floatNullable(name: "fab_border_radius", title: "浮动操作按钮边框圆角半径");
+    fabSchemeColor = attributes.custom(name: "fab_scheme_color", title: "浮动操作按钮颜色");
+    chipSchemeColor = attributes.custom(name: "chip_scheme_color", title: "标签颜色");
+    chipBorderRadius = attributes.floatNullable(name: "chip_border_radius", title: "标签边框圆角半径");
+    snackBarSchemeColor = attributes.custom(name: "snack_bar_scheme_color", title: "提示横幅颜色");
+    popupMenuOpacity = attributes.float(name: "popup_menu_opacity", title: "弹出菜单不透明度", dvalue: 1.0);
+    popupMenuBorderRadius = attributes.floatNullable(name: "popup_menu_border_radius", title: "弹出菜单边框圆角半径");
+    popupMenuElevation = attributes.floatNullable(name: "popup menu elevation", title: "弹出菜单h海拔");
+    cardBorderRadius = attributes.floatNullable(name: "card_border_radius", title: "卡片边框圆角半径");
+    cardElevation = attributes.floatNullable(name: "card elevation", title: "卡片海拔");
+    dialogBackgroundSchemeColor = attributes.custom(name: "dialog_background_scheme_color", title: "对话框背景色");
+    dialogBorderRadius = attributes.floatNullable(name: "dialog_border_radius", title: "对话框边框圆角半径", dvalue: 0);
+    dialogElevation = attributes.floatNullable(name: "dialog elevation", title: "对话框海拔", dvalue: 0);
+    tooltipsMatchBackground = attributes.boolean(name: "tooltips_match_background", title: "提示匹配背景", dvalue: false);
+  }
+
+  @override
+  String toString() {
+    return name.value ?? "未命名";
   }
 
   /// 预制数据
@@ -311,125 +327,125 @@ class ThemeTemplate extends DataModel {
         ..id.value = "default"
         ..name.value = "默认模板",
       ThemeTemplate().withFlexScheme(FlexScheme.material)
-        ..id.value = "material"
-        ..name.value = "material",
+        ..id.value = FlexScheme.material.name
+        ..name.value = FlexScheme.material.title,
       ThemeTemplate().withFlexScheme(FlexScheme.materialHc)
-        ..id.value = "materialHc"
-        ..name.value = "高对比度",
+        ..id.value = FlexScheme.materialHc.name
+        ..name.value = FlexScheme.materialHc.title,
       ThemeTemplate().withFlexScheme(FlexScheme.blue)
-        ..id.value = "blue"
-        ..name.value = "蓝",
+        ..id.value = FlexScheme.blue.name
+        ..name.value = FlexScheme.blue.title,
       ThemeTemplate().withFlexScheme(FlexScheme.indigo)
-        ..id.value = "indigo"
-        ..name.value = "青",
+        ..id.value = FlexScheme.indigo.name
+        ..name.value = FlexScheme.indigo.title,
       ThemeTemplate().withFlexScheme(FlexScheme.hippieBlue)
-        ..id.value = "hippieBlue"
-        ..name.value = "嬉皮蓝",
+        ..id.value = FlexScheme.hippieBlue.name
+        ..name.value = FlexScheme.hippieBlue.title,
       ThemeTemplate().withFlexScheme(FlexScheme.aquaBlue)
-        ..id.value = "aquaBlue"
-        ..name.value = "水蓝",
+        ..id.value = FlexScheme.aquaBlue.name
+        ..name.value = FlexScheme.aquaBlue.title,
       ThemeTemplate().withFlexScheme(FlexScheme.brandBlue)
-        ..id.value = "brandBlue"
-        ..name.value = "品牌蓝",
+        ..id.value = FlexScheme.brandBlue.name
+        ..name.value = FlexScheme.brandBlue.title,
       ThemeTemplate().withFlexScheme(FlexScheme.deepBlue)
-        ..id.value = "deepBlue"
-        ..name.value = "深蓝",
+        ..id.value = FlexScheme.deepBlue.name
+        ..name.value = FlexScheme.deepBlue.title,
       ThemeTemplate().withFlexScheme(FlexScheme.sakura)
-        ..id.value = "sakura"
-        ..name.value = "樱",
+        ..id.value = FlexScheme.sakura.name
+        ..name.value = FlexScheme.sakura.title,
       ThemeTemplate().withFlexScheme(FlexScheme.mandyRed)
-        ..id.value = "mandyRed"
-        ..name.value = "曼迪红",
+        ..id.value = FlexScheme.mandyRed.name
+        ..name.value = FlexScheme.mandyRed.title,
       ThemeTemplate().withFlexScheme(FlexScheme.red)
-        ..id.value = "red"
-        ..name.value = "红",
+        ..id.value = FlexScheme.red.name
+        ..name.value = FlexScheme.red.title,
       ThemeTemplate().withFlexScheme(FlexScheme.redWine)
-        ..id.value = "redWine"
-        ..name.value = "酒红",
+        ..id.value = FlexScheme.redWine.name
+        ..name.value = FlexScheme.redWine.title,
       ThemeTemplate().withFlexScheme(FlexScheme.purpleBrown)
-        ..id.value = "purpleBrown"
-        ..name.value = "紫棕",
+        ..id.value = FlexScheme.purpleBrown.name
+        ..name.value = FlexScheme.purpleBrown.title,
       ThemeTemplate().withFlexScheme(FlexScheme.green)
-        ..id.value = "green"
-        ..name.value = "绿",
+        ..id.value = FlexScheme.green.name
+        ..name.value = FlexScheme.green.title,
       ThemeTemplate().withFlexScheme(FlexScheme.money)
-        ..id.value = "money"
-        ..name.value = "美元绿",
+        ..id.value = FlexScheme.money.name
+        ..name.value = FlexScheme.money.title,
       ThemeTemplate().withFlexScheme(FlexScheme.jungle)
-        ..id.value = "jungle"
-        ..name.value = "野绿",
+        ..id.value = FlexScheme.jungle.name
+        ..name.value = FlexScheme.jungle.title,
       ThemeTemplate().withFlexScheme(FlexScheme.greyLaw)
-        ..id.value = "greyLaw"
-        ..name.value = "蓝灰",
+        ..id.value = FlexScheme.greyLaw.name
+        ..name.value = FlexScheme.greyLaw.title,
       ThemeTemplate().withFlexScheme(FlexScheme.wasabi)
-        ..id.value = "wasabi"
-        ..name.value = "芥末绿",
+        ..id.value = FlexScheme.wasabi.name
+        ..name.value = FlexScheme.wasabi.title,
       ThemeTemplate().withFlexScheme(FlexScheme.gold)
-        ..id.value = "gold"
-        ..name.value = "金",
+        ..id.value = FlexScheme.gold.name
+        ..name.value = FlexScheme.gold.title,
       ThemeTemplate().withFlexScheme(FlexScheme.mango)
-        ..id.value = "mango"
-        ..name.value = "芒",
+        ..id.value = FlexScheme.mango.name
+        ..name.value = FlexScheme.mango.title,
       ThemeTemplate().withFlexScheme(FlexScheme.amber)
-        ..id.value = "amber"
-        ..name.value = "琥珀",
+        ..id.value = FlexScheme.amber.name
+        ..name.value = FlexScheme.amber.title,
       ThemeTemplate().withFlexScheme(FlexScheme.vesuviusBurn)
-        ..id.value = "vesuviusBurn"
-        ..name.value = "火山灰",
+        ..id.value = FlexScheme.vesuviusBurn.name
+        ..name.value = FlexScheme.vesuviusBurn.title,
       ThemeTemplate().withFlexScheme(FlexScheme.deepPurple)
-        ..id.value = "deepPurple"
-        ..name.value = "深紫",
+        ..id.value = FlexScheme.deepPurple.name
+        ..name.value = FlexScheme.deepPurple.title,
       ThemeTemplate().withFlexScheme(FlexScheme.ebonyClay)
-        ..id.value = "ebonyClay"
-        ..name.value = "深蓝灰",
+        ..id.value = FlexScheme.ebonyClay.name
+        ..name.value = FlexScheme.ebonyClay.title,
       ThemeTemplate().withFlexScheme(FlexScheme.barossa)
-        ..id.value = "barossa"
-        ..name.value = "巴罗莎",
+        ..id.value = FlexScheme.barossa.name
+        ..name.value = FlexScheme.barossa.title,
       ThemeTemplate().withFlexScheme(FlexScheme.shark)
-        ..id.value = "shark"
-        ..name.value = "鲨鱼",
+        ..id.value = FlexScheme.shark.name
+        ..name.value = FlexScheme.shark.title,
       ThemeTemplate().withFlexScheme(FlexScheme.bigStone)
-        ..id.value = "bigStone"
-        ..name.value = "石",
+        ..id.value = FlexScheme.bigStone.name
+        ..name.value = FlexScheme.bigStone.title,
       ThemeTemplate().withFlexScheme(FlexScheme.damask)
-        ..id.value = "damask"
-        ..name.value = "锦",
+        ..id.value = FlexScheme.damask.name
+        ..name.value = FlexScheme.damask.title,
       ThemeTemplate().withFlexScheme(FlexScheme.bahamaBlue)
-        ..id.value = "bahamaBlue"
-        ..name.value = "巴哈马蓝",
+        ..id.value = FlexScheme.bahamaBlue.name
+        ..name.value = FlexScheme.bahamaBlue.title,
       ThemeTemplate().withFlexScheme(FlexScheme.mallardGreen)
-        ..id.value = "mallardGreen"
-        ..name.value = "鸭头绿",
+        ..id.value = FlexScheme.mallardGreen.name
+        ..name.value = FlexScheme.mallardGreen.title,
       ThemeTemplate().withFlexScheme(FlexScheme.espresso)
-        ..id.value = "espresso"
-        ..name.value = "咖啡",
+        ..id.value = FlexScheme.espresso.name
+        ..name.value = FlexScheme.espresso.title,
       ThemeTemplate().withFlexScheme(FlexScheme.outerSpace)
-        ..id.value = "outerSpace"
-        ..name.value = "外太空",
+        ..id.value = FlexScheme.outerSpace.name
+        ..name.value = FlexScheme.outerSpace.title,
       ThemeTemplate().withFlexScheme(FlexScheme.blueWhale)
-        ..id.value = "blueWhale"
-        ..name.value = "蓝鲸",
+        ..id.value = FlexScheme.blueWhale.name
+        ..name.value = FlexScheme.blueWhale.title,
       ThemeTemplate().withFlexScheme(FlexScheme.sanJuanBlue)
-        ..id.value = "sanJuanBlue"
-        ..name.value = "圣胡安蓝",
+        ..id.value = FlexScheme.sanJuanBlue.name
+        ..name.value = FlexScheme.sanJuanBlue.title,
       ThemeTemplate().withFlexScheme(FlexScheme.rosewood)
-        ..id.value = "rosewood"
-        ..name.value = "红木",
+        ..id.value = FlexScheme.rosewood.name
+        ..name.value = FlexScheme.rosewood.title,
       ThemeTemplate().withFlexScheme(FlexScheme.blumineBlue)
-        ..id.value = "blumineBlue"
-        ..name.value = "蓝光",
+        ..id.value = FlexScheme.blumineBlue.name
+        ..name.value = FlexScheme.blumineBlue.title,
       ThemeTemplate().withFlexScheme(FlexScheme.flutterDash)
-        ..id.value = "flutterDash"
-        ..name.value = "flutter",
+        ..id.value = FlexScheme.flutterDash.name
+        ..name.value = FlexScheme.flutterDash.title,
       ThemeTemplate().withFlexScheme(FlexScheme.materialBaseline)
-        ..id.value = "materialBaseline"
-        ..name.value = "material基础色",
+        ..id.value = FlexScheme.materialBaseline.name
+        ..name.value = FlexScheme.materialBaseline.title,
       ThemeTemplate().withFlexScheme(FlexScheme.verdunHemlock)
-        ..id.value = "verdunHemlock"
-        ..name.value = "凡尔登铁杉",
+        ..id.value = FlexScheme.verdunHemlock.name
+        ..name.value = FlexScheme.verdunHemlock.title,
       ThemeTemplate().withFlexScheme(FlexScheme.dellGenoa)
-        ..id.value = "dellGenoa"
-        ..name.value = "热那亚",
+        ..id.value = FlexScheme.dellGenoa.name
+        ..name.value = FlexScheme.dellGenoa.title,
     ];
   }
 }
@@ -489,77 +505,30 @@ extension FlexColorSchemeConvert on ThemeTemplate {
 
   FlexColorScheme toFlexColorThemeLight() {
     return FlexColorScheme.light(
-      // Used number of colors from the selected input FlexColorScheme based theme
       usedColors: usedColors.value,
-      // Use controller to select surface mode
       surfaceMode: surfaceModeLight.value.mode,
-      // Integer used to control the level of primary color
-      // surface blends applied to surfaces and backgrounds.
       blendLevel: blendLevel.value,
-      // Enum used to select what AppBar style we use.
       appBarStyle: appBarStyleLight.value.style,
-      // Set background opacity on app bar.
       appBarOpacity: appBarOpacityLight.value,
-      // Used to control if we use one or two toned status bar.
       transparentStatusBar: transparentStatusBar.value,
-      // Used to modify the themed AppBar elevation.
       appBarElevation: appBarElevationLight.value,
-      // Enum used to select what TabBar style we use.
       tabBarStyle: tabBarStyle.value.style,
-      // Keep scaffold plain white in all blend modes.
       lightIsWhite: lightIsWhite.value,
-      // Swap primary and secondary colors.
       swapColors: false,
-      // If true, tooltip theme background will be light in light
-      // theme, and dark in dark themes. The Flutter and Material
-      // default and standard is the other way, tooltip background
-      // color is inverted compared to app background.
-      // Set to true, to mimic e.g. the look of Windows desktop
-      // tooltips. You could tie this to the active platform and
-      // have different style of tooltips on different platforms.
       tooltipsMatchBackground: tooltipsMatchBackground.value,
-      //
-      // Opt in/out of using opinionated sub-themes.
       subThemesData: FlexSubThemesData(
-        // Want color themed disable hover, focus, highlight and
-        // splash colors? Then keep this one on.
         interactionEffects: true,
-        // Blend level for on colors for on colors, primary
-        // secondary and tertiary and their containers.
         blendOnLevel: blendOnLevel.value,
-        // Use blend level values also with main on colors, not
-        // only with container and on surfaces.
         blendOnColors: blendLightOnColors.value,
-        // By default sub themes mode also opts in on using colored text for
-        // the themed text. If you plan to put text on surfaces that are not
-        // primary color tinted or primary colored, then you may need to
-        // turn this off, or make custom text themes for those surfaces.
-        // Material3 has containers with matching colors too, they work
-        // great for contrast colored text, do use them too.
         blendTextTheme: blendLightTextTheme.value,
-        // Opt in/out of the Material 3 style matched TextTheme geometry, or
-        // Typography, as it is called in Flutter SDK. The M3 Typography is
-        // not yet natively available in Flutter SDK 2.10.3 or earlier,
-        // this offers it as a way to use it already now.
         useTextTheme: true,
-        // Prefer Flutter SDK null default behavior for sub-themes, when
-        // possible.
         useFlutterDefaults: false,
-        // Value to adjust themed border radius on widgets with
-        // an adjustable corner rounding, this one is very handy.
-        // If null, it defaults to Material3 (You) design
-        // guide values, when available: https://m3.material.io/
-        // If you give it value, "all" Flutter built-in widgets
-        // supporting border radius will use the give radius.
         defaultRadius: defaultRadius.value,
-        // Border radius can be customized per widget too, here are
-        // examples, it overrides M3 default and global default setting.
         bottomSheetRadius: bottomSheetBorderRadius.value,
         elevatedButtonRadius: elevatedButtonBorderRadius.value,
         outlinedButtonRadius: outlinedButtonBorderRadius.value,
         textButtonRadius: textButtonBorderRadius.value,
         toggleButtonsRadius: toggleButtonsBorderRadius.value,
-        // SchemeColor based ColorScheme color used on buttons & toggles.
         textButtonSchemeColor: textButtonSchemeColor.value.scheme,
         elevatedButtonSchemeColor: elevatedButtonSchemeColor.value.scheme,
         outlinedButtonSchemeColor: outlinedButtonSchemeColor.value.scheme,
@@ -567,26 +536,13 @@ extension FlexColorSchemeConvert on ThemeTemplate {
         switchSchemeColor: switchSchemeColor.value.scheme,
         checkboxSchemeColor: checkboxSchemeColor.value.scheme,
         radioSchemeColor: radioSchemeColor.value.scheme,
-        // Style of unselected switch/checkbox/radio.
         unselectedToggleIsColored: unselectedToggleIsColored.value,
-        //
-        // Base ColorScheme used by TextField InputDecorator.
         inputDecoratorSchemeColor: inputDecoratorSchemeColorLight.value.scheme,
-        // Text input field uses a themed fill color.
         inputDecoratorIsFilled: inputDecoratorIsFilled.value,
-        // Underline or outline border type?
         inputDecoratorBorderType: inputDecoratorBorderType.value.type,
         inputDecoratorRadius: inputDecoratorBorderRadius.value,
-        // Only want a border when the text input has focus
-        // or error, then set this to false. By default it always
-        // has a border of selected style, but thinner.
         inputDecoratorUnfocusedHasBorder: inputDecoratorUnfocusedHasBorder.value,
-        // Want to use uncolored border/underline when unfocused,
-        // set this to false
         inputDecoratorUnfocusedBorderIsColored: inputDecoratorUnfocusedBorderIsColored.value,
-        // Set to false to keep using M2 style FAB and ignore
-        // M3 type default and global radius on the FAB, it thus
-        // remains circular or stadium shaped in extended mode.
         fabUseShape: true,
         fabRadius: fabBorderRadius.value,
         fabSchemeColor: fabSchemeColor.value.scheme,
@@ -594,11 +550,13 @@ extension FlexColorSchemeConvert on ThemeTemplate {
         chipSchemeColor: chipSchemeColor.value.scheme,
         chipRadius: chipBorderRadius.value,
         cardRadius: cardBorderRadius.value,
+        cardElevation: cardElevation.value ?? 0,
         popupMenuOpacity: popupMenuOpacity.value,
         popupMenuRadius: popupMenuBorderRadius.value,
-        // ColorScheme used on various widgets.
+        popupMenuElevation: popupMenuElevation.value ?? 0,
         dialogBackgroundSchemeColor: dialogBackgroundSchemeColor.value.scheme,
         dialogRadius: dialogBorderRadius.value,
+        dialogElevation: dialogElevation.value ?? 0,
         timePickerDialogRadius: dialogBorderRadius.value,
         appBarBackgroundSchemeColor: appBarBackgroundSchemeColorLight.value.scheme,
         tabBarItemSchemeColor: tabBarItemSchemeColorLight.value.scheme,
@@ -643,10 +601,6 @@ extension FlexColorSchemeConvert on ThemeTemplate {
         navigationRailElevation: navigationRailElevation.value,
         navigationRailLabelType: navRailLabelType.value.type,
       ),
-      //
-      // Advanced color properties for seed generated ColorScheme's
-      //
-      // Use key color based M3 ColorScheme.
       keyColors: FlexKeyColors(
         useKeyColors: useKeyColors.value,
         useSecondary: useSecondary.value,
@@ -658,28 +612,11 @@ extension FlexColorSchemeConvert on ThemeTemplate {
         keepSecondaryContainer: keepSecondaryContainer.value,
         keepTertiaryContainer: keepTertiaryContainer.value,
       ),
-      // Use Material3 error colors with Material2 themes.
       useMaterial3ErrorColors: true,
-      // Use predefined [FlexTones] setups for the generated
-      // [TonalPalette] and it's usage in [ColorScheme] config.
-      // You can make your custom [FlexTones] object right here
-      // and apps it it, this just uses an int value to select
-      // between a few pre-configured ones.
       tones: flexTonesConfig(Brightness.light, usedFlexToneSetup.value),
-      //
-      // ThemeData properties passed along directly to ThemeData.
-      //
-      // Modify the value in the AppData class to change it.
       visualDensity: FlexColorScheme.comfortablePlatformDensity,
-      // Custom font, modify in AppData class to change it.
       fontFamily: fontFamily.value,
-      // The platform can be toggled in the app, but not saved.
       platform: DeviceInfoHelper.targetPlatform,
-      // Opt-in/out of using Flutter SDK Material3 based theming
-      // features. In Flutter SDK 2.10 and earlier it has almost no
-      // effect, but it will later and then we can use this toggle
-      // with FlexColorScheme too, and in this demo we can see its
-      // impact easily.
       useMaterial3: true,
       primary: primaryLight.value.color,
       primaryContainer: primaryContainerLight.value.color,

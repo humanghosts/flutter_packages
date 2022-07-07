@@ -66,7 +66,7 @@ class PresetData {
 Future<void> _presetDataInit(PresetData? presetData) async {
   String key = "is_preset_data_init";
   bool? isInitData = DatabaseHelper.database.kv.get(key);
-  if (isInitData == true) return;
+  // if (isInitData == true) return;
   Map<Type, List<DataModel> Function()> dataModelMap = presetData?.dataModelMap?.call() ?? {};
   Map<Type, SimpleModel Function()> simpleModelMap = presetData?.simpleModelMap?.call() ?? {};
   dataModelMap.addAll(_getDataModelInitData());

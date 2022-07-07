@@ -14,7 +14,7 @@ class DeviceInfoHelper {
   static BaseDeviceInfo? _baseDeviceInfo;
 
   /// 是否是web平台
-  static get isWeb => kIsWeb;
+  static bool get isWeb => kIsWeb;
 
   /// 初始化
   static Future<void> init() async {

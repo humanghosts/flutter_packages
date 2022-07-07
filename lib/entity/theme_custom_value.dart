@@ -1,6 +1,7 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:hg_entity/hg_entity.dart';
+import 'package:hg_framework/hg_framework.dart';
 
 /// 主题模式
 class ThemeModeValue extends CustomValue {
@@ -31,6 +32,11 @@ class ThemeModeValue extends CustomValue {
     if (value is! ThemeModeValue) return this;
     mode = value.mode;
     return this;
+  }
+
+  @override
+  String toString() {
+    return mode.title;
   }
 }
 
@@ -64,6 +70,11 @@ class FlexSchemeValue extends CustomValue {
     scheme = value.scheme;
     return this;
   }
+
+  @override
+  String toString() {
+    return scheme.title;
+  }
 }
 
 /// 表面值
@@ -95,6 +106,11 @@ class FlexSurfaceModeValue extends CustomValue {
     if (value is! FlexSurfaceModeValue) return this;
     mode = value.mode;
     return this;
+  }
+
+  @override
+  String toString() {
+    return mode.title;
   }
 }
 
@@ -128,6 +144,11 @@ class SchemeColorValue extends CustomValue {
     scheme = value.scheme;
     return this;
   }
+
+  @override
+  String toString() {
+    return scheme?.colorType?.title ?? "";
+  }
 }
 
 /// AppBar样式
@@ -159,6 +180,11 @@ class FlexAppBarStyleValue extends CustomValue {
     if (value is! FlexAppBarStyleValue) return this;
     style = value.style;
     return this;
+  }
+
+  @override
+  String toString() {
+    return style.title;
   }
 }
 
@@ -192,6 +218,11 @@ class FlexTabBarStyleValue extends CustomValue {
     style = value.style;
     return this;
   }
+
+  @override
+  String toString() {
+    return style.title;
+  }
 }
 
 /// 输入框边框类型
@@ -223,6 +254,11 @@ class FlexInputBorderTypeValue extends CustomValue {
     if (value is! FlexInputBorderTypeValue) return this;
     type = value.type;
     return this;
+  }
+
+  @override
+  String toString() {
+    return type.title;
   }
 }
 
@@ -256,6 +292,11 @@ class FlexSystemNavBarStyleValue extends CustomValue {
     style = value.style;
     return this;
   }
+
+  @override
+  String toString() {
+    return style.title;
+  }
 }
 
 /// 导航目的地标签行为
@@ -287,6 +328,11 @@ class NavigationDestinationLabelBehaviorValue extends CustomValue {
     if (value is! NavigationDestinationLabelBehaviorValue) return this;
     behavior = value.behavior;
     return this;
+  }
+
+  @override
+  String toString() {
+    return behavior.title;
   }
 }
 
@@ -320,6 +366,11 @@ class NavigationRailLabelTypeValue extends CustomValue {
     type = value.type;
     return this;
   }
+
+  @override
+  String toString() {
+    return type.title;
+  }
 }
 
 /// 色彩
@@ -351,5 +402,10 @@ class ColorValue extends CustomValue {
     if (value is! ColorValue) return this;
     color = value.color;
     return this;
+  }
+
+  @override
+  String toString() {
+    return '#${color.hexCode}';
   }
 }

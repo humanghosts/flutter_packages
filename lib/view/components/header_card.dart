@@ -15,7 +15,7 @@ class HeaderCard extends View<HeaderCardLogic> {
     this.subtitle,
     this.margin = EdgeInsets.zero,
     this.headerPadding,
-    this.elevation = 0,
+    this.shapeBorder,
     this.color,
     this.boldTitle = true,
     this.child,
@@ -37,7 +37,7 @@ class HeaderCard extends View<HeaderCardLogic> {
 
   final EdgeInsetsGeometry? headerPadding;
 
-  final double elevation;
+  final ShapeBorder? shapeBorder;
 
   final Color? color;
 
@@ -51,7 +51,6 @@ class HeaderCard extends View<HeaderCardLogic> {
     final ColorScheme scheme = theme.colorScheme;
     final Color cardColor = color ?? theme.cardColor;
     final Color headerColor = Color.alphaBlend(scheme.primary.withAlpha(20), cardColor);
-    ShapeBorder? shapeBorder = theme.cardTheme.shape;
     final bool useHeading = title != null || subtitle != null || leading != null;
 
     Widget? cardTitle = title;
@@ -68,8 +67,7 @@ class HeaderCard extends View<HeaderCardLogic> {
     return Card(
       margin: margin,
       color: cardColor,
-      shape: shapeBorder,
-      elevation: elevation,
+      shape: shapeBorder ?? theme.cardTheme.shape,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[

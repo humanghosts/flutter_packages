@@ -5,8 +5,6 @@ import 'package:get/get.dart';
 import 'package:hg_entity/hg_entity.dart';
 import 'package:hg_framework/hg_framework.dart';
 
-import '../../view/components/popup_menu.dart';
-
 class ToastHelper {
   ToastHelper._();
 
@@ -49,10 +47,10 @@ class ToastHelper {
                             title ?? "",
                             style: AppLogic.instance.themeData.textTheme.bodyText1,
                           ),
-                      if (message != null || title != null || messageWidget != null)
+                      if (message != null || messageWidget != null)
                         messageWidget ??
                             Text(
-                              message ?? title ?? "",
+                              message ?? "",
                               style: AppLogic.instance.themeData.textTheme.bodyText2,
                             ),
                     ],
@@ -224,13 +222,13 @@ class ToastHelper {
     List<PopupMenuEntry<T>> items = [];
     for (int i = 0; i < valueList.length; i++) {
       T value = valueList[i];
-      items.add(RawPopupMenuItem(
+      items.add(PopupMenuItem(
         value: value,
-        padding: const EdgeInsets.symmetric(horizontal: 6),
         child: childBuilder(value),
+        height: kToolbarHeight / 3 * 2,
       ));
       if (i != valueList.length - 1) {
-        items.add(const PopupMenuDivider(height: 6));
+        items.add(const PopupMenuDivider(height: 0));
       }
     }
     // 样式

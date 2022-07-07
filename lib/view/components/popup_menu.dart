@@ -47,7 +47,7 @@ class RawPopupMenuItemState<T, W extends RawPopupMenuItem<T>> extends PopupMenuI
               margin: widget.margin ?? const EdgeInsets.symmetric(horizontal: 6),
               alignment: AlignmentDirectional.centerStart,
               child: InkWell(
-                borderRadius: BorderRadius.circular(template.defaultRadius.value ?? 12),
+                // borderRadius: BorderRadius.circular(template.defaultRadius.value ?? 12),
                 onTap: widget.enabled ? handleTap : null,
                 canRequestFocus: widget.enabled,
                 mouseCursor: _EffectiveMouseCursor(widget.mouseCursor, popupMenuTheme.mouseCursor),
