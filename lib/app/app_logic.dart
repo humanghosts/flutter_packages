@@ -22,7 +22,7 @@ abstract class OrientationListener {
 
   /// 初始化
   void onWidgetBuildOrientation() {
-    if (AppLogic.isDesktop) return;
+    if (AppLogic.isDesktop || AppLogic.isWeb) return;
     _subscription = OrientationPlugin.onOrientationChange.listen((value) {
       deviceOrientation = value;
     });

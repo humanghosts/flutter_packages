@@ -65,29 +65,29 @@ abstract class App extends StatelessWidget with WidgetsBindingObserver {
                 break;
             }
             logic.themeData = themeData;
-            return GetMaterialApp(
-              scrollBehavior: const AppScrollBehavior(),
-              debugShowCheckedModeBanner: false,
-              title: logic.config.appName,
-              theme: light,
-              darkTheme: dark,
-              themeMode: mode,
-              navigatorObservers: [
-                Observer(RouteHelper.observer, ObserverRouting()),
-              ],
-              home: Stack(
-                children: [
-                  buildHome(context),
-                ],
-              ),
-              builder: EasyLoading.init(),
-              locale: logic.config.locale,
-              supportedLocales: logic.config.supportedLocales,
-              localizationsDelegates: logic.config.localizationsDelegates,
-            );
+            return buildApp(context, light, dark, mode);
           },
         );
       },
+    );
+  }
+
+  Widget buildApp(BuildContext context, ThemeData light, ThemeData dark, ThemeMode mode) {
+    return GetMaterialApp(
+      scrollBehavior: const AppScrollBehavior(),
+      debugShowCheckedModeBanner: false,
+      title: logic.config.appName,
+      theme: light,
+      darkTheme: dark,
+      themeMode: mode,
+      navigatorObservers: [
+        Observer(RouteHelper.observer, ObserverRouting()),
+      ],
+      home: buildHome(context),
+      builder: EasyLoading.init(),
+      locale: logic.config.locale,
+      supportedLocales: logic.config.supportedLocales,
+      localizationsDelegates: logic.config.localizationsDelegates,
     );
   }
 

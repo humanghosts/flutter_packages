@@ -670,6 +670,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.0.1"
+  user_agent_analyzer:
+    dependency: transitive
+    description:
+      name: user_agent_analyzer
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "4.0.0"
   uuid:
     dependency: transitive
     description:
