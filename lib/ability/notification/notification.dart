@@ -289,7 +289,7 @@ class NotificationHelper {
     _log("检查前台任务");
     NotificationHelper.checkAutoNotification();
     _log("注册应用启动回调，检测是否通过通知启动应用");
-    AppLogic.instance.registerReadyCallback("notification", () {
+    AppLogic.instance.listenOnReady("notification", () {
       if (LocalNotificationHelper.notificationAppLaunchDetails?.didNotificationLaunchApp == true) {
         String? payload = LocalNotificationHelper.notificationAppLaunchDetails?.payload;
         _log("通过通知启动应用，使用通知负载触发回调，通知负载$payload");
@@ -360,6 +360,19 @@ class NotificationHelper {
       timer.start();
     }
     _log("启动检查定时任务完成");
+  }
+
+  /// 刷新缓存数据
+  static Future<void> refresh() async {
+    await LocalNotificationHelper.cancelAllNotifications();
+    idCache.clear();
+    dbCache.clear();
+    oldDbCache.clear();
+    dateTimeCache.clear();
+    oldDateTimeCache.clear();
+    nodeCache.clear();
+    await _findInDatabase();
+    _notification();
   }
 
   /// node缓存，防止多次decode

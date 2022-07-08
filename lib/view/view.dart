@@ -68,6 +68,20 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
   /// 新建组件的最后步骤
   void afterArgsUpdate() {}
 
+  @mustCallSuper
+  @override
+  void onReady() {
+    super.onReady();
+    AppLogic.instance.listenRefresh(key, update);
+  }
+
+  @mustCallSuper
+  @override
+  void onClose() {
+    super.onClose();
+    AppLogic.instance.removeRefreshListener(key);
+  }
+
   /// 组件构建回调
   void onWidgetBuild(BuildContext context) {}
 

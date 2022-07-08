@@ -42,6 +42,9 @@ abstract class AppConfig {
 
   /// 初始化回调
   Future<void> afterInitCallback() async {}
+
+  /// 刷新回调
+  Future<void> afterRefreshCallback() async {}
 }
 
 /// 通知配置

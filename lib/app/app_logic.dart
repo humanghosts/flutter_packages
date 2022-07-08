@@ -8,6 +8,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/hg_framework.dart';
 import 'package:hg_framework/service/theme.dart';
+import 'package:hg_orm/hg_orm.dart';
 import 'package:orientation/orientation.dart';
 
 /// 屏幕方向监听器
@@ -49,6 +50,7 @@ abstract class OrientationListener {
 abstract class ThemeListener {
   /// 主题服务
   ThemeConfigService get themeConfigService => ThemeConfigService.instance;
+
   ThemeTemplateService get themeTemplateService => ThemeTemplateService.instance;
 
   /// 主题配置
@@ -327,8 +329,17 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
   /// 调用点为[onReady]
   final Map<String, VoidCallback> _onReadyCallback = {};
 
+  /// 应用重新构建回调
+  /// 调用点为[rebuild]
+  final Map<String, VoidCallback> _onRefreshCallback = {};
+
   /// 注册构建完回调，用于为其他组件提供应用构建回调
-  void registerReadyCallback(String key, VoidCallback callback) => _onReadyCallback[key] = callback;
+  void listenOnReady(String key, VoidCallback callback) => _onReadyCallback[key] = callback;
+
+  /// 注册重建完回调，用于为其他组件提供应用构建回调
+  void listenRefresh(String key, VoidCallback callback) => _onRefreshCallback[key] = callback;
+
+  void removeRefreshListener(String key) => _onRefreshCallback.remove(key);
 
   /// 应用初始化时调用
   /// 调用点为[InitializeHelper.init]
@@ -361,6 +372,26 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
   void themeChangedReRender() {
     super.themeChangedReRender();
     update();
+  }
+
+  /// 重新构建应用
+  Future<void> rebuild() async {
+    // 数据库刷新
+    await DatabaseHelper.refresh();
+    // 通知刷新
+    await NotificationHelper.refresh();
+    // 配置回调刷新
+    appConfig.afterRefreshCallback();
+    // 主题刷新
+    await onAppInitTheme();
+    update();
+    for (var callback in _onRefreshCallback.values) {
+      try {
+        callback.call();
+      } catch (e) {
+        e.printError();
+      }
+    }
   }
 
   /// 生命周期改变回调
