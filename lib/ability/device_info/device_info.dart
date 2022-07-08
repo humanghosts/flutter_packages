@@ -50,9 +50,9 @@ class DeviceInfoHelper {
     if (userAgent.isBlackberryTablet) return DevicePlatform.webAndroid;
     if (userAgent.isBlackberryPhone) return DevicePlatform.webAndroid;
     if (userAgent.isBlackberry) return DevicePlatform.webAndroid;
-    if (userAgent.isMacOS) return DevicePlatform.webMacOS;
     if (lowAgent.contains("iPhone".toLowerCase())) return DevicePlatform.webIos;
     if (lowAgent.contains("iPad".toLowerCase())) return DevicePlatform.webIPadOS;
+    if (userAgent.isMacOS) return DevicePlatform.webMacOS;
     if (lowAgent.contains("Linux".toLowerCase())) return DevicePlatform.webLinux;
     if (lowAgent.contains("fuchsia".toLowerCase())) return DevicePlatform.webFuchsia;
     return DevicePlatform.other;

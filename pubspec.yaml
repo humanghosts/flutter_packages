@@ -75,6 +75,8 @@ dependencies:
   # web端专用库
   ## 解析浏览器userAgent
   user_agent_analyzer: ^4.0.0
+  ## 因为手势后退的原因，打不开drawer所以加这个手势监听
+  simple_gesture_detector: ^0.2.0
 
   # 其它功能的库
   ## 日志

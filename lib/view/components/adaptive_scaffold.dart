@@ -7,6 +7,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/hg_framework.dart';
+import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 
 @immutable
 class AdaptiveScaffoldArgs extends ViewArgs {
@@ -270,6 +271,16 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
                     ),
                     body: Builder(builder: (context) {
                       logic.context = context;
+                      if (AppLogic.isWeb) {
+                        return SimpleGestureDetector(
+                          onHorizontalSwipe: (direction) {
+                            if (direction == SwipeDirection.right) {
+                              logic.openMenu();
+                            }
+                          },
+                          child: buildBody(context),
+                        );
+                      }
                       return buildBody(context);
                     }),
                     backgroundColor: Colors.transparent,
