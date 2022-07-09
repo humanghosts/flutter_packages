@@ -67,6 +67,7 @@ abstract class AppConfig {
         Window.makeTitlebarTransparent();
         Window.enableFullSizeContentView();
         Window.hideTitle();
+        await Window.setEffect(effect: WindowEffect.aero);
       }
     });
   }
