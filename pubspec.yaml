@@ -64,9 +64,9 @@ dependencies:
 
   # 桌面端专用库
   ## 背景窗口设置
-  # flutter_acrylic:
+  flutter_acrylic: ^1.0.0+2
   ## 窗口设置
-  # window_manager:
+  window_manager: ^0.2.5
   ## 快捷键
   # hotkey_manager:
   ## 自动更新
@@ -81,8 +81,6 @@ dependencies:
   # 其它功能的库
   ## 日志
   logger: ^1.1.0
-  ## 提示
-  flutter_easyloading: ^3.0.5
   ## 日期格式化
   date_format: ^2.0.6
 

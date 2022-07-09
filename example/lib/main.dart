@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:hg_framework/hg_framework.dart';
 import 'package:hg_orm/hg_orm.dart';
 
@@ -17,7 +18,7 @@ class HgLoggerConfig extends AppConfig {
 }
 
 void main() {
-  AppHelper.run(app: const MyApp(), appConfig: HgLoggerConfig.instance);
+  AppHelper.run(const MyApp(), HgLoggerConfig.instance);
 }
 
 class MyApp extends App {
@@ -25,22 +26,19 @@ class MyApp extends App {
 
   @override
   Widget buildHome(BuildContext context) {
-    return Home(key: "home");
-  }
-}
-
-/// 逻辑
-class HomeLogic extends ViewLogicOnly {}
-
-/// 页面
-class Home extends View<HomeLogic> {
-  Home({required String key}) : super(key: key, logic: HomeLogic());
-
-  @override
-  Widget buildView(BuildContext context) {
-    return TextButton(
-      onPressed: () {},
-      child: const Text('\u{1f600}'),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Center(
+        child: TextButton(
+          onPressed: () async {
+            await Window.makeTitlebarTransparent();
+            await Window.enableFullSizeContentView();
+            await Window.hideTitle();
+            await Window.setEffect(effect: WindowEffect.aero);
+          },
+          child: const Text('\u{1f600}'),
+        ),
+      ),
     );
   }
 }

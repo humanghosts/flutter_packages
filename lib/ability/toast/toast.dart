@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:hg_entity/hg_entity.dart';
 import 'package:hg_framework/hg_framework.dart';
@@ -9,8 +8,25 @@ class ToastHelper {
   ToastHelper._();
 
   /// 提示框
-  static void toast({String? msg}) {
-    EasyLoading.showToast(msg ?? "");
+  static Future<void> toast({String? msg, Duration? duration}) async {
+    String key = "toast_${msg.hashCode}";
+    AppLogic.instance.showOverlay(
+      key: key,
+      widget: Material(
+        color: Colors.transparent,
+        child: Center(
+          child: Card(
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              child: Text(msg ?? ""),
+            ),
+          ),
+        ),
+      ),
+    );
+    Duration delay = duration ?? const Duration(seconds: 1);
+    await Future.delayed(delay);
+    AppLogic.instance.closeOverlay(key);
   }
 
   /// 应用内提示

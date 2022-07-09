@@ -73,6 +73,9 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
   void onReady() {
     super.onReady();
     AppLogic.instance.listenRefresh(key, update);
+    AppLogic.instance.listenThemeUpdate(key, update);
+    AppLogic.instance.listenAppLifecycleUpdate(key, (lifecycle) => update());
+    AppLogic.instance.listenOrientationUpdate(key, (orientation) => update());
   }
 
   @mustCallSuper
@@ -80,6 +83,9 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
   void onClose() {
     super.onClose();
     AppLogic.instance.removeRefreshListener(key);
+    AppLogic.instance.removeThemeUpdateListener(key);
+    AppLogic.instance.removeAppLifecycleListener(key);
+    AppLogic.instance.removeOrientationUpdateListener(key);
   }
 
   /// 组件构建回调
@@ -100,18 +106,31 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
   /// 需要注意的是该方法是绑定组件，[onDelete]或[onClose]是绑定控制器，两者的生命周期不一样
   void onWidgetDispose(BuildContext context, GetBuilderState state) {}
 
+  /// 当前应用数据
   ThemeData get theme => AppLogic.instance.themeData;
 
+  /// 当前应用模板
   ThemeTemplate get themeTemplate => AppLogic.instance.themeTemplate;
 
+  /// 应用配置
   AppConfig get appConfig => AppLogic.appConfig;
 
+  /// 动画配置
   AnimationConfig get animationConfig => appConfig.animationConfig;
 
+  /// 中速动画时间
   Duration get middleAnimationDuration => animationConfig.middleAnimationDuration;
 
+  /// 快速动画时间
+  Duration get fastAnimationDuration => animationConfig.fastAnimationDuration;
+
+  /// 慢速动画时间
+  Duration get slowAnimationDuration => animationConfig.slowAnimationDuration;
+
+  /// 显示加载框
   void showLoading() => AppLogic.instance.showLoading(runtimeType.toString());
 
+  /// 关闭加载框
   void closeLoading() => AppLogic.instance.closeLoading(runtimeType.toString());
 }
 
@@ -146,13 +165,14 @@ abstract class View<L extends ViewLogic> extends StatelessWidget {
       builder: (logic) {
         return Builder(builder: (context) {
           logic.onWidgetBuild(context);
-          return Obx(() {
-            AppLogic.instance.themeUpdateFlag.value;
-            return buildView(context);
-          });
+          return buildViewWithTheme(context);
         });
       },
     );
+  }
+
+  Widget buildViewWithTheme(BuildContext context) {
+    return Theme(data: logic.theme, child: buildView(context));
   }
 
   /// 构建页面

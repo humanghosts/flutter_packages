@@ -247,7 +247,10 @@ class LocalNotificationHelper {
       if (isOpen == true) {
         isOpen = await openAppSettings();
         if (isOpen == false) {
-          ToastHelper.toast(msg: "打开系统设置失败,请手动打开");
+          ToastHelper.inAppNotification(
+            leading: Icon(Icons.sms_failed_outlined, color: AppLogic.instance.themeData.errorColor),
+            title: "打开系统设置失败,请手动打开",
+          );
         }
       }
       return false;
