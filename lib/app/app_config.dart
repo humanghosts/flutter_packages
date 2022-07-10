@@ -57,19 +57,23 @@ abstract class AppConfig {
   /// 构造之前
   Future<void> beforeInit() async {
     WidgetsFlutterBinding.ensureInitialized();
-    await windowManager.ensureInitialized();
-    await Window.initialize();
+    // 设备信息初始化
+    await DeviceInfoHelper.init();
     SystemChrome.setPreferredOrientations(orientations);
-    windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.show();
-      await windowManager.focus();
-      if (AppLogic.devicePlatform == DevicePlatform.macOS) {
-        Window.makeTitlebarTransparent();
-        Window.enableFullSizeContentView();
-        Window.hideTitle();
-        await Window.setEffect(effect: WindowEffect.aero);
-      }
-    });
+    if (AppLogic.isDesktop && !AppLogic.isWeb) {
+      await windowManager.ensureInitialized();
+      await Window.initialize();
+      windowManager.waitUntilReadyToShow(windowOptions, () async {
+        await windowManager.show();
+        await windowManager.focus();
+        if (AppLogic.devicePlatform == DevicePlatform.macOS) {
+          Window.makeTitlebarTransparent();
+          Window.enableFullSizeContentView();
+          Window.hideTitle();
+          await Window.setEffect(effect: WindowEffect.aero);
+        }
+      });
+    }
   }
 
   /// 初始化回调

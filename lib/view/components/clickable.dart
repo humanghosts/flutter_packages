@@ -294,19 +294,22 @@ class Clickable extends StatelessWidget {
       behavior: behavior,
       excludeFromSemantics: excludeFromSemantics,
       dragStartBehavior: dragStartBehavior,
-      child: Ink(
-        child: InkWell(
-          mouseCursor: cursor,
-          borderRadius: BorderRadius.circular(template.defaultRadius.value ?? 12),
-          hoverColor: showInk ? null : Colors.transparent,
-          onTap: onTap,
-          onDoubleTap: onDoubleTap,
-          onHover: onHover,
-          onTapDown: onTapDown,
-          onTapUp: onTapUp,
-          onTapCancel: onTapCancel,
-          onLongPress: onLongPress,
-          child: widget,
+      child: Material(
+        color: Colors.transparent,
+        child: Ink(
+          child: InkWell(
+            mouseCursor: cursor,
+            borderRadius: BorderRadius.circular(template.defaultRadius.value ?? 12),
+            hoverColor: showInk ? null : Colors.transparent,
+            onTap: onTap,
+            onDoubleTap: onDoubleTap,
+            onHover: onHover,
+            onTapDown: onTapDown,
+            onTapUp: onTapUp,
+            onTapCancel: onTapCancel,
+            onLongPress: onLongPress,
+            child: widget,
+          ),
         ),
       ),
     );

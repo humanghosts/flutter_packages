@@ -13,8 +13,6 @@ class AppInit {
 
   /// 初始化
   static Future<void> init(AppConfig config) async {
-    // 设备信息初始化
-    await DeviceInfoHelper.init();
     // 数据库初始化
     await _databaseInit(config.databaseConfig);
     // 当前包下的模型和dao注册
@@ -62,7 +60,7 @@ class PresetData {
   PresetData({this.dataModelMap, this.simpleModelMap});
 }
 
-/// TODO 首次启动初始化预置数据
+/// 首次启动初始化预置数据
 Future<void> _presetDataInit(PresetData? presetData) async {
   String key = "is_preset_data_init";
   bool? isInitData = DatabaseHelper.database.kv.get(key);

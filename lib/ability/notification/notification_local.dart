@@ -4,6 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/hg_framework.dart';
+import 'package:local_notifier/local_notifier.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:scheduled_timer/scheduled_timer.dart';
 import 'package:timezone/data/latest_all.dart' as tzd;
@@ -14,41 +15,42 @@ class LocalNotificationHelper {
   LocalNotificationHelper._();
 
   /// 通知插件
-  static FlutterLocalNotificationsPlugin? flutterLocalNotificationsPlugin;
-  static InAppNotificationsPlugin? inAppNotificationsPlugin;
+  static FlutterLocalNotificationsPlugin? mobilePlugin;
+  static NotificationsPlugin? pluginIn;
 
   /// 通知启动应用
-  static NotificationAppLaunchDetails? notificationAppLaunchDetails;
+  static NotificationAppLaunchDetails? mobileLaunchDetails;
 
   /// 初始化通知组件
   static Future<bool?> init() async {
     if (DeviceInfoHelper.isWeb) return await initWeb();
-    if (DeviceInfoHelper.isDesktop) return await initDesktop();
+    if (DeviceInfoHelper.isDesktopDevice) return await initDesktop();
     return await initMobile();
   }
 
   /// 桌面端通知 TODO 应用内提醒 local_notifier
   static Future<bool?> initDesktop() async {
-    inAppNotificationsPlugin = InAppNotificationsPlugin(onSelectNotification);
+    // 在 main 方法中添加。参数 shortcutPolicy 仅适用于 Windows
+    await localNotifier.setup(appName: AppLogic.appConfig.appName, shortcutPolicy: ShortcutPolicy.requireCreate);
+    pluginIn = DesktopNotificationsPlugin(onSelectNotification);
     return true;
   }
 
   /// web端通知
   static Future<bool?> initWeb() async {
-    inAppNotificationsPlugin = InAppNotificationsPlugin(onSelectNotification);
+    pluginIn = InAppNotificationsPlugin(onSelectNotification);
     return true;
   }
 
   /// 移动端通知
   static Future<bool?> initMobile() async {
-    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    mobilePlugin = FlutterLocalNotificationsPlugin();
     // 时区初始化
     tzd.initializeTimeZones();
     final String timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(timeZoneName));
     // 是否通过通知启动应用 来判断应该进入哪个页面
-    notificationAppLaunchDetails =
-        DeviceInfoHelper.targetPlatform == TargetPlatform.linux ? null : await flutterLocalNotificationsPlugin!.getNotificationAppLaunchDetails();
+    mobileLaunchDetails = DeviceInfoHelper.targetPlatform == TargetPlatform.linux ? null : await mobilePlugin!.getNotificationAppLaunchDetails();
     //  app_icon是应用图标文件
     AndroidInitializationSettings android = const AndroidInitializationSettings('app_icon');
     // ios配置
@@ -60,7 +62,7 @@ class LocalNotificationHelper {
     MacOSInitializationSettings macOS = const MacOSInitializationSettings();
     // 插件配置
     InitializationSettings settings = InitializationSettings(android: android, iOS: ios, macOS: macOS);
-    bool? isInit = await flutterLocalNotificationsPlugin!.initialize(settings, onSelectNotification: onSelectNotification);
+    bool? isInit = await mobilePlugin!.initialize(settings, onSelectNotification: onSelectNotification);
     return isInit;
   }
 
@@ -81,7 +83,7 @@ class LocalNotificationHelper {
       if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败");
       return;
     }
-    inAppNotificationsPlugin?.show(
+    pluginIn?.show(
       id,
       title,
       body,
@@ -89,7 +91,7 @@ class LocalNotificationHelper {
       payload: payload?.encode(),
     );
     // 发送通知
-    await flutterLocalNotificationsPlugin?.show(
+    await mobilePlugin?.show(
       id,
       title,
       body,
@@ -115,7 +117,7 @@ class LocalNotificationHelper {
       if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败");
       return false;
     }
-    inAppNotificationsPlugin?.zonedSchedule(
+    pluginIn?.zonedSchedule(
       id,
       title,
       body,
@@ -126,11 +128,11 @@ class LocalNotificationHelper {
       payload: payload?.encode(),
       matchDateTimeComponents: matchDateTimeComponents,
     );
-    if (null == flutterLocalNotificationsPlugin) return true;
+    if (null == mobilePlugin) return true;
     tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute);
     if (now.isAfter(scheduledDate)) return false;
-    await flutterLocalNotificationsPlugin?.zonedSchedule(
+    await mobilePlugin?.zonedSchedule(
       id,
       title,
       body,
@@ -159,7 +161,7 @@ class LocalNotificationHelper {
       if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败");
       return;
     }
-    inAppNotificationsPlugin?.periodicallyShow(
+    pluginIn?.periodicallyShow(
       id,
       title,
       body,
@@ -168,7 +170,7 @@ class LocalNotificationHelper {
       androidAllowWhileIdle: true,
       payload: payload?.encode(),
     );
-    await flutterLocalNotificationsPlugin?.periodicallyShow(
+    await mobilePlugin?.periodicallyShow(
       id,
       title,
       body,
@@ -181,22 +183,22 @@ class LocalNotificationHelper {
 
   /// 检查待发送通知列表
   static Future<List<PendingNotificationRequest>> checkPendingNotificationRequests() async {
-    if (null != inAppNotificationsPlugin) {
-      return inAppNotificationsPlugin!.pendingNotificationRequests();
+    if (null != pluginIn) {
+      return pluginIn!.pendingNotificationRequests();
     }
-    return await flutterLocalNotificationsPlugin?.pendingNotificationRequests() ?? [];
+    return await mobilePlugin?.pendingNotificationRequests() ?? [];
   }
 
   /// 取消指定通知
   static Future<void> cancelNotification(int id) async {
-    await inAppNotificationsPlugin?.cancel(id);
-    await flutterLocalNotificationsPlugin?.cancel(id);
+    await pluginIn?.cancel(id);
+    await mobilePlugin?.cancel(id);
   }
 
   /// 取消所有通知
   static Future<void> cancelAllNotifications() async {
-    await inAppNotificationsPlugin?.cancelAll();
-    await flutterLocalNotificationsPlugin?.cancelAll();
+    await pluginIn?.cancelAll();
+    await mobilePlugin?.cancelAll();
   }
 
   /// 构建通知配置
@@ -218,7 +220,7 @@ class LocalNotificationHelper {
 
   /// 检查是否有通知权限
   static Future<bool> checkNotificationPermission() async {
-    if (inAppNotificationsPlugin != null) {
+    if (pluginIn != null) {
       return true;
     }
     Permission notification = Permission.notification;
@@ -279,11 +281,10 @@ class LocalNotificationHelper {
   }
 }
 
-/// 应用内提醒插件
-class InAppNotificationsPlugin {
+abstract class NotificationsPlugin {
   final SelectNotificationCallback onSelectNotification;
 
-  InAppNotificationsPlugin(this.onSelectNotification);
+  NotificationsPlugin(this.onSelectNotification);
 
   /// 通知缓存
   final Map<int, PendingNotificationRequest> notificationCache = {};
@@ -432,12 +433,43 @@ class InAppNotificationsPlugin {
     }
   }
 
-  void _show({
-    required int id,
-    String? title,
-    String? body,
-    String? payload,
-  }) {
+  /// 发送通知
+  void _show({required int id, String? title, String? body, String? payload});
+}
+
+class DesktopNotificationsPlugin extends NotificationsPlugin {
+  DesktopNotificationsPlugin(super.onSelectNotification);
+
+  @override
+  void _show({required int id, String? title, String? body, String? payload}) {
+    LocalNotification notification = LocalNotification(
+      identifier: id.toString(),
+      title: title ?? (body ?? ""),
+      body: title == null ? null : body,
+    );
+    notification.onShow = () {
+      debugPrint('onShow ${notification.identifier}');
+    };
+    notification.onClose = (closeReason) {
+      debugPrint('onClose ${notification.identifier} - $closeReason');
+    };
+    notification.onClick = () {
+      debugPrint('onClick ${notification.identifier}');
+      onSelectNotification.call(payload);
+    };
+    notification.onClickAction = (actionIndex) {
+      debugPrint('onClickAction ${notification.identifier} - $actionIndex');
+    };
+    notification.show();
+  }
+}
+
+/// 应用内提醒插件
+class InAppNotificationsPlugin extends NotificationsPlugin {
+  InAppNotificationsPlugin(super.onSelectNotification);
+
+  @override
+  void _show({required int id, String? title, String? body, String? payload}) {
     ToastHelper.inAppNotification(
       key: id.toString(),
       message: body,

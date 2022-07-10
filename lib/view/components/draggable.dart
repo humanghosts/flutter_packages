@@ -86,6 +86,7 @@ class DraggableLogic extends ViewLogicOnlyArgs<DraggableArgs> {
 
   @override
   void onReady() {
+    super.onReady();
     left.value = args.initPosition?.left;
     top.value = args.initPosition?.top;
     right.value = args.initPosition?.right;

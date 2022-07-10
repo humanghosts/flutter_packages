@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../hg_framework.dart';
-
 class RawPopupMenuItem<T> extends PopupMenuItem<T> {
   final EdgeInsetsGeometry? margin;
 
@@ -32,8 +30,6 @@ class RawPopupMenuItemState<T, W extends RawPopupMenuItem<T>> extends PopupMenuI
     if (!widget.enabled) style = style.copyWith(color: theme.disabledColor);
 
     final bool isDark = theme.brightness == Brightness.dark;
-    ThemeTemplate template = AppLogic.currentThemeTemplate;
-
     return MergeSemantics(
       child: Semantics(
         enabled: widget.enabled,

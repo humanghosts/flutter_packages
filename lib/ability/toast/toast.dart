@@ -92,7 +92,8 @@ class ToastHelper {
   }
 
   /// 单选提示框
-  static Future<bool?> showOneChoiceDeleteRequest({
+  static Future<bool?> showOneChoiceRequest({
+    String? title,
     String msg = "确定删除吗?",
     String doneText = "删除",
     String cancelText = "取消",
@@ -104,13 +105,15 @@ class ToastHelper {
       childBuilder: (value) {
         return Text(doneText);
       },
+      title: title == null ? null : Text(title),
       message: Center(child: Text(msg)),
       cancelText: cancelText,
     );
   }
 
   /// 双选提示框
-  static Future<bool?> showTwoChoiceDeleteRequest({
+  static Future<bool?> showTwoChoiceRequest({
+    String? title,
     String msg = "确定删除吗?",
     String doneText = "删除",
     String unDoneText = "不删除",
@@ -124,6 +127,7 @@ class ToastHelper {
       childBuilder: (value) {
         return Text(value ? doneText : unDoneText);
       },
+      title: title == null ? null : Text(title),
       message: Center(child: Text(msg)),
       cancelText: cancelText,
     );
@@ -133,6 +137,7 @@ class ToastHelper {
   static Future<T?> showRequest<T>(
     BuildContext context, {
     Widget? message,
+    Widget? title,
     required List<T> valueList,
     required Widget Function(T value) childBuilder,
     List<T> defaultValue = const [],
@@ -140,19 +145,28 @@ class ToastHelper {
     String cancelText = "取消",
   }) async {
     switch (DeviceInfoHelper.targetPlatform) {
-
-      /// TODO 安卓等其他平台处理
-      case TargetPlatform.android:
       case TargetPlatform.fuchsia:
       case TargetPlatform.linux:
       case TargetPlatform.windows:
       case TargetPlatform.macOS:
-      case TargetPlatform.iOS:
-        return await showCupertinoPopup(
+        return await showDialogActionSheet<T>(
           context,
           valueList: valueList,
           childBuilder: childBuilder,
           message: message,
+          title: title,
+          defaultValue: defaultValue,
+          destructiveValue: destructiveValue,
+          cancelText: cancelText,
+        );
+      case TargetPlatform.android:
+      case TargetPlatform.iOS:
+        return await showCupertinoActionSheet<T>(
+          context,
+          valueList: valueList,
+          childBuilder: childBuilder,
+          message: message,
+          title: title,
           defaultValue: defaultValue,
           destructiveValue: destructiveValue,
           cancelText: cancelText,
@@ -195,9 +209,10 @@ class ToastHelper {
   }
 
   /// 显示漂浮菜单
-  /// 出了ios都是用menu，ios使用modalPopup
+  /// ios和android使用modalPopup
   static Future<T?> showContextMenu<T>(
     BuildContext context, {
+    Widget? title,
     Widget? message,
     required Offset position,
     required List<T> valueList,
@@ -207,19 +222,19 @@ class ToastHelper {
     String cancelText = "取消",
   }) async {
     switch (DeviceInfoHelper.targetPlatform) {
-      // TODO android
-      case TargetPlatform.android:
       case TargetPlatform.fuchsia:
       case TargetPlatform.linux:
       case TargetPlatform.windows:
       case TargetPlatform.macOS:
         return await showDeskTopContextMenu(context, valueList: valueList, childBuilder: childBuilder, position: position);
+      case TargetPlatform.android:
       case TargetPlatform.iOS:
-        return await showCupertinoPopup(
+        return await showCupertinoActionSheet(
           context,
           valueList: valueList,
           childBuilder: childBuilder,
           message: message,
+          title: title,
           defaultValue: defaultValue,
           destructiveValue: destructiveValue,
           cancelText: cancelText,
@@ -240,8 +255,8 @@ class ToastHelper {
       T value = valueList[i];
       items.add(PopupMenuItem(
         value: value,
-        child: childBuilder(value),
         height: kToolbarHeight / 3 * 2,
+        child: childBuilder(value),
       ));
       if (i != valueList.length - 1) {
         items.add(const PopupMenuDivider(height: 0));
@@ -266,9 +281,43 @@ class ToastHelper {
     );
   }
 
-  /// ios平台的弹出菜单
-  static Future<T?> showCupertinoPopup<T>(
+  /// dialog形式的弹出请求
+  static Future<T?> showDialogActionSheet<T>(
     BuildContext context, {
+    Widget? message,
+    Widget? title,
+    required List<T> valueList,
+    required Widget Function(T value) childBuilder,
+    List<T> defaultValue = const [],
+    List<T> destructiveValue = const [],
+    String cancelText = "取消",
+  }) async {
+    List<Widget> actions = [];
+    for (var value in valueList) {
+      actions.add(TextButton(
+        onPressed: () => RouteHelper.back(result: value),
+        child: childBuilder.call(value),
+      ));
+    }
+    actions.add(TextButton(
+      onPressed: () => RouteHelper.back(result: null),
+      child: Text(cancelText),
+    ));
+    return await showCupertinoDialog<T>(
+        context: context,
+        builder: (context) {
+          return CupertinoAlertDialog(
+            title: title,
+            content: message,
+            actions: actions,
+          );
+        });
+  }
+
+  /// ios平台的弹出菜单(actionSheet)
+  static Future<T?> showCupertinoActionSheet<T>(
+    BuildContext context, {
+    Widget? title,
     Widget? message,
     required List<T> valueList,
     required Widget Function(T value) childBuilder,
@@ -291,6 +340,7 @@ class ToastHelper {
           );
         }).toList();
         return CupertinoActionSheet(
+          title: title,
           message: message == null ? null : DefaultTextStyle(style: theme.textTheme.titleLarge ?? const TextStyle(), child: message),
           actions: actions,
           cancelButton: CupertinoActionSheetAction(

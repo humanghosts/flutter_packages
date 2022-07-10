@@ -308,6 +308,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.0"
+  local_notifier:
+    dependency: transitive
+    description:
+      name: local_notifier
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.1.5"
   logger:
     dependency: transitive
     description:

@@ -56,7 +56,7 @@ dependencies:
   # 移动端专用库
   ## 本地通知 android ios macos linux
   flutter_local_notifications: ^9.4.0
-#  ## 本地时区 本地通知用 android ios web
+  ## 本地时区 本地通知用 android ios web
   flutter_native_timezone: ^2.0.0
   timezone: ^0.8.0
   ## 屏幕方向监听
@@ -67,6 +67,8 @@ dependencies:
   flutter_acrylic: ^1.0.0+2
   ## 窗口设置
   window_manager: ^0.2.5
+  ## 本地通知
+  local_notifier: ^0.1.5
   ## 快捷键
   # hotkey_manager:
   ## 自动更新

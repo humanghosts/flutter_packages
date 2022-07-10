@@ -21,6 +21,9 @@ class DeviceInfoHelper {
   /// 是否是桌面端
   static bool isDesktop = devicePlatform.isDesktop;
 
+  /// 是否是桌面设备
+  static bool isDesktopDevice = devicePlatform.isDesktop;
+
   /// 初始化
   static Future<void> init() async {
     _baseDeviceInfo = await _plugin.deviceInfo;
@@ -35,8 +38,21 @@ class DeviceInfoHelper {
 
   /// 实际类型
   static DevicePlatform getDevicePlatform() {
-    // todo 如何细分平板和手机
-    if (!kIsWeb) return defaultTargetPlatform.device;
+    // 非web处理 判断是否平板
+    if (!kIsWeb) {
+      switch (defaultTargetPlatform) {
+        case TargetPlatform.iOS:
+          IosDeviceInfo deviceInfo = _baseDeviceInfo as IosDeviceInfo;
+          if (deviceInfo.model?.toLowerCase().contains("ipad") ?? false) {
+            return DevicePlatform.iPadOS;
+          } else {
+            return DevicePlatform.iOS;
+          }
+        default:
+          return defaultTargetPlatform.device;
+      }
+    }
+    // web处理
     WebBrowserInfo webInfo = deviceInfo as WebBrowserInfo;
     String agent = webInfo.userAgent ?? "";
     String lowAgent = agent.toLowerCase();

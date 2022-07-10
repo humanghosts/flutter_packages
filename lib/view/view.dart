@@ -72,6 +72,8 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
   @override
   void onReady() {
     super.onReady();
+    // 防止不同类型的组件key重复导致回调不正确
+    String key = "${this.key}_$runtimeType";
     AppLogic.instance.listenRefresh(key, update);
     AppLogic.instance.listenThemeUpdate(key, update);
     AppLogic.instance.listenAppLifecycleUpdate(key, (lifecycle) => update());
@@ -82,6 +84,8 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
   @override
   void onClose() {
     super.onClose();
+    // 防止不同类型的组件key重复导致回调不正确
+    String key = "${this.key}_$runtimeType";
     AppLogic.instance.removeRefreshListener(key);
     AppLogic.instance.removeThemeUpdateListener(key);
     AppLogic.instance.removeAppLifecycleListener(key);
@@ -181,7 +185,8 @@ abstract class View<L extends ViewLogic> extends StatelessWidget {
   /// 创建子组件key：$key_$type[_$uniqueKey]
   /// [type]子组件类型
   /// [uniqueKey]子组件多个的时候，传入唯一标识
-  LocalKey getChildKey(Type type, [String? uniqueKey]) {
-    return ValueKey("${key}_$type${null == uniqueKey ? "" : "_$uniqueKey"}");
-  }
+  LocalKey getChildLocalKey(Type type, [String? uniqueKey]) => ValueKey(getChildKey(type, uniqueKey));
+
+  /// 创建子组件key，防止出现key冲突
+  String getChildKey(Type type, [String? uniqueKey]) => "${key}_$type${null == uniqueKey ? "" : "_$uniqueKey"}";
 }
