@@ -290,8 +290,8 @@ class NotificationHelper {
     NotificationHelper.checkAutoNotification();
     _log("注册应用启动回调，检测是否通过通知启动应用");
     AppLogic.instance.listenOnReady("notification", () {
-      if (LocalNotificationHelper.mobileLaunchDetails?.didNotificationLaunchApp == true) {
-        String? payload = LocalNotificationHelper.mobileLaunchDetails?.payload;
+      if (LocalNotificationHelper.launchDetails?.didNotificationLaunchApp == true) {
+        String? payload = LocalNotificationHelper.launchDetails?.payload;
         _log("通过通知启动应用，使用通知负载触发回调，通知负载$payload");
         LocalNotificationHelper.onSelectNotification(payload);
       } else {

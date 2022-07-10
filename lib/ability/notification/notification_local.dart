@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
-import 'package:get/get.dart';
 import 'package:hg_framework/hg_framework.dart';
 import 'package:local_notifier/local_notifier.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -15,55 +14,61 @@ class LocalNotificationHelper {
   LocalNotificationHelper._();
 
   /// 通知插件
-  static FlutterLocalNotificationsPlugin? mobilePlugin;
-  static NotificationsPlugin? pluginIn;
+  static FlutterLocalNotificationsPlugin? plugin;
 
   /// 通知启动应用
-  static NotificationAppLaunchDetails? mobileLaunchDetails;
+  static NotificationAppLaunchDetails? launchDetails;
+
+  /// 用于windows的插件
+  static NotificationsPlugin? windowPlugin;
+
+  /// 应用内通知插件
+  static late InAppNotificationsPlugin inApp;
 
   /// 初始化通知组件
   static Future<bool?> init() async {
-    if (DeviceInfoHelper.isWeb) return await initWeb();
-    if (DeviceInfoHelper.isDesktopDevice) return await initDesktop();
-    return await initMobile();
+    if (DeviceInfoHelper.isWeb) return await _initInApp();
+    if (DeviceInfoHelper.isDesktopDevice && DeviceInfoHelper.devicePlatform == DevicePlatform.windows) {
+      await initLocalNotifier();
+    } else {
+      await _initFlutterLocalNotifications();
+    }
+    return await _initInApp();
   }
 
-  /// 桌面端通知 TODO 应用内提醒 local_notifier
-  static Future<bool?> initDesktop() async {
+  /// local_notifier插件
+  static Future<bool?> initLocalNotifier() async {
     // 在 main 方法中添加。参数 shortcutPolicy 仅适用于 Windows
     await localNotifier.setup(appName: AppLogic.appConfig.appName, shortcutPolicy: ShortcutPolicy.requireCreate);
-    pluginIn = DesktopNotificationsPlugin(onSelectNotification);
+    windowPlugin = DesktopNotificationsPlugin(onSelectNotification);
     return true;
   }
 
-  /// web端通知
-  static Future<bool?> initWeb() async {
-    pluginIn = InAppNotificationsPlugin(onSelectNotification);
+  /// 应用内通知
+  static Future<bool?> _initInApp() async {
+    inApp = InAppNotificationsPlugin(onSelectNotification);
     return true;
   }
 
-  /// 移动端通知
-  static Future<bool?> initMobile() async {
-    mobilePlugin = FlutterLocalNotificationsPlugin();
+  /// flutter_local_notifications插件
+  static Future<bool?> _initFlutterLocalNotifications() async {
+    plugin = FlutterLocalNotificationsPlugin();
     // 时区初始化
     tzd.initializeTimeZones();
     final String timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(timeZoneName));
     // 是否通过通知启动应用 来判断应该进入哪个页面
-    mobileLaunchDetails = DeviceInfoHelper.targetPlatform == TargetPlatform.linux ? null : await mobilePlugin!.getNotificationAppLaunchDetails();
-    //  app_icon是应用图标文件
+    launchDetails = DeviceInfoHelper.targetPlatform == TargetPlatform.linux ? null : await plugin!.getNotificationAppLaunchDetails();
+    //  TODO app_icon是应用图标文件
     AndroidInitializationSettings android = const AndroidInitializationSettings('app_icon');
-    // ios配置
-    IOSInitializationSettings ios = IOSInitializationSettings(
-      // ios10 之前的系统点击通知回调的方法
-      onDidReceiveLocalNotification: ((id, title, body, payload) => onSelectNotification(payload)),
-    );
+    // ios配置 [onDidReceiveLocalNotification]是ios10 之前的系统点击通知回调的方法
+    IOSInitializationSettings ios = IOSInitializationSettings(onDidReceiveLocalNotification: ((id, title, body, payload) => onSelectNotification(payload)));
     // macOS配置
     MacOSInitializationSettings macOS = const MacOSInitializationSettings();
     // 插件配置
     InitializationSettings settings = InitializationSettings(android: android, iOS: ios, macOS: macOS);
-    bool? isInit = await mobilePlugin!.initialize(settings, onSelectNotification: onSelectNotification);
-    return isInit;
+    // 插件初始化
+    return await plugin!.initialize(settings, onSelectNotification: onSelectNotification);
   }
 
   /// 通知点击回调
@@ -77,27 +82,12 @@ class LocalNotificationHelper {
     String? body,
     NotificationDetails? details,
   }) async {
+    // 检查权限 没有权限使用系统内通知 web端也使用系统内通知
     bool hasPermission = await checkNotificationPermission();
-    if (!hasPermission) {
-      bool isOpen = Get.isSnackbarOpen;
-      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败");
-      return;
-    }
-    pluginIn?.show(
-      id,
-      title,
-      body,
-      details ?? buildNotificationDetail(),
-      payload: payload?.encode(),
-    );
-    // 发送通知
-    await mobilePlugin?.show(
-      id,
-      title,
-      body,
-      details ?? buildNotificationDetail(),
-      payload: payload?.encode(),
-    );
+    if (!hasPermission || DeviceInfoHelper.isWeb) return await inApp.show(id, title, body, details ?? buildNotificationDetail(), payload: payload?.encode());
+    // 调用本地通知
+    await windowPlugin?.show(id, title, body, details ?? buildNotificationDetail(), payload: payload?.encode());
+    await plugin?.show(id, title, body, details ?? buildNotificationDetail(), payload: payload?.encode());
   }
 
   /// 定时通知 精确到分钟 超过当前时间忽略 可以指定重复规则
@@ -111,13 +101,13 @@ class LocalNotificationHelper {
     NotificationDetails? details,
     DateTimeComponents? matchDateTimeComponents,
   }) async {
+    // 检查权限 没有权限使用系统内通知 web端也使用系统内通知
     bool hasPermission = await checkNotificationPermission();
-    if (!hasPermission) {
-      bool isOpen = Get.isSnackbarOpen;
-      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败");
-      return false;
+    if (!hasPermission || DeviceInfoHelper.isWeb) {
+      await inApp.show(id, title, body, details ?? buildNotificationDetail(), payload: payload?.encode());
+      return true;
     }
-    pluginIn?.zonedSchedule(
+    windowPlugin?.zonedSchedule(
       id,
       title,
       body,
@@ -128,11 +118,11 @@ class LocalNotificationHelper {
       payload: payload?.encode(),
       matchDateTimeComponents: matchDateTimeComponents,
     );
-    if (null == mobilePlugin) return true;
+    if (null == plugin) return true;
     tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute);
     if (now.isAfter(scheduledDate)) return false;
-    await mobilePlugin?.zonedSchedule(
+    await plugin?.zonedSchedule(
       id,
       title,
       body,
@@ -155,13 +145,12 @@ class LocalNotificationHelper {
     String? body,
     NotificationDetails? details,
   }) async {
+    // 检查权限 没有权限使用系统内通知 web端也使用系统内通知
     bool hasPermission = await checkNotificationPermission();
-    if (!hasPermission) {
-      bool isOpen = Get.isSnackbarOpen;
-      if (!isOpen) ToastHelper.inAppNotification(title: "没有通知权限,添加提醒失败");
-      return;
+    if (!hasPermission || DeviceInfoHelper.isWeb) {
+      return await inApp.show(id, title, body, details ?? buildNotificationDetail(), payload: payload?.encode());
     }
-    pluginIn?.periodicallyShow(
+    windowPlugin?.periodicallyShow(
       id,
       title,
       body,
@@ -170,7 +159,7 @@ class LocalNotificationHelper {
       androidAllowWhileIdle: true,
       payload: payload?.encode(),
     );
-    await mobilePlugin?.periodicallyShow(
+    await plugin?.periodicallyShow(
       id,
       title,
       body,
@@ -183,22 +172,25 @@ class LocalNotificationHelper {
 
   /// 检查待发送通知列表
   static Future<List<PendingNotificationRequest>> checkPendingNotificationRequests() async {
-    if (null != pluginIn) {
-      return pluginIn!.pendingNotificationRequests();
-    }
-    return await mobilePlugin?.pendingNotificationRequests() ?? [];
+    // 检查权限 没有权限使用系统内通知 web端也使用系统内通知
+    bool hasPermission = await checkNotificationPermission();
+    if (!hasPermission || DeviceInfoHelper.isWeb) return inApp.pendingNotificationRequests();
+    if (null != plugin) return plugin!.pendingNotificationRequests();
+    return windowPlugin?.pendingNotificationRequests() ?? [];
   }
 
   /// 取消指定通知
   static Future<void> cancelNotification(int id) async {
-    await pluginIn?.cancel(id);
-    await mobilePlugin?.cancel(id);
+    await windowPlugin?.cancel(id);
+    await plugin?.cancel(id);
+    await inApp.cancel(id);
   }
 
   /// 取消所有通知
   static Future<void> cancelAllNotifications() async {
-    await pluginIn?.cancelAll();
-    await mobilePlugin?.cancelAll();
+    await windowPlugin?.cancelAll();
+    await plugin?.cancelAll();
+    await inApp.cancelAll();
   }
 
   /// 构建通知配置
@@ -209,7 +201,7 @@ class LocalNotificationHelper {
     LinuxNotificationDetails? linux,
   }) {
     //  安卓的通知设置
-    AndroidNotificationDetails? androidDetails;
+    AndroidNotificationDetails? androidDetails = const AndroidNotificationDetails("notification", "通知");
     // IOS的通知设置 可以修改音效等 暂时所有通知都用1
     IOSNotificationDetails iosDetails = ios ?? const IOSNotificationDetails(threadIdentifier: "1");
     // Mac的通知设置
@@ -220,45 +212,33 @@ class LocalNotificationHelper {
 
   /// 检查是否有通知权限
   static Future<bool> checkNotificationPermission() async {
-    if (pluginIn != null) {
-      return true;
+    if (DeviceInfoHelper.isWeb) return false;
+    DevicePlatform platform = DeviceInfoHelper.devicePlatform;
+    if (platform == DevicePlatform.macOS) {
+      bool? macResult = await plugin?.resolvePlatformSpecificImplementation<MacOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
+      return macResult ?? false;
     }
     Permission notification = Permission.notification;
     PermissionStatus status = await notification.status;
     // 权限拒绝 一般是第一次
-    if (status == PermissionStatus.denied) {
-      return requestNotificationPermission();
-    }
+    if (status == PermissionStatus.denied) return requestNotificationPermission();
     // 权限永久拒绝 设置里面没开
-    else if (status == PermissionStatus.permanentlyDenied) {
+    if (status == PermissionStatus.permanentlyDenied) {
       //  询问用户是否打开设置
-      bool? isOpen = await showCupertinoDialog<bool>(
-        context: Get.context!,
-        builder: (context) {
-          // TODO 样式
-          return CupertinoAlertDialog(
-            title: const Text("没有通知权限"),
-            content: const Text("是否打开系统设置"),
-            actions: <Widget>[
-              CupertinoDialogAction(child: const Text("打开"), onPressed: () => RouteHelper.back(result: true)),
-              CupertinoDialogAction(child: const Text("取消"), onPressed: () => RouteHelper.back(result: false)),
-            ],
-          );
-        },
-      );
+      bool? isOpen = await ToastHelper.showOneChoiceRequest(title: "没有通知权限", msg: "是否打开系统设置");
       if (isOpen == true) {
         isOpen = await openAppSettings();
         if (isOpen == false) {
-          ToastHelper.inAppNotification(
-            leading: Icon(Icons.sms_failed_outlined, color: AppLogic.instance.themeData.errorColor),
-            title: "打开系统设置失败,请手动打开",
-          );
+          ToastHelper.inAppNotification(leading: Icon(Icons.sms_failed_outlined, color: AppLogic.instance.themeData.errorColor), title: "打开系统设置失败,请手动打开");
         }
       }
       return false;
-    } else {
-      return true;
     }
+    return true;
   }
 
   /// 请求通知权限

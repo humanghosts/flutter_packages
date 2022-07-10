@@ -66,11 +66,11 @@ abstract class AppConfig {
       windowManager.waitUntilReadyToShow(windowOptions, () async {
         await windowManager.show();
         await windowManager.focus();
+        await Window.setEffect(effect: WindowEffect.aero);
         if (AppLogic.devicePlatform == DevicePlatform.macOS) {
           Window.makeTitlebarTransparent();
           Window.enableFullSizeContentView();
           Window.hideTitle();
-          await Window.setEffect(effect: WindowEffect.aero);
         }
       });
     }

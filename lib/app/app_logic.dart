@@ -9,17 +9,13 @@ import 'package:get/get.dart';
 import 'package:hg_framework/hg_framework.dart';
 import 'package:hg_framework/service/theme.dart';
 import 'package:hg_orm/hg_orm.dart';
-import 'package:orientation/orientation.dart';
 
-/// 屏幕方向监听器
+/// TODO 屏幕方向监听器 暂时没用
 abstract class OrientationListener {
   // --- 屏幕方向 ---
   /// 当前屏幕方向 使用这个参数的原因是，当应用禁用左右旋转之后，mediaQuery的方向就不会变化了
   /// 这个参数即使是锁定旋转也可以生效
   DeviceOrientation? deviceOrientation;
-
-  /// 屏幕方向监听订阅
-  StreamSubscription<DeviceOrientation>? _subscription;
 
   /// 屏幕方向监听
   final Map<String, ValueChanged<DeviceOrientation>> _orientationListener = {};
@@ -33,13 +29,10 @@ abstract class OrientationListener {
   /// 初始化
   void _onWidgetBuildOrientation() {
     if (AppLogic.isDesktop || AppLogic.isWeb) return;
-    _subscription = OrientationPlugin.onOrientationChange.listen(_listenDeviceOrientation);
   }
 
   /// 关闭
-  void _onCloseOrientation() {
-    _subscription?.cancel();
-  }
+  void _onCloseOrientation() {}
 
   /// 监听屏幕方向
   void _listenDeviceOrientation(DeviceOrientation deviceOrientation) {
