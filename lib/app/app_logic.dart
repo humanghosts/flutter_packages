@@ -232,12 +232,19 @@ abstract class OverlayHelper {
   Map<String, VoidCallback> closeFuncMap = {};
 
   /// 显示加载
-  void showLoading(String key) {
+  void showLoading(String key, {Widget? message}) {
     showOverlay(
       key: key,
       widget: Material(
         color: Colors.transparent,
-        child: SpinKitCircle(color: AppLogic.instance.themeData.iconTheme.color),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SpinKitCircle(color: AppLogic.instance.themeData.iconTheme.color),
+            if (null != message) message,
+          ],
+        ),
       ),
     );
   }

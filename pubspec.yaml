@@ -20,6 +20,8 @@ dependencies:
 #    path: ../hg_entity
 #  scheduled_timer:
 #    path: ../../scheduled_timer
+#  icloud_storage:
+#    path: ../../icloud_storage
 
   # TODO 提交用
   hg_orm:
@@ -28,6 +30,8 @@ dependencies:
     git: https://github.com/humanghosts/hg_entity.git
   scheduled_timer:
     git: https://github.com/humanghosts/scheduled_timer.git
+  icloud_storage:
+    git: https://github.com/humanghosts/icloud_storage.git
 
   # 框架类的库
   ## 依赖、状态管理、路由框架
@@ -52,6 +56,8 @@ dependencies:
   in_app_review: ^2.0.4
   ## 设备信息 all
   device_info_plus: ^3.2.3
+  ## 网络链接检查 all
+  connectivity_plus: ^2.3.5
 
   # 移动端专用库
   ## 本地通知 android ios macos linux

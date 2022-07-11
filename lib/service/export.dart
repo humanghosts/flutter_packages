@@ -1,1 +1,2 @@
-export 'model_service.dart';
+export 'model.dart';
+export 'theme.dart';

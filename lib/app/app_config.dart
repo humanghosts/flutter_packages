@@ -11,6 +11,9 @@ abstract class AppConfig {
   /// 应用名称
   String get appName;
 
+  /// 应用版本
+  String get appVersion;
+
   /// 应用支持的屏幕方向
   List<DeviceOrientation> get orientations => const [DeviceOrientation.portraitUp];
 
@@ -34,6 +37,9 @@ abstract class AppConfig {
 
   /// 模型和Dao注册
   EntityAndDao? get entityAndDao => null;
+
+  /// 云备份配置
+  Clouds? get clouds => null;
 
   /// 动画配置
   AnimationConfig get animationConfig => AnimationConfig.instance;

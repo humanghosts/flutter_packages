@@ -50,6 +50,48 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.16.0"
+  connectivity_plus:
+    dependency: transitive
+    description:
+      name: connectivity_plus
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.3.5"
+  connectivity_plus_linux:
+    dependency: transitive
+    description:
+      name: connectivity_plus_linux
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.3.1"
+  connectivity_plus_macos:
+    dependency: transitive
+    description:
+      name: connectivity_plus_macos
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.2.4"
+  connectivity_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: connectivity_plus_platform_interface
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.2.1"
+  connectivity_plus_web:
+    dependency: transitive
+    description:
+      name: connectivity_plus_web
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.2.2"
+  connectivity_plus_windows:
+    dependency: transitive
+    description:
+      name: connectivity_plus_windows
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.2.2"
   crypto:
     dependency: transitive
     description:
@@ -234,9 +276,11 @@ packages:
   hg_entity:
     dependency: transitive
     description:
-      path: "../../hg_entity"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: fbf5a5be5c4fabde71b0d4b03878bd7688ae07eb
+      url: "https://github.com/humanghosts/hg_entity.git"
+    source: git
     version: "1.0.0+2"
   hg_framework:
     dependency: "direct main"
@@ -248,9 +292,11 @@ packages:
   hg_orm:
     dependency: transitive
     description:
-      path: "../../hg_orm"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "1fdf5724c0011951ad19b9a475445bce0492cac5"
+      url: "https://github.com/humanghosts/hg_orm.git"
+    source: git
     version: "1.0.1"
   http:
     dependency: transitive
@@ -266,6 +312,15 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.0.1"
+  icloud_storage:
+    dependency: transitive
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "7fbb437b80304e3101db570e628a117b585c7da9"
+      url: "https://github.com/humanghosts/icloud_storage.git"
+    source: git
+    version: "0.2.3+2"
   idb_shim:
     dependency: transitive
     description:
@@ -343,6 +398,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.7.0"
+  nm:
+    dependency: transitive
+    description:
+      name: nm
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.5.0"
   path:
     dependency: transitive
     description:
@@ -444,9 +506,11 @@ packages:
   scheduled_timer:
     dependency: transitive
     description:
-      path: "../../../scheduled_timer"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: eabfa70b4a0f62d0641e6c5406018d1eba880bfd
+      url: "https://github.com/humanghosts/scheduled_timer.git"
+    source: git
     version: "2.0.1+4"
   screen_retriever:
     dependency: transitive

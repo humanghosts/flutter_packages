@@ -48,6 +48,7 @@ class ToastHelper {
           color: background,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            constraints: BoxConstraints(minHeight: 60),
             child: Row(
               children: [
                 if (null != leading) ...[

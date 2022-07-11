@@ -131,11 +131,20 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
   /// 慢速动画时间
   Duration get slowAnimationDuration => animationConfig.slowAnimationDuration;
 
+  /// 是否正忙
+  RxBool isBusy = false.obs;
+
   /// 显示加载框
-  void showLoading() => AppLogic.instance.showLoading(runtimeType.toString());
+  void showLoading({String? message, Widget? messageWidget}) {
+    isBusy.value = true;
+    AppLogic.instance.showLoading(runtimeType.toString(), message: messageWidget ?? (message == null ? null : Text(message)));
+  }
 
   /// 关闭加载框
-  void closeLoading() => AppLogic.instance.closeLoading(runtimeType.toString());
+  void closeLoading() {
+    isBusy.value = false;
+    AppLogic.instance.closeLoading(runtimeType.toString());
+  }
 }
 
 /// 页面组件

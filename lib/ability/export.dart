@@ -1,3 +1,5 @@
+export 'cloud/cloud.dart';
+export 'cloud/icloud.dart';
 export 'device_info/device_info.dart';
 export 'event/export.dart';
 export 'log/export.dart';

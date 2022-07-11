@@ -1,6 +1,6 @@
 import 'package:hg_entity/hg_entity.dart';
 import 'package:hg_framework/entity/export.dart';
-import 'package:hg_framework/service/model_service.dart';
+import 'package:hg_framework/service/model.dart';
 import 'package:hg_orm/hg_orm.dart';
 
 class ThemeTemplateService extends DataModelService<ThemeTemplate> {

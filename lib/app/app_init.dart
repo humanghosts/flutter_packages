@@ -27,7 +27,8 @@ class AppInit {
     await AppLogic.instance.onAppInit(config);
     // 初始化通知服务
     await NotificationHelper.init();
-    await config.afterInit();
+    // 初始化云服务
+    if (null != config.clouds) await CloudHelper.init(config.clouds!);
   }
 }
 
