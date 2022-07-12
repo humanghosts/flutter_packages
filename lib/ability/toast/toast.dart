@@ -23,6 +23,7 @@ class ToastHelper {
           ),
         ),
       ),
+      background: Container(),
     );
     Duration delay = duration ?? const Duration(seconds: 1);
     await Future.delayed(delay);

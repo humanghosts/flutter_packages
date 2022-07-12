@@ -490,6 +490,10 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
 
   static bool get isDesktop => DeviceInfoHelper.isDesktop;
 
+  static bool get isDesktopApp => DeviceInfoHelper.isDesktop && !DeviceInfoHelper.isWeb;
+
+  static bool get isWebDesktop => DeviceInfoHelper.isDesktop && DeviceInfoHelper.isWeb;
+
   static bool get isMobile => !isDesktop;
 
   static bool get isWeb => DeviceInfoHelper.isWeb;
