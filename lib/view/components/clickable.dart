@@ -10,6 +10,7 @@ class Clickable extends StatelessWidget {
     this.cursor = MaterialStateMouseCursor.clickable,
     this.tooltip,
     this.forceTooltip = false,
+    this.radius,
     this.tooltipBelow,
     this.onTapDown,
     this.onTapUp,
@@ -79,6 +80,7 @@ class Clickable extends StatelessWidget {
   final bool forceTooltip;
   final bool? tooltipBelow;
   final bool showInk;
+  final double? radius;
 
   final Widget child;
 
@@ -209,7 +211,16 @@ class Clickable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ThemeTemplate template = AppLogic.currentThemeTemplate;
+    ThemeData theme = Theme.of(context);
+    Widget child = IconTheme.merge(
+      data: IconThemeData(
+        color: theme.primaryColor,
+      ),
+      child: DefaultTextStyle(
+        style: TextStyle(color: theme.primaryColor),
+        child: this.child,
+      ),
+    );
     Widget widget;
     if (null == tooltip) {
       widget = child;
@@ -217,7 +228,7 @@ class Clickable extends StatelessWidget {
       widget = Tooltip(
         message: tooltip,
         preferBelow: tooltipBelow,
-        waitDuration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
+        waitDuration: const Duration(seconds: 1),
         child: child,
       );
     } else {
@@ -225,7 +236,7 @@ class Clickable extends StatelessWidget {
         widget = Tooltip(
           message: tooltip,
           preferBelow: tooltipBelow,
-          waitDuration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
+          waitDuration: const Duration(seconds: 1),
           child: child,
         );
       } else {
@@ -238,6 +249,10 @@ class Clickable extends StatelessWidget {
     } else if (onTapUp != null || onTapDown != null || onTapCancel != null) {
       onTap = () {};
     }
+    VoidCallback? onDoubleTap;
+    if (this.onDoubleTapDown != null && this.onDoubleTap == null) {
+      onDoubleTap = () {};
+    }
 
     return GestureDetector(
       onSecondaryTap: onSecondaryTap,
@@ -249,6 +264,7 @@ class Clickable extends StatelessWidget {
       onTertiaryTapCancel: onTertiaryTapCancel,
       onDoubleTapDown: onDoubleTapDown,
       onDoubleTapCancel: onDoubleTapCancel,
+      onDoubleTap: onDoubleTap,
       onLongPressDown: onLongPressDown,
       onLongPressCancel: onLongPressCancel,
       onLongPressStart: onLongPressStart,
@@ -299,10 +315,9 @@ class Clickable extends StatelessWidget {
         child: Ink(
           child: InkWell(
             mouseCursor: cursor,
-            borderRadius: BorderRadius.circular(template.defaultRadius.value ?? 12),
+            borderRadius: BorderRadius.circular(radius ?? 12),
             hoverColor: showInk ? null : Colors.transparent,
             onTap: onTap,
-            onDoubleTap: onDoubleTap,
             onHover: onHover,
             onTapDown: onTapDown,
             onTapUp: onTapUp,

@@ -180,17 +180,20 @@ class DraggableWidget extends View<DraggableLogic> {
     );
 
     // 子组件
-    Widget child = Obx(() {
-      return AnimatedSize(
-        duration: logic.middleAnimationDuration,
-        child: Container(
-          key: childKey,
-          width: logic.childSize.value?.width,
-          height: logic.childSize.value?.height,
-          constraints: logic.args.constraints,
-          child: !logic.args.resizeable
-              ? logic.args.child
-              : Stack(
+    Widget child = !logic.args.resizeable
+        ? Container(
+            key: childKey,
+            child: logic.args.child,
+          )
+        : Obx(() {
+            return AnimatedSize(
+              duration: logic.middleAnimationDuration,
+              child: Container(
+                key: childKey,
+                width: logic.childSize.value?.width,
+                height: logic.childSize.value?.height,
+                constraints: logic.args.constraints,
+                child: Stack(
                   children: [
                     logic.args.child,
                     Positioned(
@@ -213,9 +216,9 @@ class DraggableWidget extends View<DraggableLogic> {
                     )
                   ],
                 ),
-        ),
-      );
-    });
+              ),
+            );
+          });
     // 初始化组件数据
     initWidgetData(parentKey, childKey);
     return Container(
