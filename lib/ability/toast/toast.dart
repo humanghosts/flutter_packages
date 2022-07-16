@@ -25,7 +25,7 @@ class ToastHelper {
       ),
       background: Container(),
     );
-    Duration delay = duration ?? const Duration(seconds: 1);
+    Duration delay = duration ?? const Duration(seconds: 3);
     await Future.delayed(delay);
     AppLogic.instance.closeOverlay(key);
   }
