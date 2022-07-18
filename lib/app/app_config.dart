@@ -29,6 +29,9 @@ abstract class AppConfig {
   /// 数据库配置
   DatabaseConfig get databaseConfig;
 
+  /// 数据库版本修改
+  Future<void> onDatabaseVersionChanged(int oldVersion, int newVersion) async {}
+
   /// 通知配置
   NotificationConfig get notificationConfig => NotificationConfig.instance;
 
@@ -66,7 +69,7 @@ abstract class AppConfig {
     // 设备信息初始化
     await DeviceInfoHelper.init();
     SystemChrome.setPreferredOrientations(orientations);
-    if (AppLogic.isDesktop && !AppLogic.isWeb) {
+    if (DeviceInfoHelper.isDesktopApp) {
       await windowManager.ensureInitialized();
       await Window.initialize();
       windowManager.waitUntilReadyToShow(windowOptions, () async {

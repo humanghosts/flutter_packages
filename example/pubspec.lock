@@ -276,11 +276,9 @@ packages:
   hg_entity:
     dependency: transitive
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: fbf5a5be5c4fabde71b0d4b03878bd7688ae07eb
-      url: "https://github.com/humanghosts/hg_entity.git"
-    source: git
+      path: "../../hg_entity"
+      relative: true
+    source: path
     version: "1.0.0+2"
   hg_framework:
     dependency: "direct main"
@@ -292,11 +290,9 @@ packages:
   hg_orm:
     dependency: transitive
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "1fdf5724c0011951ad19b9a475445bce0492cac5"
-      url: "https://github.com/humanghosts/hg_orm.git"
-    source: git
+      path: "../../hg_orm"
+      relative: true
+    source: path
     version: "1.0.1"
   http:
     dependency: transitive
@@ -315,11 +311,9 @@ packages:
   icloud_storage:
     dependency: transitive
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "7fbb437b80304e3101db570e628a117b585c7da9"
-      url: "https://github.com/humanghosts/icloud_storage.git"
-    source: git
+      path: "../../../icloud_storage"
+      relative: true
+    source: path
     version: "0.2.3+2"
   idb_shim:
     dependency: transitive
@@ -506,11 +500,9 @@ packages:
   scheduled_timer:
     dependency: transitive
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: eabfa70b4a0f62d0641e6c5406018d1eba880bfd
-      url: "https://github.com/humanghosts/scheduled_timer.git"
-    source: git
+      path: "../../../scheduled_timer"
+      relative: true
+    source: path
     version: "2.0.1+4"
   screen_retriever:
     dependency: transitive

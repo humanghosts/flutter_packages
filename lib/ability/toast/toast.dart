@@ -49,7 +49,7 @@ class ToastHelper {
           color: background,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            constraints: BoxConstraints(minHeight: 60),
+            constraints: const BoxConstraints(minHeight: 60),
             child: Row(
               children: [
                 if (null != leading) ...[
@@ -296,24 +296,35 @@ class ToastHelper {
   }) async {
     List<Widget> actions = [];
     for (var value in valueList) {
-      actions.add(TextButton(
+      actions.add(Clickable(
         onPressed: () => RouteHelper.back(result: value),
-        child: childBuilder.call(value),
+        radius: 0,
+        child: Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(8),
+          child: childBuilder.call(value),
+        ),
       ));
     }
-    actions.add(TextButton(
+    actions.add(Clickable(
       onPressed: () => RouteHelper.back(result: null),
-      child: Text(cancelText),
+      radius: 0,
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(8),
+        child: Text(cancelText),
+      ),
     ));
     return await showCupertinoDialog<T>(
-        context: context,
-        builder: (context) {
-          return CupertinoAlertDialog(
-            title: title,
-            content: message,
-            actions: actions,
-          );
-        });
+      context: context,
+      builder: (context) {
+        return CupertinoAlertDialog(
+          title: title,
+          content: message,
+          actions: actions,
+        );
+      },
+    );
   }
 
   /// ios平台的弹出菜单(actionSheet)

@@ -139,7 +139,7 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
     }
     if (null != this.secondaryBody.value) {
       isSecondaryBodyOpen.value = true;
-      if (AppLogic.isMobile) {
+      if (DeviceInfoHelper.isMobile) {
         mobileController.animateTo(
           maxWidth,
           duration: AppLogic.appConfig.animationConfig.fastAnimationDuration,
@@ -160,7 +160,7 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
   /// 关闭第二内容
   void closeSecondaryBody() {
     isSecondaryBodyOpen.value = false;
-    if (AppLogic.isMobile) {
+    if (DeviceInfoHelper.isMobile) {
       mobileController.animateTo(
         0,
         duration: AppLogic.appConfig.animationConfig.fastAnimationDuration,
@@ -231,7 +231,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
             color: Colors.transparent,
             child: Scaffold(
               backgroundColor: Colors.transparent,
-              body: AppLogic.isMobile ? buildMobile(context) : Obx(() => buildDesktop(context)),
+              body: DeviceInfoHelper.isMobile ? buildMobile(context) : Obx(() => buildDesktop(context)),
             ),
           ),
         ),
@@ -271,7 +271,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
                     ),
                     body: Builder(builder: (context) {
                       logic.context = context;
-                      if (AppLogic.isWeb) {
+                      if (DeviceInfoHelper.isWeb) {
                         return SimpleGestureDetector(
                           onHorizontalSwipe: (direction) {
                             if (direction == SwipeDirection.right) {

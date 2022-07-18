@@ -28,7 +28,7 @@ class LocalNotificationHelper {
   /// 初始化通知组件
   static Future<bool?> init() async {
     if (DeviceInfoHelper.isWeb) return await _initInApp();
-    if (DeviceInfoHelper.isDesktopDevice && DeviceInfoHelper.devicePlatform == DevicePlatform.windows) {
+    if (DeviceInfoHelper.isWindowsApp) {
       await initLocalNotifier();
     } else {
       await _initFlutterLocalNotifications();

@@ -224,7 +224,7 @@ class Clickable extends StatelessWidget {
     Widget widget;
     if (null == tooltip) {
       widget = child;
-    } else if (AppLogic.isDesktop) {
+    } else if (DeviceInfoHelper.isDesktop) {
       widget = Tooltip(
         message: tooltip,
         preferBelow: tooltipBelow,
@@ -250,7 +250,7 @@ class Clickable extends StatelessWidget {
       onTap = () {};
     }
     VoidCallback? onDoubleTap;
-    if (this.onDoubleTapDown != null && this.onDoubleTap == null) {
+    if (onDoubleTapDown != null && this.onDoubleTap == null) {
       onDoubleTap = () {};
     }
 

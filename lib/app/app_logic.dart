@@ -28,7 +28,7 @@ abstract class OrientationListener {
 
   /// 初始化
   void _onWidgetBuildOrientation() {
-    if (AppLogic.isDesktop || AppLogic.isWeb) return;
+    if (DeviceInfoHelper.isDesktop || DeviceInfoHelper.isWeb) return;
   }
 
   /// 关闭
@@ -328,7 +328,7 @@ class InAppNotificationHelper {
                 ),
               );
 
-              Animation<double> animation = Tween<double>(begin: (AppLogic.isDesktop ? 400 : Get.width), end: 0).animate(CurvedAnimation(
+              Animation<double> animation = Tween<double>(begin: (DeviceInfoHelper.isDesktop ? 400 : Get.width), end: 0).animate(CurvedAnimation(
                 parent: controller,
                 curve: Curves.easeOut,
               ));
@@ -361,7 +361,7 @@ class InAppNotificationHelper {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: AppLogic.isDesktop ? 400 : Get.width,
+                width: DeviceInfoHelper.isDesktop ? 400 : Get.width,
                 padding: EdgeInsets.only(top: Get.mediaQuery.padding.top),
                 child: SingleChildScrollView(
                   child: Column(children: children),
@@ -468,6 +468,10 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
   Future<void> rebuild() async {
     // 数据库刷新
     await DatabaseHelper.refresh();
+    // 数据库版本变更
+    int oldVersion = DatabaseHelper.database.oldVersion;
+    int newVersion = DatabaseHelper.database.version;
+    if (oldVersion != newVersion) await config.onDatabaseVersionChanged(oldVersion, newVersion);
     // 通知刷新
     await NotificationHelper.refresh();
     // 配置回调刷新
@@ -483,30 +487,4 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
       }
     }
   }
-
-  static DevicePlatform get devicePlatform => DeviceInfoHelper.devicePlatform;
-
-  static TargetPlatform get targetPlatform => DeviceInfoHelper.targetPlatform;
-
-  static bool get isDesktop => DeviceInfoHelper.isDesktop;
-
-  static bool get isDesktopApp => DeviceInfoHelper.isDesktop && !DeviceInfoHelper.isWeb;
-
-  static bool get isWebDesktop => DeviceInfoHelper.isDesktop && DeviceInfoHelper.isWeb;
-
-  static bool get isMobile => !isDesktop;
-
-  static bool get isWeb => DeviceInfoHelper.isWeb;
-
-  static bool get isIOS => targetPlatform == TargetPlatform.iOS;
-
-  static bool get isAndroid => targetPlatform == TargetPlatform.android;
-
-  static bool get isMacOS => targetPlatform == TargetPlatform.macOS;
-
-  static bool get isWindows => targetPlatform == TargetPlatform.windows;
-
-  static bool get isLinux => targetPlatform == TargetPlatform.linux;
-
-  static bool get isFuchsia => targetPlatform == TargetPlatform.fuchsia;
 }

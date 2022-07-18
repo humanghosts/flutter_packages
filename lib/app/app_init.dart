@@ -7,20 +7,28 @@ import 'package:hg_orm/hg_orm.dart';
 import '../ability/export.dart';
 import '../entity/export.dart';
 
+/// 模型构造器
+typedef EntityConstructor = Object Function([Map<String, dynamic>? args]);
+
 /// 初始化
 class AppInit {
   AppInit._();
 
   /// 初始化
   static Future<void> init(AppConfig config) async {
-    // 数据库初始化
-    await _databaseInit(config.databaseConfig);
     // 当前包下的模型和dao注册
     _getEntitiesMap().forEach(ConstructorCache.put);
-    _getDaoMap().forEach(DaoCache.put);
     // 传入的模型和dao注册
     config.entityAndDao?.getEntityMap?.call().forEach(ConstructorCache.put);
+    // 数据库初始化
+    await PrefsHelper.init();
+    await DatabaseHelper.open(config: config.databaseConfig);
+    _getDaoMap().forEach(DaoCache.put);
     config.entityAndDao?.getDaoMap?.call().forEach(DaoCache.put);
+    // 数据库版本变更
+    int oldVersion = DatabaseHelper.database.oldVersion;
+    int newVersion = DatabaseHelper.database.version;
+    if (oldVersion != newVersion) await config.onDatabaseVersionChanged(oldVersion, newVersion);
     // 预置数据
     await _presetDataInit(config.presetData);
     // 主题等数据加载
@@ -32,14 +40,6 @@ class AppInit {
   }
 }
 
-/// 数据库初始化
-Future<void> _databaseInit(DatabaseConfig config) async {
-  await PrefsHelper.init();
-  await DatabaseHelper.open(config: config);
-}
-
-typedef EntityConstructor = Object Function([Map<String, dynamic>? args]);
-
 /// 所有的模型构造方法和Dao注册
 /// Entity注册的时候需要注意依赖关系，被依赖的先注册
 /// 如果相互依赖，在先注册entity的构造方法中手动构建后注册的对象，默认对于Model类型的时候通过类型去构造器缓存中取
@@ -47,10 +47,7 @@ class EntityAndDao {
   late final Map<Type, EntityConstructor> Function()? getEntityMap;
   late final Map<Type, Dao> Function()? getDaoMap;
 
-  EntityAndDao({
-    this.getEntityMap,
-    this.getDaoMap,
-  });
+  EntityAndDao({this.getEntityMap, this.getDaoMap});
 }
 
 /// 预置数据

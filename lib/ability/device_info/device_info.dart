@@ -15,15 +15,6 @@ class DeviceInfoHelper {
   /// 设备平台 可以手动指定
   static late DevicePlatform devicePlatform;
 
-  /// 是否是web平台
-  static bool get isWeb => devicePlatform.isWeb;
-
-  /// 是否是桌面端
-  static bool isDesktop = devicePlatform.isDesktop;
-
-  /// 是否是桌面设备
-  static bool isDesktopDevice = devicePlatform.isDesktop;
-
   /// 初始化
   static Future<void> init() async {
     _baseDeviceInfo = await _plugin.deviceInfo;
@@ -57,22 +48,81 @@ class DeviceInfoHelper {
     String agent = webInfo.userAgent ?? "";
     String lowAgent = agent.toLowerCase();
     UserAgent userAgent = UserAgent(agent);
-    if (userAgent.isWindowsTablet) return DevicePlatform.webWindows;
-    if (userAgent.isWindowsPhone) return DevicePlatform.webWindows;
-    if (userAgent.isWindows) return DevicePlatform.webWindows;
-    if (userAgent.isAndroidTablet) return DevicePlatform.webAndroid;
-    if (userAgent.isAndroidPhone) return DevicePlatform.webAndroid;
-    if (userAgent.isAndroid) return DevicePlatform.webAndroid;
-    if (userAgent.isBlackberryTablet) return DevicePlatform.webAndroid;
-    if (userAgent.isBlackberryPhone) return DevicePlatform.webAndroid;
-    if (userAgent.isBlackberry) return DevicePlatform.webAndroid;
-    if (lowAgent.contains("iPhone".toLowerCase())) return DevicePlatform.webIos;
-    if (lowAgent.contains("iPad".toLowerCase())) return DevicePlatform.webIPadOS;
-    if (userAgent.isMacOS) return DevicePlatform.webMacOS;
-    if (lowAgent.contains("Linux".toLowerCase())) return DevicePlatform.webLinux;
-    if (lowAgent.contains("fuchsia".toLowerCase())) return DevicePlatform.webFuchsia;
+    if (userAgent.isWindowsTablet) return DevicePlatform.windowsWeb;
+    if (userAgent.isWindowsPhone) return DevicePlatform.windowsWeb;
+    if (userAgent.isWindows) return DevicePlatform.windowsWeb;
+    if (userAgent.isAndroidTablet) return DevicePlatform.androidWeb;
+    if (userAgent.isAndroidPhone) return DevicePlatform.androidWeb;
+    if (userAgent.isAndroid) return DevicePlatform.androidWeb;
+    if (userAgent.isBlackberryTablet) return DevicePlatform.androidWeb;
+    if (userAgent.isBlackberryPhone) return DevicePlatform.androidWeb;
+    if (userAgent.isBlackberry) return DevicePlatform.androidWeb;
+    if (lowAgent.contains("iPhone".toLowerCase())) return DevicePlatform.iOSWeb;
+    if (lowAgent.contains("iPad".toLowerCase())) return DevicePlatform.iPadOSWeb;
+    if (userAgent.isMacOS) return DevicePlatform.macOSWeb;
+    if (lowAgent.contains("Linux".toLowerCase())) return DevicePlatform.linuxWeb;
+    if (lowAgent.contains("fuchsia".toLowerCase())) return DevicePlatform.fuchsiaWeb;
     return DevicePlatform.other;
   }
+
+  /// 是否是web平台
+  static bool get isWeb => devicePlatform.isWeb;
+
+  /// 是否是桌面端
+  static bool isDesktop = devicePlatform.isDesktop;
+
+  static bool get isDesktopApp => devicePlatform.isDesktop && !isWeb;
+
+  static bool get isDesktopWeb => devicePlatform.isDesktop && isWeb;
+
+  /// 是否是移动
+  static bool get isMobile => devicePlatform.isMobile;
+
+  static bool get isMobileApp => devicePlatform.isMobile && !isWeb;
+
+  static bool get isMobileWeb => devicePlatform.isMobile && isWeb;
+
+  /// 是否是ios
+  static bool get isIOS => targetPlatform == TargetPlatform.iOS;
+
+  static bool get isIOSApp => targetPlatform == TargetPlatform.iOS && !isWeb;
+
+  static bool get isIOSWeb => targetPlatform == TargetPlatform.iOS && isWeb;
+
+  /// 是否是android
+  static bool get isAndroid => targetPlatform == TargetPlatform.android;
+
+  static bool get isAndroidApp => targetPlatform == TargetPlatform.android && !isWeb;
+
+  static bool get isAndroidWeb => targetPlatform == TargetPlatform.android && isWeb;
+
+  /// 是否是macos
+  static bool get isMacOS => targetPlatform == TargetPlatform.macOS;
+
+  static bool get isMacOSApp => targetPlatform == TargetPlatform.macOS && !isWeb;
+
+  static bool get isMacOSWeb => targetPlatform == TargetPlatform.macOS && isWeb;
+
+  /// 是否是windows
+  static bool get isWindows => targetPlatform == TargetPlatform.windows;
+
+  static bool get isWindowsApp => targetPlatform == TargetPlatform.windows && !isWeb;
+
+  static bool get isWindowsWeb => targetPlatform == TargetPlatform.windows && isWeb;
+
+  /// 是否是linux
+  static bool get isLinux => targetPlatform == TargetPlatform.linux;
+
+  static bool get isLinuxApp => targetPlatform == TargetPlatform.linux && !isWeb;
+
+  static bool get isLinuxWeb => targetPlatform == TargetPlatform.linux && isWeb;
+
+  /// 是否是fuchsia
+  static bool get isFuchsia => targetPlatform == TargetPlatform.fuchsia;
+
+  static bool get isFuchsiaApp => targetPlatform == TargetPlatform.fuchsia && !isWeb;
+
+  static bool get isFuchsiaWeb => targetPlatform == TargetPlatform.fuchsia && isWeb;
 }
 
 extension TargetPlatformEx on TargetPlatform {
@@ -110,13 +160,13 @@ enum DevicePlatform {
   windows,
   linux,
   fuchsia,
-  webIos,
-  webAndroid,
-  webIPadOS,
-  webMacOS,
-  webWindows,
-  webLinux,
-  webFuchsia,
+  iOSWeb,
+  androidWeb,
+  iPadOSWeb,
+  macOSWeb,
+  windowsWeb,
+  linuxWeb,
+  fuchsiaWeb,
   other,
 }
 
@@ -125,24 +175,24 @@ extension DevicePlatformEx on DevicePlatform {
     switch (this) {
       case DevicePlatform.iOS:
       case DevicePlatform.iPadOS:
-      case DevicePlatform.webIos:
-      case DevicePlatform.webIPadOS:
+      case DevicePlatform.iOSWeb:
+      case DevicePlatform.iPadOSWeb:
         return TargetPlatform.iOS;
       case DevicePlatform.android:
-      case DevicePlatform.webAndroid:
+      case DevicePlatform.androidWeb:
         return TargetPlatform.macOS;
       case DevicePlatform.macOS:
-      case DevicePlatform.webMacOS:
+      case DevicePlatform.macOSWeb:
         return TargetPlatform.macOS;
       case DevicePlatform.windows:
-      case DevicePlatform.webWindows:
+      case DevicePlatform.windowsWeb:
         return TargetPlatform.windows;
       case DevicePlatform.other:
       case DevicePlatform.linux:
-      case DevicePlatform.webLinux:
+      case DevicePlatform.linuxWeb:
         return TargetPlatform.linux;
       case DevicePlatform.fuchsia:
-      case DevicePlatform.webFuchsia:
+      case DevicePlatform.fuchsiaWeb:
         return TargetPlatform.fuchsia;
     }
   }
@@ -150,22 +200,22 @@ extension DevicePlatformEx on DevicePlatform {
   DeviceType get deviceType {
     switch (this) {
       case DevicePlatform.iOS:
-      case DevicePlatform.webIos:
+      case DevicePlatform.iOSWeb:
       case DevicePlatform.android:
-      case DevicePlatform.webAndroid:
+      case DevicePlatform.androidWeb:
         return DeviceType.phone;
       case DevicePlatform.iPadOS:
-      case DevicePlatform.webIPadOS:
+      case DevicePlatform.iPadOSWeb:
         return DeviceType.tablet;
       case DevicePlatform.macOS:
       case DevicePlatform.windows:
       case DevicePlatform.linux:
       case DevicePlatform.fuchsia:
       case DevicePlatform.other:
-      case DevicePlatform.webMacOS:
-      case DevicePlatform.webWindows:
-      case DevicePlatform.webLinux:
-      case DevicePlatform.webFuchsia:
+      case DevicePlatform.macOSWeb:
+      case DevicePlatform.windowsWeb:
+      case DevicePlatform.linuxWeb:
+      case DevicePlatform.fuchsiaWeb:
         return DeviceType.desktop;
     }
   }
@@ -181,13 +231,13 @@ extension DevicePlatformEx on DevicePlatform {
       case DevicePlatform.fuchsia:
       case DevicePlatform.other:
         return false;
-      case DevicePlatform.webIos:
-      case DevicePlatform.webAndroid:
-      case DevicePlatform.webIPadOS:
-      case DevicePlatform.webMacOS:
-      case DevicePlatform.webWindows:
-      case DevicePlatform.webLinux:
-      case DevicePlatform.webFuchsia:
+      case DevicePlatform.iOSWeb:
+      case DevicePlatform.androidWeb:
+      case DevicePlatform.iPadOSWeb:
+      case DevicePlatform.macOSWeb:
+      case DevicePlatform.windowsWeb:
+      case DevicePlatform.linuxWeb:
+      case DevicePlatform.fuchsiaWeb:
         return true;
     }
   }
@@ -195,21 +245,21 @@ extension DevicePlatformEx on DevicePlatform {
   bool get isDesktop {
     switch (this) {
       case DevicePlatform.iOS:
-      case DevicePlatform.webIos:
+      case DevicePlatform.iOSWeb:
       case DevicePlatform.iPadOS:
-      case DevicePlatform.webIPadOS:
+      case DevicePlatform.iPadOSWeb:
       case DevicePlatform.android:
-      case DevicePlatform.webAndroid:
+      case DevicePlatform.androidWeb:
         return false;
       case DevicePlatform.macOS:
       case DevicePlatform.windows:
       case DevicePlatform.linux:
       case DevicePlatform.fuchsia:
       case DevicePlatform.other:
-      case DevicePlatform.webMacOS:
-      case DevicePlatform.webWindows:
-      case DevicePlatform.webLinux:
-      case DevicePlatform.webFuchsia:
+      case DevicePlatform.macOSWeb:
+      case DevicePlatform.windowsWeb:
+      case DevicePlatform.linuxWeb:
+      case DevicePlatform.fuchsiaWeb:
         return true;
     }
   }
@@ -217,21 +267,21 @@ extension DevicePlatformEx on DevicePlatform {
   bool get isMobile {
     switch (this) {
       case DevicePlatform.iOS:
-      case DevicePlatform.webIos:
+      case DevicePlatform.iOSWeb:
       case DevicePlatform.iPadOS:
-      case DevicePlatform.webIPadOS:
+      case DevicePlatform.iPadOSWeb:
       case DevicePlatform.android:
-      case DevicePlatform.webAndroid:
+      case DevicePlatform.androidWeb:
         return true;
       case DevicePlatform.macOS:
       case DevicePlatform.windows:
       case DevicePlatform.linux:
       case DevicePlatform.fuchsia:
       case DevicePlatform.other:
-      case DevicePlatform.webMacOS:
-      case DevicePlatform.webWindows:
-      case DevicePlatform.webLinux:
-      case DevicePlatform.webFuchsia:
+      case DevicePlatform.macOSWeb:
+      case DevicePlatform.windowsWeb:
+      case DevicePlatform.linuxWeb:
+      case DevicePlatform.fuchsiaWeb:
         return false;
     }
   }
@@ -239,21 +289,21 @@ extension DevicePlatformEx on DevicePlatform {
   bool get isPhone {
     switch (this) {
       case DevicePlatform.iOS:
-      case DevicePlatform.webIos:
+      case DevicePlatform.iOSWeb:
       case DevicePlatform.android:
-      case DevicePlatform.webAndroid:
+      case DevicePlatform.androidWeb:
         return true;
       case DevicePlatform.iPadOS:
-      case DevicePlatform.webIPadOS:
+      case DevicePlatform.iPadOSWeb:
       case DevicePlatform.macOS:
       case DevicePlatform.windows:
       case DevicePlatform.linux:
       case DevicePlatform.fuchsia:
       case DevicePlatform.other:
-      case DevicePlatform.webMacOS:
-      case DevicePlatform.webWindows:
-      case DevicePlatform.webLinux:
-      case DevicePlatform.webFuchsia:
+      case DevicePlatform.macOSWeb:
+      case DevicePlatform.windowsWeb:
+      case DevicePlatform.linuxWeb:
+      case DevicePlatform.fuchsiaWeb:
         return false;
     }
   }
@@ -261,21 +311,21 @@ extension DevicePlatformEx on DevicePlatform {
   bool get isTablet {
     switch (this) {
       case DevicePlatform.iPadOS:
-      case DevicePlatform.webIPadOS:
+      case DevicePlatform.iPadOSWeb:
         return true;
       case DevicePlatform.iOS:
-      case DevicePlatform.webIos:
+      case DevicePlatform.iOSWeb:
       case DevicePlatform.android:
-      case DevicePlatform.webAndroid:
+      case DevicePlatform.androidWeb:
       case DevicePlatform.macOS:
       case DevicePlatform.windows:
       case DevicePlatform.linux:
       case DevicePlatform.fuchsia:
       case DevicePlatform.other:
-      case DevicePlatform.webMacOS:
-      case DevicePlatform.webWindows:
-      case DevicePlatform.webLinux:
-      case DevicePlatform.webFuchsia:
+      case DevicePlatform.macOSWeb:
+      case DevicePlatform.windowsWeb:
+      case DevicePlatform.linuxWeb:
+      case DevicePlatform.fuchsiaWeb:
         return false;
     }
   }

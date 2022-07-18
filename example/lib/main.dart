@@ -15,6 +15,9 @@ class HgLoggerConfig extends AppConfig {
 
   @override
   DatabaseConfig get databaseConfig => SembastConfig(path: 'example_hg_framework.db');
+
+  @override
+  String get appVersion => "1";
 }
 
 void main() {
