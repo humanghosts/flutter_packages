@@ -45,7 +45,7 @@ dependencies:
   ## 路径 except web
   path_provider: ^2.0.9
   ## 打开链接
-  url_launcher: ^6.0.20
+  url_launcher: ^6.1.5
   ## 权限请求 android ios windows
   permission_handler: ^8.3.0
   ## todo 提示音播放 android ios macos web
@@ -57,11 +57,11 @@ dependencies:
   ## 设备信息 all
   device_info_plus: ^3.2.3
   ## 网络链接检查 all
-  connectivity_plus: ^2.3.5
+  connectivity_plus: ^2.3.6
 
   # 移动端专用库
   ## 本地通知 android ios macos linux
-  flutter_local_notifications: ^9.4.0
+  flutter_local_notifications: ^9.7.0
   ## 本地时区 本地通知用 android ios web
   flutter_native_timezone: ^2.0.0
   timezone: ^0.8.0
@@ -92,7 +92,7 @@ dependencies:
 
   # 布局的库
   ## 主题
-  flex_color_scheme: ^5.0.1
+  flex_color_scheme: ^5.1.0
 
   # 图标、动画、字体的库
   ## 加载动画

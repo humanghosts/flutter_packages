@@ -415,17 +415,27 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
   /// 调用点为[rebuild]
   final Map<String, VoidCallback> _onRefreshCallback = {};
 
+  /// 应用销毁回调
+  /// 调用点为[onClose]
+  final Map<String, VoidCallback> _onCloseCallback = {};
+
   /// 注册构建完回调，用于为其他组件提供应用构建回调
   void listenOnReady(String key, VoidCallback callback) => _onReadyCallback[key] = callback;
 
   /// 注册重建完回调，用于为其他组件提供应用构建回调
   void listenRefresh(String key, VoidCallback callback) => _onRefreshCallback[key] = callback;
 
+  /// 监听销毁
+  void listenOnClose(String key, VoidCallback callback) => _onCloseCallback[key] = callback;
+
   /// 移除重建监听器
   void removeRefreshListener(String key) => _onRefreshCallback.remove(key);
 
   /// 移除构建监听器
   void removeOnReadyListener(String key) => _onReadyCallback.remove(key);
+
+  /// 移除销毁监听器
+  void removeOnCloseListener(String key) => _onCloseCallback.remove(key);
 
   /// 应用初始化时调用
   /// 调用点为[InitializeHelper.init]
@@ -455,6 +465,13 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
   @override
   onClose() {
     _onCloseOrientation();
+    for (var value in _onCloseCallback.values) {
+      try {
+        value();
+      } catch (e) {
+        e.printError();
+      }
+    }
   }
 
   /// 重新根据主题渲染
