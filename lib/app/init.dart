@@ -1,7 +1,6 @@
 import 'package:hg_entity/hg_entity.dart';
-import 'package:hg_framework/ability/shared_preferences/prefs.dart';
-import 'package:hg_framework/app/app_config.dart';
-import 'package:hg_framework/app/app_logic.dart';
+import 'package:hg_framework/app/config.dart';
+import 'package:hg_framework/app/logic.dart';
 import 'package:hg_orm/hg_orm.dart';
 
 import '../ability/export.dart';
@@ -20,8 +19,6 @@ class AppInit {
     _getEntitiesMap().forEach(ConstructorCache.put);
     // 传入的模型和dao注册
     config.entityAndDao?.getEntityMap?.call().forEach(ConstructorCache.put);
-    // 数据库初始化
-    await PrefsHelper.init();
     await DatabaseHelper.open(config: config.databaseConfig);
     _getDaoMap().forEach(DaoCache.put);
     config.entityAndDao?.getDaoMap?.call().forEach(DaoCache.put);

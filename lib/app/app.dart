@@ -53,22 +53,18 @@ abstract class App extends StatelessWidget with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return GetBuilder<AppLogic>(
-          init: logic,
-          autoRemove: false,
-          initState: (state) {
-            WidgetsBinding.instance.addObserver(this);
-          },
-          dispose: (state) {
-            WidgetsBinding.instance.removeObserver(this);
-          },
-          builder: (logic) {
-            logic.onWidgetBuild(context);
-            return buildApp(context);
-          },
-        );
+    return GetBuilder<AppLogic>(
+      init: logic,
+      autoRemove: false,
+      initState: (state) {
+        WidgetsBinding.instance.addObserver(this);
+      },
+      dispose: (state) {
+        WidgetsBinding.instance.removeObserver(this);
+      },
+      builder: (logic) {
+        logic.onWidgetBuild(context);
+        return buildApp(context);
       },
     );
   }

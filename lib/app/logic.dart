@@ -263,7 +263,7 @@ abstract class OverlayHelper {
         return background ??
             BackdropFilter(
               filter: ImageFilter.blur(sigmaY: 2, sigmaX: 2),
-              child: Container(),
+              child: const SizedBox.shrink(),
             );
       },
       close: (action) => closeFuncMap[key] = action,
@@ -306,7 +306,7 @@ class InAppNotificationHelper {
         widget: Obx(() {
           inAppNotificationUpdateFlag.value;
           Map<int, Set<String>> indexKeys = indexNotificationKeys;
-          if (indexKeys.isEmpty) return Container();
+          if (indexKeys.isEmpty) return const SizedBox.shrink();
           // 子通知
           List<Widget> children = [];
           // 通知
@@ -354,7 +354,7 @@ class InAppNotificationHelper {
               ));
             }
           }
-          if (children.isEmpty) return Container();
+          if (children.isEmpty) return const SizedBox.shrink();
           return Row(
             mainAxisAlignment: MainAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
@@ -370,7 +370,7 @@ class InAppNotificationHelper {
             ],
           );
         }),
-        background: Container(),
+        background: const SizedBox.shrink(),
       );
     }
     inAppNotificationUpdateFlag++;

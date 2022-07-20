@@ -540,7 +540,7 @@ extension FlexColorSchemeConvert on ThemeTemplate {
         inputDecoratorSchemeColor: inputDecoratorSchemeColorLight.value.scheme,
         inputDecoratorIsFilled: inputDecoratorIsFilled.value,
         inputDecoratorBorderType: inputDecoratorBorderType.value.type,
-        inputDecoratorRadius: inputDecoratorBorderRadius.value,
+        inputDecoratorRadius: inputDecoratorBorderRadius.value ?? 20,
         inputDecoratorUnfocusedHasBorder: inputDecoratorUnfocusedHasBorder.value,
         inputDecoratorUnfocusedBorderIsColored: inputDecoratorUnfocusedBorderIsColored.value,
         fabUseShape: true,

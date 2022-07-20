@@ -5,7 +5,7 @@ export 'event/export.dart';
 export 'log/export.dart';
 export 'notification/export.dart';
 export 'route/export.dart';
-export 'route/export.dart';
+export 'shared_preferences/export.dart';
 export 'sound/export.dart';
 export 'toast/export.dart';
 export 'work/export.dart';

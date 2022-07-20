@@ -18,13 +18,7 @@ abstract class AppConfig {
   List<DeviceOrientation> get orientations => const [DeviceOrientation.portraitUp];
 
   /// 桌面端 窗口配置
-  WindowOptions get windowOptions => const WindowOptions(
-        size: Size(800, 600),
-        center: true,
-        backgroundColor: Colors.transparent,
-        skipTaskbar: false,
-        titleBarStyle: TitleBarStyle.hidden,
-      );
+  WindowOptions? get windowOptions => null;
 
   /// 数据库配置
   DatabaseConfig get databaseConfig;
@@ -68,7 +62,11 @@ abstract class AppConfig {
     WidgetsFlutterBinding.ensureInitialized();
     // 设备信息初始化
     await DeviceInfoHelper.init();
+    // prefs初始化
+    await PrefsHelper.init();
+    // 设置设备可用方向
     SystemChrome.setPreferredOrientations(orientations);
+    // 桌面端初始化设置
     if (DeviceInfoHelper.isDesktopApp) {
       await windowManager.ensureInitialized();
       await Window.initialize();

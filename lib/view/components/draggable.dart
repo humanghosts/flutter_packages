@@ -202,7 +202,7 @@ class DraggableWidget extends View<DraggableLogic> {
                       left: logic.args.resizePosition?.left,
                       top: logic.args.resizePosition?.top,
                       child: Draggable(
-                        childWhenDragging: Container(),
+                        childWhenDragging: const SizedBox.shrink(),
                         feedback: resize,
                         child: resize,
                         onDragUpdate: (details) {
@@ -257,7 +257,7 @@ class DraggableWidget extends View<DraggableLogic> {
       case DraggableMode.tap:
         draggable = Draggable(
           feedback: child,
-          childWhenDragging: Container(),
+          childWhenDragging: const SizedBox.shrink(),
           onDragUpdate: (details) => onDragUpdate(details, childKey),
           child: child,
         );
@@ -265,7 +265,7 @@ class DraggableWidget extends View<DraggableLogic> {
       case DraggableMode.longPress:
         draggable = LongPressDraggable(
           feedback: child,
-          childWhenDragging: Container(),
+          childWhenDragging: const SizedBox.shrink(),
           onDragUpdate: (details) => onDragUpdate(details, childKey),
           delay: const Duration(milliseconds: 200),
           child: child,

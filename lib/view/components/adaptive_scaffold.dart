@@ -499,7 +499,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
     return MouseRegion(
       cursor: SystemMouseCursors.resizeColumn,
       child: Draggable(
-        feedback: Container(),
+        feedback: const SizedBox.shrink(),
         onDragUpdate: onDragUpdate,
         child: Container(width: 2, color: theme.dividerColor),
       ),

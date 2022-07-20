@@ -68,61 +68,74 @@ class DeviceInfoHelper {
   /// 是否是web平台
   static bool get isWeb => devicePlatform.isWeb;
 
+  static bool? _isDesktop;
+
+  static void setIsDesktop(bool value) => _isDesktop = value;
+
+  static void resetIsDesktop() => _isDesktop = devicePlatform.isDesktop;
+
   /// 是否是桌面端
-  static bool isDesktop = devicePlatform.isDesktop;
+  static bool isDesktop = _isDesktop ??= devicePlatform.isDesktop;
 
-  static bool get isDesktopApp => devicePlatform.isDesktop && !isWeb;
+  static bool get isDesktopApp => isDesktop && !isWeb;
 
-  static bool get isDesktopWeb => devicePlatform.isDesktop && isWeb;
+  static bool get isDesktopWeb => isDesktop && isWeb;
 
   /// 是否是移动
-  static bool get isMobile => devicePlatform.isMobile;
+  static bool get isMobile => !isDesktop;
 
-  static bool get isMobileApp => devicePlatform.isMobile && !isWeb;
+  static bool get isMobileApp => isMobile && !isWeb;
 
-  static bool get isMobileWeb => devicePlatform.isMobile && isWeb;
+  static bool get isMobileWeb => isMobile && isWeb;
+
+  /// 是否是平板
+  static bool get isTablet => devicePlatform.isTablet;
+
+  static bool get isTabletApp => isTablet && !isWeb;
+
+  static bool get isTabletWeb => isTablet && isWeb;
 
   /// 是否是ios
   static bool get isIOS => targetPlatform == TargetPlatform.iOS;
 
-  static bool get isIOSApp => targetPlatform == TargetPlatform.iOS && !isWeb;
+  static bool get isIOSApp => isIOS && !isWeb;
 
-  static bool get isIOSWeb => targetPlatform == TargetPlatform.iOS && isWeb;
+  static bool get isIOSWeb => isIOS && isWeb;
 
   /// 是否是android
   static bool get isAndroid => targetPlatform == TargetPlatform.android;
 
-  static bool get isAndroidApp => targetPlatform == TargetPlatform.android && !isWeb;
+  static bool get isAndroidApp => isAndroid && !isWeb;
 
-  static bool get isAndroidWeb => targetPlatform == TargetPlatform.android && isWeb;
+  static bool get isAndroidWeb => isAndroid && isWeb;
 
   /// 是否是macos
   static bool get isMacOS => targetPlatform == TargetPlatform.macOS;
 
-  static bool get isMacOSApp => targetPlatform == TargetPlatform.macOS && !isWeb;
+  static bool get isMacOSApp => isMacOS && !isWeb;
 
-  static bool get isMacOSWeb => targetPlatform == TargetPlatform.macOS && isWeb;
+  static bool get isMacOSWeb => isMacOS && isWeb;
 
   /// 是否是windows
   static bool get isWindows => targetPlatform == TargetPlatform.windows;
 
-  static bool get isWindowsApp => targetPlatform == TargetPlatform.windows && !isWeb;
+  static bool get isWindowsApp => isWindows && !isWeb;
 
-  static bool get isWindowsWeb => targetPlatform == TargetPlatform.windows && isWeb;
+  static bool get isWindowsWeb => isWindows && isWeb;
 
   /// 是否是linux
   static bool get isLinux => targetPlatform == TargetPlatform.linux;
 
-  static bool get isLinuxApp => targetPlatform == TargetPlatform.linux && !isWeb;
+  static bool get isLinuxApp => isLinux && !isWeb;
 
-  static bool get isLinuxWeb => targetPlatform == TargetPlatform.linux && isWeb;
+  static bool get isLinuxWeb => isLinux && isWeb;
 
   /// 是否是fuchsia
   static bool get isFuchsia => targetPlatform == TargetPlatform.fuchsia;
 
-  static bool get isFuchsiaApp => targetPlatform == TargetPlatform.fuchsia && !isWeb;
+  static bool get isFuchsiaApp => isFuchsia && !isWeb;
 
-  static bool get isFuchsiaWeb => targetPlatform == TargetPlatform.fuchsia && isWeb;
+  static bool get isFuchsiaWeb => isFuchsia && isWeb;
 }
 
 extension TargetPlatformEx on TargetPlatform {

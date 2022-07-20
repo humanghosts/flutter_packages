@@ -23,7 +23,7 @@ class ToastHelper {
           ),
         ),
       ),
-      background: Container(),
+      background: const SizedBox.shrink(),
     );
     Duration delay = duration ?? const Duration(seconds: 3);
     await Future.delayed(delay);
