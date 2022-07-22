@@ -21,7 +21,12 @@ class HeaderCard extends View<HeaderCardLogic> {
     this.child,
     this.canClose = true,
     this.trailing,
+    this.height,
+    this.width,
   }) : super(key: key, logic: HeaderCardLogic());
+
+  final double? height;
+  final double? width;
 
   final bool canClose;
 
@@ -64,64 +69,71 @@ class HeaderCard extends View<HeaderCardLogic> {
       );
     }
 
-    return Card(
-      margin: margin,
-      color: cardColor,
-      shape: shapeBorder ?? theme.cardTheme.shape,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          if (useHeading)
-            Material(
-              type: MaterialType.card,
-              color: headerColor,
-              child: SizedBox(
-                height: kToolbarHeight,
-                child: ListTile(
-                  contentPadding: headerPadding,
-                  leading: leading,
-                  title: cardTitle,
-                  subtitle: subtitle,
-                  trailing: trailing ??
-                      (!canClose
-                          ? null
-                          : Obx(() {
-                              return Clickable(
-                                onPressed: () => logic.isOpen.value = !logic.isOpen.value,
-                                tooltip: logic.isOpen.value ? "收起" : "展开",
-                                child: AnimatedSwitcher(
-                                  duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
-                                  child: Icon(
-                                    logic.isOpen.value ? Icons.expand_less_outlined : Icons.expand_more_outlined,
-                                    key: ValueKey(logic.isOpen.value),
-                                    size: 32,
-                                  ),
-                                ),
-                              );
-                            })),
-                  onTap: !canClose ? null : () => logic.isOpen.value = !logic.isOpen.value,
+    return Obx(() {
+      bool isOpen = logic.isOpen.value;
+      return SizedBox(
+        width: width == null ? null : width! + margin.horizontal,
+        height: height == null ? null : (isOpen ? height! : kToolbarHeight) + margin.vertical,
+        child: Card(
+          margin: margin,
+          color: cardColor,
+          shape: shapeBorder ?? theme.cardTheme.shape,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              if (useHeading)
+                Material(
+                  type: MaterialType.card,
+                  color: headerColor,
+                  child: SizedBox(
+                    height: kToolbarHeight,
+                    child: ListTile(
+                      contentPadding: headerPadding,
+                      leading: leading,
+                      title: cardTitle,
+                      subtitle: subtitle,
+                      trailing: trailing ??
+                          (!canClose
+                              ? null
+                              : Obx(() {
+                                  return Clickable(
+                                    onPressed: () => logic.isOpen.value = !logic.isOpen.value,
+                                    tooltip: logic.isOpen.value ? "收起" : "展开",
+                                    child: AnimatedSwitcher(
+                                      duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
+                                      child: Icon(
+                                        logic.isOpen.value ? Icons.expand_less_outlined : Icons.expand_more_outlined,
+                                        key: ValueKey(logic.isOpen.value),
+                                        size: 32,
+                                      ),
+                                    ),
+                                  );
+                                })),
+                      onTap: !canClose ? null : () => logic.isOpen.value = !logic.isOpen.value,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          Expanded(child: Obx(() {
-            return AnimatedSwitcher(
-              duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
-              transitionBuilder: (Widget child, Animation<double> animation) {
-                return SizeTransition(
-                  sizeFactor: animation,
-                  child: child,
-                );
-              },
-              child: (logic.isOpen.value && child != null)
-                  ? Container(
-                      key: ValueKey(logic.isOpen.value),
+              Expanded(child: Obx(() {
+                return AnimatedSwitcher(
+                  duration: logic.fastAnimationDuration,
+                  transitionBuilder: (Widget child, Animation<double> animation) {
+                    return SizeTransition(
+                      sizeFactor: animation,
                       child: child,
-                    )
-                  : SizedBox.shrink(key: ValueKey(logic.isOpen.value)),
-            );
-          })),
-        ],
-      ),
-    );
+                    );
+                  },
+                  child: (logic.isOpen.value && child != null)
+                      ? Container(
+                          key: ValueKey(logic.isOpen.value),
+                          child: child,
+                        )
+                      : SizedBox.shrink(key: ValueKey(logic.isOpen.value)),
+                );
+              })),
+            ],
+          ),
+        ),
+      );
+    });
   }
 }

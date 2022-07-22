@@ -18,7 +18,12 @@ class AppInit {
     // 当前包下的模型和dao注册
     _getEntitiesMap().forEach(ConstructorCache.put);
     // 传入的模型和dao注册
-    config.entityAndDao?.getEntityMap?.call().forEach(ConstructorCache.put);
+    Map<Type, EntityConstructor>? entityMap = config.entityAndDao?.getEntityMap?.call();
+    Map<Type, List<String>>? entityAlias = config.entityAndDao?.getEntityAlias?.call();
+    entityMap?.forEach((key, value) {
+      List<String>? alias = entityAlias?[key];
+      ConstructorCache.put(key, value, alias: alias ?? []);
+    });
     await DatabaseHelper.open(config: config.databaseConfig);
     _getDaoMap().forEach(DaoCache.put);
     config.entityAndDao?.getDaoMap?.call().forEach(DaoCache.put);
@@ -43,8 +48,9 @@ class AppInit {
 class EntityAndDao {
   late final Map<Type, EntityConstructor> Function()? getEntityMap;
   late final Map<Type, Dao> Function()? getDaoMap;
+  late final Map<Type, List<String>> Function()? getEntityAlias;
 
-  EntityAndDao({this.getEntityMap, this.getDaoMap});
+  EntityAndDao({this.getEntityMap, this.getDaoMap, this.getEntityAlias});
 }
 
 /// 预置数据

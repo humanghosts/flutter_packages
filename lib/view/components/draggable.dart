@@ -225,6 +225,8 @@ class DraggableWidget extends View<DraggableLogic> {
       key: parentKey,
       alignment: Alignment.center,
       child: DragTarget(
+        key: getChildLocalKey(DragTarget),
+        hitTestBehavior: HitTestBehavior.deferToChild,
         builder: (context, candidateItems, rejectedItems) {
           return Obx(() {
             return Stack(
@@ -256,6 +258,7 @@ class DraggableWidget extends View<DraggableLogic> {
     switch (mode) {
       case DraggableMode.tap:
         draggable = Draggable(
+          key: getChildLocalKey(Draggable),
           feedback: child,
           childWhenDragging: const SizedBox.shrink(),
           onDragUpdate: (details) => onDragUpdate(details, childKey),
@@ -264,6 +267,7 @@ class DraggableWidget extends View<DraggableLogic> {
         break;
       case DraggableMode.longPress:
         draggable = LongPressDraggable(
+          key: getChildLocalKey(LongPressDraggable),
           feedback: child,
           childWhenDragging: const SizedBox.shrink(),
           onDragUpdate: (details) => onDragUpdate(details, childKey),

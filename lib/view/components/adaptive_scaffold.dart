@@ -1,10 +1,9 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
-import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/hg_framework.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
@@ -88,8 +87,9 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
     args.controller?.call(this);
     menuWidth.value = math.max(
       math.min(menuWidth.value, maxWidth / 3),
-      maxWidth / 8,
+      maxWidth / 6,
     );
+    if (secondaryBodyWidth.value < 0) return;
     secondaryBodyWidth.value = math.max(
       math.min(secondaryBodyWidth.value, maxWidth / 2),
       maxWidth / 4,
@@ -140,11 +140,7 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
     if (null != this.secondaryBody.value) {
       isSecondaryBodyOpen.value = true;
       if (DeviceInfoHelper.isMobile) {
-        mobileController.animateTo(
-          maxWidth,
-          duration: AppLogic.appConfig.animationConfig.fastAnimationDuration,
-          curve: Curves.linear,
-        );
+        mobileController.animateTo(maxWidth, duration: middleAnimationDuration, curve: Curves.linear);
       }
     } else {
       closeSecondaryBody();
@@ -201,7 +197,6 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
 
   @override
   Widget buildView(BuildContext context) {
-    ThemeTemplate themeTemplate = AppLogic.instance.themeTemplate;
     return LayoutBuilder(builder: (context, constraints) {
       logic.maxWidth = math.min(constraints.maxWidth, Get.width);
       logic.maxHeight = math.min(constraints.maxHeight, Get.height);
@@ -211,28 +206,19 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
         logic.dx.value = global.dx;
         logic.dy.value = global.dy;
       });
-      return Container(
+      return ConstrainedBox(
         constraints: BoxConstraints(
           minHeight: constraints.minHeight,
           minWidth: constraints.minWidth,
           maxWidth: logic.maxWidth,
           maxHeight: logic.maxHeight,
         ),
-        child: AnnotatedRegion<SystemUiOverlayStyle>(
-          key: const ValueKey("annotated_region"),
-          value: FlexColorScheme.themedSystemNavigationBar(
-            context,
-            systemNavBarStyle: themeTemplate.sysNavBarStyle.value.style,
-            useDivider: themeTemplate.useSysNavDivider.value,
-            opacity: themeTemplate.sysNavBarOpacity.value,
-          ),
-          child: Material(
-            key: const ValueKey("material"),
-            color: Colors.transparent,
-            child: Scaffold(
-              backgroundColor: Colors.transparent,
-              body: DeviceInfoHelper.isMobile ? buildMobile(context) : Obx(() => buildDesktop(context)),
-            ),
+        child: Material(
+          key: const ValueKey("material"),
+          color: Colors.transparent,
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: DeviceInfoHelper.isMobile ? buildMobile(context) : Obx(() => buildDesktop(context)),
           ),
         ),
       );
@@ -262,7 +248,9 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
                   (context, index) => Scaffold(
                     drawer: SizedBox(
                       width: logic.maxWidth * 0.8,
-                      child: ClipRect(
+                      child: Card(
+                        margin: EdgeInsets.zero,
+                        color: logic.theme.cardColor.withOpacity(0.5),
                         child: BackdropFilter(
                           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                           child: buildMenu(context),
@@ -274,9 +262,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
                       if (DeviceInfoHelper.isWeb) {
                         return SimpleGestureDetector(
                           onHorizontalSwipe: (direction) {
-                            if (direction == SwipeDirection.right) {
-                              logic.openMenu();
-                            }
+                            if (direction == SwipeDirection.right) logic.openMenu();
                           },
                           child: buildBody(context),
                         );
@@ -294,7 +280,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
                   viewportFraction: 1,
                   padEnds: false,
                   delegate: SliverChildBuilderDelegate(
-                    (context, index) => buildSecondaryBody(context),
+                    (context, index) => FadeIn(child: buildSecondaryBody(context)),
                     childCount: 1,
                   ),
                 )
@@ -315,7 +301,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
   Widget buildDesktop(BuildContext context) {
     bool isExpandSecondary = logic.isExpandSecondaryBody.value;
     Widget? secondary = logic.secondaryBody.value;
-    Duration duration = AppLogic.appConfig.animationConfig.middleAnimationDuration;
+    Duration duration = logic.middleAnimationDuration;
 
     return Stack(
       alignment: Alignment.centerLeft,
@@ -383,7 +369,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
                 Offset offset = detail.globalPosition;
                 logic.menuWidth.value = math.max(
                   math.min(offset.dx - logic.dx.value, logic.maxWidth / 3),
-                  logic.maxWidth / 8,
+                  logic.maxWidth / 6,
                 );
               }),
             ],
@@ -437,8 +423,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
       } else {
         opacity = 1;
       }
-      return AnimatedPositioned(
-        duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
+      return Positioned(
         left: isExpand ? math.min(menuWidth, logic.maxWidth / 2) : 0,
         child: MouseRegion(
           cursor: MaterialStateMouseCursor.clickable,
@@ -473,8 +458,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
           opacity = 1;
         }
       }
-      return AnimatedPositioned(
-        duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
+      return Positioned(
         right: isOpen ? math.min(bodyWidth, logic.maxWidth / 2) : 0,
         child: MouseRegion(
           cursor: MaterialStateMouseCursor.clickable,
