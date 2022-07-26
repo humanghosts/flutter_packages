@@ -196,6 +196,8 @@ abstract class View<L extends ViewLogic> extends StatelessWidget {
   /// [uniqueKey]子组件多个的时候，传入唯一标识
   LocalKey getChildLocalKey(Type type, [String? uniqueKey]) => ValueKey(getChildKey(type, uniqueKey));
 
+  GlobalKey getChildGlobalKey(Type type, [String? uniqueKey]) => GlobalObjectKey(getChildKey(type, uniqueKey));
+
   /// 创建子组件key，防止出现key冲突
   String getChildKey(Type type, [String? uniqueKey]) => "${key}_$type${null == uniqueKey ? "" : "_$uniqueKey"}";
 }

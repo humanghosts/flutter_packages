@@ -8,7 +8,6 @@ import Foundation
 import connectivity_plus_macos
 import device_info_plus_macos
 import flutter_acrylic
-import flutter_app_badger
 import flutter_local_notifications
 import flutter_native_timezone
 import icloud_storage
@@ -25,7 +24,6 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   ConnectivityPlugin.register(with: registry.registrar(forPlugin: "ConnectivityPlugin"))
   DeviceInfoPlusMacosPlugin.register(with: registry.registrar(forPlugin: "DeviceInfoPlusMacosPlugin"))
   FlutterAcrylicPlugin.register(with: registry.registrar(forPlugin: "FlutterAcrylicPlugin"))
-  FlutterAppBadgerPlugin.register(with: registry.registrar(forPlugin: "FlutterAppBadgerPlugin"))
   FlutterLocalNotificationsPlugin.register(with: registry.registrar(forPlugin: "FlutterLocalNotificationsPlugin"))
   FlutterNativeTimezonePlugin.register(with: registry.registrar(forPlugin: "FlutterNativeTimezonePlugin"))
   SwiftIcloudStoragePlugin.register(with: registry.registrar(forPlugin: "SwiftIcloudStoragePlugin"))

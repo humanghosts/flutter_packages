@@ -64,7 +64,14 @@ class PresetData {
 /// 首次启动初始化预置数据
 Future<void> _presetDataInit(PresetData? presetData) async {
   String key = "is_preset_data_init";
-  bool? isInitData = DatabaseHelper.database.kv.get(key);
+  int version = DatabaseHelper.database.version;
+  bool? isInitData;
+  if (version < 2) {
+    isInitData = PrefsHelper.prefs.getBool(key);
+    await DatabaseHelper.database.kv.putSave(key, isInitData);
+  } else {
+    isInitData = DatabaseHelper.database.kv.get(key);
+  }
   if (isInitData == true) return;
   Map<Type, List<DataModel> Function()> dataModelMap = presetData?.dataModelMap?.call() ?? {};
   Map<Type, SimpleModel Function()> simpleModelMap = presetData?.simpleModelMap?.call() ?? {};

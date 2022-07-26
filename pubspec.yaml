@@ -35,7 +35,7 @@ dependencies:
 
   # 框架类的库
   ## 依赖、状态管理、路由框架
-  get: ^4.6.1
+  get: ^4.6.5
   ## 异常处理 暂时不需要，是上报服务器的异常
   # sentry_flutter: ^6.2.2
 
@@ -43,19 +43,17 @@ dependencies:
   ## 本地存储
   shared_preferences: ^2.0.15
   ## 路径 except web
-  path_provider: ^2.0.9
+  path_provider: ^2.0.11
   ## 打开链接
   url_launcher: ^6.1.5
   ## 权限请求 android ios windows
-  permission_handler: ^8.3.0
+  permission_handler: ^10.0.0
   ## todo 提示音播放 android ios macos web
   soundpool: ^2.3.0
-  ## 应用角标 android ios macos
-  flutter_app_badger: ^1.3.0
   ## 打开商店、应用打分评论 android ios macos
   in_app_review: ^2.0.4
   ## 设备信息 all
-  device_info_plus: ^3.2.3
+  device_info_plus: ^4.0.1
   ## 网络链接检查 all
   connectivity_plus: ^2.3.6
 
@@ -93,6 +91,8 @@ dependencies:
   # 布局的库
   ## 主题
   flex_color_scheme: ^5.1.0
+  ## 动画
+  animate_do: ^2.1.0
 
   # 图标、动画、字体的库
   ## 加载动画
