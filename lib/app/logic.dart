@@ -98,6 +98,9 @@ abstract class ThemeListener {
     _setArgs();
   }
 
+  /// 设置主题模式
+  void changeThemeMode(ThemeMode mode) {}
+
   /// 设置主题参数
   void _setArgs() {
     lightTheme = themeTemplate.toFlexColorThemeLight().toTheme;

@@ -276,11 +276,9 @@ packages:
   hg_entity:
     dependency: transitive
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: ec188bf305aeea87493fda41d3391cec605e9e99
-      url: "https://github.com/humanghosts/hg_entity.git"
-    source: git
+      path: "../../hg_entity"
+      relative: true
+    source: path
     version: "1.0.0+2"
   hg_framework:
     dependency: "direct main"
@@ -292,11 +290,9 @@ packages:
   hg_orm:
     dependency: transitive
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "3a0aa44c00404f4bf5e50db4df37eaac1642d8a1"
-      url: "https://github.com/humanghosts/hg_orm.git"
-    source: git
+      path: "../../hg_orm"
+      relative: true
+    source: path
     version: "1.0.1"
   http:
     dependency: transitive
@@ -315,11 +311,9 @@ packages:
   icloud_storage:
     dependency: transitive
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "3cf701cb1a592bb614a295c430cf4efabe7777c3"
-      url: "https://github.com/humanghosts/icloud_storage.git"
-    source: git
+      path: "../../../icloud_storage"
+      relative: true
+    source: path
     version: "0.2.3+2"
   idb_shim:
     dependency: transitive
@@ -328,20 +322,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.1+1"
-  in_app_review:
-    dependency: transitive
-    description:
-      name: in_app_review
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.0.4"
-  in_app_review_platform_interface:
-    dependency: transitive
-    description:
-      name: in_app_review_platform_interface
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.0.3"
   intl:
     dependency: transitive
     description:
@@ -527,11 +507,9 @@ packages:
   scheduled_timer:
     dependency: transitive
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: eabfa70b4a0f62d0641e6c5406018d1eba880bfd
-      url: "https://github.com/humanghosts/scheduled_timer.git"
-    source: git
+      path: "../../../scheduled_timer"
+      relative: true
+    source: path
     version: "2.0.1+4"
   screen_retriever:
     dependency: transitive
