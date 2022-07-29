@@ -73,8 +73,14 @@ abstract class AppConfig {
       windowManager.waitUntilReadyToShow(windowOptions, () async {
         await windowManager.show();
         await windowManager.focus();
-        await Window.setEffect(effect: WindowEffect.aero);
-        windowManager.setTitleBarStyle(TitleBarStyle.hidden, windowButtonVisibility: true);
+        await windowManager.setTitle(appName);
+        if (DeviceInfoHelper.isMacOS) {
+          await Window.setEffect(effect: WindowEffect.aero);
+          windowManager.setTitleBarStyle(TitleBarStyle.hidden, windowButtonVisibility: true);
+        } else {
+          await Window.setEffect(effect: WindowEffect.acrylic);
+          windowManager.setTitleBarStyle(TitleBarStyle.normal, windowButtonVisibility: true);
+        }
       });
     }
   }
