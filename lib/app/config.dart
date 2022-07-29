@@ -60,14 +60,14 @@ abstract class AppConfig {
   /// 构造之前
   Future<void> beforeInit() async {
     WidgetsFlutterBinding.ensureInitialized();
-    // 设备信息初始化
-    await DeviceInfoHelper.init();
     // prefs初始化
     await PrefsHelper.init();
+    // 设备信息初始化
+    await DeviceInfoHelper.init();
     // 设置设备可用方向
     SystemChrome.setPreferredOrientations(orientations);
     // 桌面端初始化设置
-    if (DeviceInfoHelper.isDesktopApp) {
+    if (DeviceInfoHelper.devicePlatform.isDesktop && !DeviceInfoHelper.isWeb) {
       await windowManager.ensureInitialized();
       await Window.initialize();
       windowManager.waitUntilReadyToShow(windowOptions, () async {

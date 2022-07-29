@@ -1,5 +1,6 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:hg_framework/ability/export.dart';
 import 'package:user_agent_analyzer/user_agent_analyzer.dart';
 
 /// 设备信息助手
@@ -15,10 +16,13 @@ class DeviceInfoHelper {
   /// 设备平台 可以手动指定
   static late DevicePlatform devicePlatform;
 
+  static const String _isDesktopKey = "_isDesktop";
+
   /// 初始化
   static Future<void> init() async {
     _baseDeviceInfo = await _plugin.deviceInfo;
     devicePlatform = getDevicePlatform();
+    _isDesktop = PrefsHelper.prefs.getBool(_isDesktopKey);
   }
 
   /// 获取设备信息
@@ -70,12 +74,15 @@ class DeviceInfoHelper {
 
   static bool? _isDesktop;
 
-  static void setIsDesktop(bool value) => _isDesktop = value;
+  static Future<void> setIsDesktop(bool value) async {
+    _isDesktop = value;
+    await PrefsHelper.prefs.setBool(_isDesktopKey, value);
+  }
 
-  static void resetIsDesktop() => _isDesktop = devicePlatform.isDesktop;
+  static Future<void> resetIsDesktop() async => await setIsDesktop(devicePlatform.isDesktop);
 
   /// 是否是桌面端
-  static bool isDesktop = _isDesktop ??= devicePlatform.isDesktop;
+  static bool get isDesktop => _isDesktop ??= devicePlatform.isDesktop;
 
   static bool get isDesktopApp => isDesktop && !isWeb;
 
