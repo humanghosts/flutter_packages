@@ -443,6 +443,7 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
   /// 应用初始化时调用
   /// 调用点为[InitializeHelper.init]
   Future<void> onAppInit(AppConfig appConfig) async {
+    debugPrint("[应用]:初始化");
     config = appConfig;
     await _onAppInitTheme();
   }

@@ -140,7 +140,7 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
     if (null != this.secondaryBody.value) {
       isSecondaryBodyOpen.value = true;
       if (DeviceInfoHelper.isMobile) {
-        mobileController.animateTo(maxWidth, duration: middleAnimationDuration, curve: Curves.linear);
+        mobileController.animateTo(maxWidth, duration: fastAnimationDuration, curve: Curves.linear);
       }
     } else {
       closeSecondaryBody();
@@ -301,7 +301,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
   Widget buildDesktop(BuildContext context) {
     bool isExpandSecondary = logic.isExpandSecondaryBody.value;
     Widget? secondary = logic.secondaryBody.value;
-    Duration duration = logic.middleAnimationDuration;
+    Duration duration = logic.fastAnimationDuration;
 
     return Stack(
       alignment: Alignment.centerLeft,

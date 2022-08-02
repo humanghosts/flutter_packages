@@ -24,6 +24,7 @@ class CloudHelper {
   static String getLocalPath(String fileName) => join(appDocumentDir.path, fileName);
 
   static Future<void> init(Clouds clouds, {int maxVersionNumbers = 10}) async {
+    debugPrint("[云服务]:初始化[${clouds.cloud.runtimeType}]");
     appDocumentDir = await getApplicationDocumentsDirectory();
     CloudHelper.maxVersionNumbers = maxVersionNumbers;
     await clouds.cloud.init();
