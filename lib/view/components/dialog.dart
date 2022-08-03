@@ -152,7 +152,7 @@ class DialogView<L extends DialogViewLogic> extends View<L> {
         ],
       ),
     );
-    return AnimatedSize(duration: logic.middleAnimationDuration, child: child);
+    return AnimatedSize(duration: logic.fastAnimationDuration, child: child);
   }
 
   /// 按钮行

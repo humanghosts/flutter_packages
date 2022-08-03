@@ -74,8 +74,8 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
     super.onReady();
     // 防止不同类型的组件key重复导致回调不正确
     String key = "${this.key}_$runtimeType";
-    AppLogic.instance.listenRefresh(key, update);
-    AppLogic.instance.listenThemeUpdate(key, update);
+    AppLogic.instance.listenRefresh(key, () => update());
+    AppLogic.instance.listenThemeUpdate(key, () => update());
     AppLogic.instance.listenAppLifecycleUpdate(key, (lifecycle) => update());
     AppLogic.instance.listenOrientationUpdate(key, (orientation) => update());
   }
@@ -137,13 +137,13 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
   /// 显示加载框
   void showLoading({String? message, Widget? messageWidget}) {
     isBusy.value = true;
-    AppLogic.instance.showLoading(runtimeType.toString(), message: messageWidget ?? (message == null ? null : Text(message)));
+    // AppLogic.instance.showLoading(runtimeType.toString(), message: messageWidget ?? (message == null ? null : Text(message)));
   }
 
   /// 关闭加载框
   void closeLoading() {
     isBusy.value = false;
-    AppLogic.instance.closeLoading(runtimeType.toString());
+    // AppLogic.instance.closeLoading(runtimeType.toString());
   }
 }
 

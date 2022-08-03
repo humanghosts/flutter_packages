@@ -191,10 +191,10 @@ abstract class ThemeListener {
   /// 系统亮度调整 用于WidgetsBindingObserver的方法调用
   @mustCallSuper
   void didChangePlatformBrightness() {
-    Brightness brightness = Get.mediaQuery.platformBrightness;
+    Brightness brightness = window.platformBrightness;
     if (this.brightness == brightness) return;
     this.brightness = brightness;
-    log("brightness changed");
+    log("brightness changed ${brightness}");
     themeChangedReRender();
   }
 }
