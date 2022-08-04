@@ -12,16 +12,21 @@ class ToastHelper {
     String key = "toast_${msg.hashCode}";
     AppLogic.instance.showOverlay(
       key: key,
-      widget: Material(
-        color: Colors.transparent,
-        child: Center(
-          child: Card(
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              child: Text(msg ?? ""),
+      widget: GestureDetector(
+        child: Material(
+          color: Colors.transparent,
+          child: Center(
+            child: Card(
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                child: Text(msg ?? ""),
+              ),
             ),
           ),
         ),
+        onTap: () {
+          AppLogic.instance.closeOverlay(key);
+        },
       ),
       background: const SizedBox.shrink(),
     );

@@ -474,6 +474,7 @@ class NotificationHelper {
     _log("检查缓存");
     await _findInDatabase(tx: tx);
     if (nodeCache.containsKey(cacheNodeStr)) return _log("通知已存在，添加完成");
+    nodeCache[cacheNodeStr] = cacheNode;
     // id缓存
     idCache.putIfAbsent(id, () => {}).add(cacheNodeStr);
     // 此刻

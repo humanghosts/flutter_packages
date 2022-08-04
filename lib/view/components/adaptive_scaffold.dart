@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
-import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
@@ -79,6 +78,14 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
   set maxWidth(double value) => _maxWidth = value;
 
   set maxHeight(double value) => _maxHeight = value;
+
+  @override
+  void onReady() {
+    super.onReady();
+    mobileController.addListener(() {
+      FocusScope.of(Get.context!).requestFocus(FocusNode());
+    });
+  }
 
   @override
   void afterArgsUpdate() {
@@ -217,6 +224,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
           key: const ValueKey("material"),
           color: Colors.transparent,
           child: Scaffold(
+            resizeToAvoidBottomInset: false,
             backgroundColor: Colors.transparent,
             body: DeviceInfoHelper.isMobile ? buildMobile(context) : Obx(() => buildDesktop(context)),
           ),
@@ -246,13 +254,14 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
                 padEnds: false,
                 delegate: SliverChildBuilderDelegate(
                   (context, index) => Scaffold(
+                    resizeToAvoidBottomInset: false,
                     drawer: SizedBox(
                       width: logic.maxWidth * 0.8,
-                      child: Card(
-                        margin: EdgeInsets.zero,
-                        color: logic.theme.cardColor.withOpacity(0.5),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                        child: Card(
+                          margin: EdgeInsets.zero,
+                          color: logic.theme.colorScheme.primaryContainer,
                           child: buildMenu(context),
                         ),
                       ),
@@ -280,7 +289,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
                   viewportFraction: 1,
                   padEnds: false,
                   delegate: SliverChildBuilderDelegate(
-                    (context, index) => FadeIn(child: buildSecondaryBody(context)),
+                    (context, index) => buildSecondaryBody(context),
                     childCount: 1,
                   ),
                 )
@@ -493,6 +502,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
   /// 构建内容
   Widget buildBody(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       extendBody: true,
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
@@ -502,6 +512,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
 
   Widget buildSecondaryBody(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       extendBody: true,
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,

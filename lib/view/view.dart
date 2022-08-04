@@ -76,7 +76,7 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
     String key = "${this.key}_$runtimeType";
     AppLogic.instance.listenRefresh(key, () => update());
     AppLogic.instance.listenThemeUpdate(key, () => update());
-    AppLogic.instance.listenAppLifecycleUpdate(key, (lifecycle) => update());
+    // AppLogic.instance.listenAppLifecycleUpdate(key, (lifecycle) => update());
     AppLogic.instance.listenOrientationUpdate(key, (orientation) => update());
   }
 
@@ -88,7 +88,7 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
     String key = "${this.key}_$runtimeType";
     AppLogic.instance.removeRefreshListener(key);
     AppLogic.instance.removeThemeUpdateListener(key);
-    AppLogic.instance.removeAppLifecycleListener(key);
+    // AppLogic.instance.removeAppLifecycleListener(key);
     AppLogic.instance.removeOrientationUpdateListener(key);
   }
 

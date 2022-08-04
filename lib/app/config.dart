@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
@@ -18,7 +20,7 @@ abstract class AppConfig {
   List<DeviceOrientation> get orientations => const [DeviceOrientation.portraitUp];
 
   /// 桌面端 窗口配置
-  WindowOptions? get windowOptions => null;
+  FutureOr<WindowOptions?> get windowOptions => null;
 
   /// 数据库配置
   DatabaseConfig get databaseConfig;
@@ -70,7 +72,13 @@ abstract class AppConfig {
     if (DeviceInfoHelper.devicePlatform.isDesktop && !DeviceInfoHelper.isWeb) {
       await windowManager.ensureInitialized();
       await Window.initialize();
-      windowManager.waitUntilReadyToShow(windowOptions, () async {
+      WindowOptions? options;
+      if (windowOptions is Future<WindowOptions?>) {
+        options = await windowOptions;
+      } else {
+        options = options;
+      }
+      windowManager.waitUntilReadyToShow(options, () async {
         await windowManager.show();
         await windowManager.focus();
         await windowManager.setTitle(appName);

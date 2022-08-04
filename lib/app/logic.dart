@@ -187,16 +187,6 @@ abstract class ThemeListener {
       }
     }
   }
-
-  /// 系统亮度调整 用于WidgetsBindingObserver的方法调用
-  @mustCallSuper
-  void didChangePlatformBrightness() {
-    Brightness brightness = window.platformBrightness;
-    if (this.brightness == brightness) return;
-    this.brightness = brightness;
-    log("brightness changed ${brightness}");
-    themeChangedReRender();
-  }
 }
 
 /// 应用生命周期监听器
@@ -212,21 +202,6 @@ abstract class AppLifecycleListener {
 
   /// 移除监听
   void removeAppLifecycleListener(String key) => _appLifecycleListener.remove(key);
-
-  /// 生命周期改变回调
-  @mustCallSuper
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    log("didChangeAppLifecycleState:$state");
-    if (appLifecycleState == state) return;
-    appLifecycleState = state;
-    for (var value in _appLifecycleListener.values) {
-      try {
-        value(appLifecycleState);
-      } catch (e) {
-        e.printError();
-      }
-    }
-  }
 }
 
 /// 蒙版助手
@@ -483,6 +458,33 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
   void themeChangedReRender() {
     super.themeChangedReRender();
     update();
+  }
+
+  /// 系统亮度调整 用于WidgetsBindingObserver的方法调用
+  @mustCallSuper
+  void didChangePlatformBrightness() {
+    Brightness brightness = window.platformBrightness;
+    if (appLifecycleState != AppLifecycleState.resumed) return;
+    if (this.brightness == brightness) return;
+    this.brightness = brightness;
+    log("brightness changed ${brightness}");
+    themeChangedReRender();
+  }
+
+  /// 生命周期改变回调
+  @mustCallSuper
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    log("didChangeAppLifecycleState:$state");
+    if (appLifecycleState == state) return;
+    appLifecycleState = state;
+    for (var value in _appLifecycleListener.values) {
+      try {
+        value(appLifecycleState);
+      } catch (e) {
+        e.printError();
+      }
+    }
+    didChangePlatformBrightness();
   }
 
   /// 重新构建应用
