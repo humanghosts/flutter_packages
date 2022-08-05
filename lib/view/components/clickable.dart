@@ -9,6 +9,7 @@ class Clickable extends StatelessWidget {
     this.showInk = true,
     this.cursor = MaterialStateMouseCursor.clickable,
     this.tooltip,
+    this.color,
     this.forceTooltip = false,
     this.radius,
     this.tooltipBelow,
@@ -81,6 +82,7 @@ class Clickable extends StatelessWidget {
   final bool? tooltipBelow;
   final bool showInk;
   final double? radius;
+  final Color? color;
 
   final Widget child;
 
@@ -214,10 +216,10 @@ class Clickable extends StatelessWidget {
     ThemeData theme = Theme.of(context);
     Widget child = IconTheme.merge(
       data: IconThemeData(
-        color: theme.primaryColor,
+        color: color ?? theme.primaryColor,
       ),
       child: DefaultTextStyle(
-        style: TextStyle(color: theme.primaryColor),
+        style: TextStyle(color: color ?? theme.primaryColor),
         child: this.child,
       ),
     );

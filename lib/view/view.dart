@@ -137,13 +137,13 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
   /// 显示加载框
   void showLoading({String? message, Widget? messageWidget}) {
     isBusy.value = true;
-    // AppLogic.instance.showLoading(runtimeType.toString(), message: messageWidget ?? (message == null ? null : Text(message)));
+    AppLogic.instance.showLoading(runtimeType.toString(), message: messageWidget ?? (message == null ? null : Text(message)));
   }
 
   /// 关闭加载框
   void closeLoading() {
     isBusy.value = false;
-    // AppLogic.instance.closeLoading(runtimeType.toString());
+    AppLogic.instance.closeLoading(runtimeType.toString());
   }
 }
 

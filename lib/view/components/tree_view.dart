@@ -419,14 +419,18 @@ class TreeNodeView<T> extends View<TreeNodeLogic<T>> {
     Color? color = iconMode == TreeNodeIconMode.disable && isLeaf ? theme.disabledColor : theme.textButtonTheme.style?.foregroundColor?.resolve({});
     // 按钮
     Widget iconButton = Clickable(
-      onTap: iconMode == TreeNodeIconMode.disable && isLeaf ? () {} : logic.turn,
-      tooltip: logic.isExpanded.value ? "收起" : "展开",
+      onTap: iconMode == TreeNodeIconMode.disable && isLeaf ? null : logic.turn,
+      tooltip: isLeaf
+          ? null
+          : logic.isExpanded.value
+              ? "收起"
+              : "展开",
       child: IconTheme.merge(
         data: IconThemeData(color: color),
         child: AnimatedRotation(
           turns: logic.isExpanded.value ? 0 : -0.25,
           duration: logic.fastAnimationDuration,
-          child: Icon(Icons.expand_more, size: logic.args.iconSize),
+          child: Icon(Icons.expand_circle_down_outlined, size: logic.args.iconSize),
         ),
       ),
     );
@@ -436,14 +440,14 @@ class TreeNodeView<T> extends View<TreeNodeLogic<T>> {
       case TreeNodeIconMode.hidden:
         child = Opacity(
           opacity: isLeaf ? 0 : 1,
-          child: SizedBox(width: logic.args.indent, child: isLeaf ? const SizedBox.shrink() : iconButton),
+          child: SizedBox.square(dimension: logic.args.indent, child: isLeaf ? const SizedBox.shrink() : iconButton),
         );
         break;
       case TreeNodeIconMode.disable:
-        child = SizedBox(width: logic.args.indent, child: iconButton);
+        child = SizedBox.square(dimension: logic.args.indent, child: iconButton);
         break;
       case TreeNodeIconMode.none:
-        child = isLeaf ? const SizedBox.shrink() : SizedBox(width: logic.args.indent, child: iconButton);
+        child = isLeaf ? const SizedBox.shrink() : SizedBox.square(dimension: logic.args.indent, child: iconButton);
         break;
     }
 

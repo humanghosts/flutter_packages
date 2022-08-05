@@ -56,9 +56,6 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
   /// 第二内容
   Rxn<Widget?> secondaryBody = Rxn(null);
 
-  /// 抽屉菜单控制器
-  ScrollController mobileController = ScrollController(initialScrollOffset: 0);
-
   /// 组件开始起点
   RxDouble dx = 0.0.obs;
 
@@ -82,9 +79,6 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
   @override
   void onReady() {
     super.onReady();
-    mobileController.addListener(() {
-      FocusScope.of(Get.context!).requestFocus(FocusNode());
-    });
   }
 
   @override
@@ -127,6 +121,7 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
 
   /// 打开第二内容 只有有内容的情况下才能打开
   void openSecondaryBody({Widget? secondaryBody, bool? isExpand = false}) {
+    Widget? oldSecondaryBody = this.secondaryBody.value;
     if (null != secondaryBody) {
       this.secondaryBody.value = secondaryBody;
       // 计算窗口初始大小
@@ -147,7 +142,10 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
     if (null != this.secondaryBody.value) {
       isSecondaryBodyOpen.value = true;
       if (DeviceInfoHelper.isMobile) {
-        mobileController.animateTo(maxWidth, duration: fastAnimationDuration, curve: Curves.linear);
+        RouteHelper.offUntilAndToPage(
+          page: this.secondaryBody.value!,
+          predicate: (route) => route.settings.name == "/",
+        );
       }
     } else {
       closeSecondaryBody();
@@ -164,11 +162,7 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
   void closeSecondaryBody() {
     isSecondaryBodyOpen.value = false;
     if (DeviceInfoHelper.isMobile) {
-      mobileController.animateTo(
-        0,
-        duration: AppLogic.appConfig.animationConfig.fastAnimationDuration,
-        curve: Curves.linear,
-      );
+      RouteHelper.back();
     }
   }
 
@@ -235,68 +229,32 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
 
   /// 抽屉式菜单
   Widget buildMobile(BuildContext context) {
-    return Scrollable(
-      physics: const PageScrollPhysics(parent: ClampingScrollPhysics()),
-      controller: logic.mobileController,
-      axisDirection: AxisDirection.right,
-      viewportBuilder: (BuildContext context, ViewportOffset position) {
-        return Obx(() {
-          Widget? secondaryBody = logic.secondaryBody.value;
-          bool isSecondaryOpen = logic.isSecondaryBodyOpen.value;
-          return Viewport(
-            axisDirection: AxisDirection.right,
-            offset: position,
-            clipBehavior: Clip.hardEdge,
-            slivers: <Widget>[
-              // 主页页面
-              SliverFillViewport(
-                viewportFraction: 1,
-                padEnds: false,
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) => Scaffold(
-                    resizeToAvoidBottomInset: false,
-                    drawer: SizedBox(
-                      width: logic.maxWidth * 0.8,
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                        child: Card(
-                          margin: EdgeInsets.zero,
-                          color: logic.theme.colorScheme.primaryContainer,
-                          child: buildMenu(context),
-                        ),
-                      ),
-                    ),
-                    body: Builder(builder: (context) {
-                      logic.context = context;
-                      if (DeviceInfoHelper.isWeb) {
-                        return SimpleGestureDetector(
-                          onHorizontalSwipe: (direction) {
-                            if (direction == SwipeDirection.right) logic.openMenu();
-                          },
-                          child: buildBody(context),
-                        );
-                      }
-                      return buildBody(context);
-                    }),
-                    backgroundColor: Colors.transparent,
-                  ),
-                  childCount: 1,
-                ),
-              ),
-              // 第二页面
-              if (secondaryBody != null && isSecondaryOpen == true)
-                SliverFillViewport(
-                  viewportFraction: 1,
-                  padEnds: false,
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => buildSecondaryBody(context),
-                    childCount: 1,
-                  ),
-                )
-            ],
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      drawer: SizedBox(
+        width: logic.maxWidth * 0.8,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+          child: Card(
+            margin: EdgeInsets.zero,
+            color: logic.theme.scaffoldBackgroundColor,
+            child: buildMenu(context),
+          ),
+        ),
+      ),
+      body: Builder(builder: (context) {
+        logic.context = context;
+        if (DeviceInfoHelper.isWeb) {
+          return SimpleGestureDetector(
+            onHorizontalSwipe: (direction) {
+              if (direction == SwipeDirection.right) logic.openMenu();
+            },
+            child: buildBody(context),
           );
-        });
-      },
+        }
+        return buildBody(context);
+      }),
+      backgroundColor: Colors.transparent,
     );
   }
 
