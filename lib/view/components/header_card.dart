@@ -13,6 +13,7 @@ class HeaderCard extends View<HeaderCardLogic> {
     this.leading,
     this.title,
     this.subtitle,
+    this.elevation,
     this.margin = EdgeInsets.zero,
     this.headerPadding,
     this.shapeBorder,
@@ -27,6 +28,7 @@ class HeaderCard extends View<HeaderCardLogic> {
 
   final double? height;
   final double? width;
+  final double? elevation;
 
   final bool canClose;
 
@@ -78,6 +80,7 @@ class HeaderCard extends View<HeaderCardLogic> {
           margin: margin,
           color: cardColor,
           shape: shapeBorder ?? theme.cardTheme.shape,
+          elevation: elevation,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[

@@ -15,6 +15,7 @@ Widget buildContextMenuItem({
       title: text,
       iconColor: theme.colorScheme.onPrimaryContainer,
       textColor: theme.colorScheme.onPrimaryContainer,
+      minLeadingWidth: 0,
     ),
   );
 }

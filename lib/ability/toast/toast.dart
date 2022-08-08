@@ -233,7 +233,7 @@ class ToastHelper {
       case TargetPlatform.linux:
       case TargetPlatform.windows:
       case TargetPlatform.macOS:
-        return await showDeskTopContextMenu(context, valueList: valueList, childBuilder: childBuilder, position: position);
+        return await showPopupContextMenu(context, valueList: valueList, childBuilder: childBuilder, position: position);
       case TargetPlatform.android:
       case TargetPlatform.iOS:
         return await showCupertinoActionSheet(
@@ -250,7 +250,7 @@ class ToastHelper {
   }
 
   /// 桌面端菜单按钮
-  static Future<T?> showDeskTopContextMenu<T>(
+  static Future<T?> showPopupContextMenu<T>(
     BuildContext context, {
     required List<T> valueList,
     required Widget Function(T value) childBuilder,
