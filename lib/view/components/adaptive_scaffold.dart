@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -36,8 +35,6 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
   /// 第二内容宽度
   Rx<double> secondaryBodyWidth = (-1.0).obs;
 
-  BuildContext? context;
-
   /// 菜单是否打开
   Rx<bool> isMenuOpen = true.obs;
 
@@ -68,6 +65,8 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
   /// 最大高度
   double? _maxHeight;
 
+  final ScrollController mobileController = ScrollController();
+
   double get maxWidth => _maxWidth ?? Get.width;
 
   double get maxHeight => _maxHeight ?? Get.height;
@@ -79,6 +78,9 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
   @override
   void onReady() {
     super.onReady();
+    if (DeviceInfoHelper.isMobile) {
+      isMenuOpen.value = false;
+    }
   }
 
   @override
@@ -100,13 +102,17 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
   /// 打开菜单
   void openMenu() {
     isMenuOpen.value = true;
-    if (null != context) Scaffold.of(context!).openDrawer();
+    if (DeviceInfoHelper.isMobile) {
+      mobileController.animateTo(0, duration: fastAnimationDuration, curve: Curves.linear);
+    }
   }
 
   /// 关闭菜单
   void closeMenu() {
     isMenuOpen.value = false;
-    if (null != context) Scaffold.of(context!).closeDrawer();
+    if (DeviceInfoHelper.isMobile) {
+      mobileController.animateTo(maxWidth * 0.8, duration: fastAnimationDuration, curve: Curves.linear);
+    }
   }
 
   /// 打开或关闭菜单栏
@@ -121,7 +127,6 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
 
   /// 打开第二内容 只有有内容的情况下才能打开
   void openSecondaryBody({Widget? secondaryBody, bool? isExpand = false}) {
-    Widget? oldSecondaryBody = this.secondaryBody.value;
     if (null != secondaryBody) {
       this.secondaryBody.value = secondaryBody;
       // 计算窗口初始大小
@@ -206,6 +211,9 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
         Offset global = stack.localToGlobal(Offset.zero);
         logic.dx.value = global.dx;
         logic.dy.value = global.dy;
+        if (DeviceInfoHelper.isMobile) {
+          logic.mobileController.jumpTo(logic.maxWidth * 0.8);
+        }
       });
       return ConstrainedBox(
         constraints: BoxConstraints(
@@ -229,32 +237,53 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
 
   /// 抽屉式菜单
   Widget buildMobile(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      drawer: SizedBox(
-        width: logic.maxWidth * 0.8,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-          child: Card(
-            margin: EdgeInsets.zero,
-            color: logic.theme.scaffoldBackgroundColor,
-            child: buildMenu(context),
-          ),
-        ),
-      ),
-      body: Builder(builder: (context) {
-        logic.context = context;
-        if (DeviceInfoHelper.isWeb) {
-          return SimpleGestureDetector(
-            onHorizontalSwipe: (direction) {
-              if (direction == SwipeDirection.right) logic.openMenu();
-            },
-            child: buildBody(context),
-          );
-        }
-        return buildBody(context);
-      }),
-      backgroundColor: Colors.transparent,
+    return Scrollable(
+      physics: const PageScrollPhysics(parent: ClampingScrollPhysics()),
+      controller: logic.mobileController,
+      axisDirection: AxisDirection.right,
+      viewportBuilder: (BuildContext context, ViewportOffset position) {
+        return Viewport(
+          axisDirection: AxisDirection.right,
+          offset: position,
+          clipBehavior: Clip.hardEdge,
+          slivers: <Widget>[
+            SliverFillViewport(
+              padEnds: false,
+              viewportFraction: 0.8,
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => Container(
+                  padding: EdgeInsets.only(right: 4),
+                  child: buildMenu(context),
+                ),
+                childCount: 1,
+              ),
+            ),
+            // 主页页面
+            SliverFillViewport(
+              viewportFraction: 1,
+              padEnds: false,
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => Scaffold(
+                  resizeToAvoidBottomInset: false,
+                  body: Builder(builder: (context) {
+                    if (DeviceInfoHelper.isWeb) {
+                      return SimpleGestureDetector(
+                        onHorizontalSwipe: (direction) {
+                          if (direction == SwipeDirection.right) logic.openMenu();
+                        },
+                        child: buildBody(context),
+                      );
+                    }
+                    return buildBody(context);
+                  }),
+                  backgroundColor: Colors.transparent,
+                ),
+                childCount: 1,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 

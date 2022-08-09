@@ -77,6 +77,9 @@ abstract class ThemeListener {
   late ThemeData darkTheme;
   late ThemeMode themeMode;
 
+  /// 更新标识
+  RxInt themeUpdateFlag = 0.obs;
+
   /// 主题更新监听器
   final Map<String, VoidCallback> _themeListener = {};
 
@@ -97,9 +100,6 @@ abstract class ThemeListener {
     brightness = window.platformBrightness;
     _setArgs();
   }
-
-  /// 设置主题模式
-  void changeThemeMode(ThemeMode mode) {}
 
   /// 设置主题参数
   void _setArgs() {
@@ -178,6 +178,7 @@ abstract class ThemeListener {
 
   /// 重新根据主题渲染
   void themeChangedReRender() {
+    themeUpdateFlag++;
     _setArgs();
     for (var value in _themeListener.values) {
       try {
@@ -467,7 +468,7 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
     if (appLifecycleState != AppLifecycleState.resumed) return;
     if (this.brightness == brightness) return;
     this.brightness = brightness;
-    log("brightness changed ${brightness}");
+    log("brightness changed $brightness");
     themeChangedReRender();
   }
 
