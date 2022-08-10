@@ -427,17 +427,17 @@ class DesktopNotificationsPlugin extends NotificationsPlugin {
       body: title == null ? null : body,
     );
     notification.onShow = () {
-      debugPrint('onShow ${notification.identifier}');
+      LogHelper.info('onShow ${notification.identifier}');
     };
     notification.onClose = (closeReason) {
-      debugPrint('onClose ${notification.identifier} - $closeReason');
+      LogHelper.info('onClose ${notification.identifier} - $closeReason');
     };
     notification.onClick = () {
-      debugPrint('onClick ${notification.identifier}');
+      LogHelper.info('onClick ${notification.identifier}');
       onSelectNotification.call(payload);
     };
     notification.onClickAction = (actionIndex) {
-      debugPrint('onClickAction ${notification.identifier} - $actionIndex');
+      LogHelper.info('onClickAction ${notification.identifier} - $actionIndex');
     };
     notification.show();
   }

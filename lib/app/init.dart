@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:hg_entity/hg_entity.dart';
 import 'package:hg_framework/app/config.dart';
 import 'package:hg_framework/app/logic.dart';
@@ -25,7 +24,7 @@ class AppInit {
       List<String>? alias = entityAlias?[key];
       ConstructorCache.put(key, value, alias: alias ?? []);
     });
-    debugPrint("[数据库]:打开数据库");
+    LogHelper.info("[数据库]:打开数据库");
     await DatabaseHelper.open(config: config.databaseConfig);
     _getDaoMap().forEach(DaoCache.put);
     config.entityAndDao?.getDaoMap?.call().forEach(DaoCache.put);
@@ -67,7 +66,7 @@ class PresetData {
 Future<void> _presetDataInit(PresetData? presetData) async {
   String key = "is_preset_data_init";
   int version = DatabaseHelper.database.version;
-  debugPrint("[数据库预置数据]:数据库版本$version");
+  LogHelper.info("[数据库预置数据]:数据库版本$version");
   bool? isInitData;
   if (version < 2) {
     isInitData = PrefsHelper.prefs.getBool(key);
@@ -75,7 +74,7 @@ Future<void> _presetDataInit(PresetData? presetData) async {
   } else {
     isInitData = DatabaseHelper.database.kv.get(key);
   }
-  debugPrint("[数据库预置数据]:数据库${isInitData == true ? "已" : "未"}初始化");
+  LogHelper.info("[数据库预置数据]:数据库${isInitData == true ? "已" : "未"}初始化");
   if (isInitData == true) return;
   Map<Type, List<DataModel> Function()> dataModelMap = presetData?.dataModelMap?.call() ?? {};
   Map<Type, SimpleModel Function()> simpleModelMap = presetData?.simpleModelMap?.call() ?? {};
@@ -84,13 +83,13 @@ Future<void> _presetDataInit(PresetData? presetData) async {
   // 插入数据
   await DatabaseHelper.transaction((tx) async {
     for (Type key in dataModelMap.keys) {
-      debugPrint("[数据库预置数据]:初始化[${key.toString()}]");
+      LogHelper.info("[数据库预置数据]:初始化[${key.toString()}]");
       DataDao dataDao = DaoCache.getByType(key) as DataDao;
       List<DataModel> value = dataModelMap[key]!.call();
       await dataDao.saveList(value, tx: tx);
     }
     for (Type key in simpleModelMap.keys) {
-      debugPrint("[数据库预置数据]:初始化[${key.toString()}]");
+      LogHelper.info("[数据库预置数据]:初始化[${key.toString()}]");
       SimpleDao simpleDao = DaoCache.getByType(key) as SimpleDao;
       SimpleModel value = simpleModelMap[key]!.call();
       await simpleDao.save(value, tx: tx);

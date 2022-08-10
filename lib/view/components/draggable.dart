@@ -131,14 +131,14 @@ class DraggableLogic extends ViewLogicOnlyArgs<DraggableArgs> {
     if (force) return true;
     bool childrenSizeChanged = !isSizeEquals(oldChildSize, childSize.value);
     if (childrenSizeChanged) {
-      debugPrint("childSizeChanged:$oldChildSize->$childSize");
+      LogHelper.info("childSizeChanged:$oldChildSize->$childSize");
       return true;
     }
 
     bool parentSizeChanged = !isSizeEquals(oldParentSize, parentSize);
     bool isLimitInParent = args.isLimitInParent;
     if (parentSizeChanged) {
-      debugPrint("parentSizeChanged:$oldParentSize->$parentSize");
+      LogHelper.info("parentSizeChanged:$oldParentSize->$parentSize");
     }
     return isLimitInParent && parentSizeChanged;
   }

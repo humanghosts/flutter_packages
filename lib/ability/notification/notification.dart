@@ -270,7 +270,7 @@ class NotificationHelper {
   NotificationHelper._();
 
   /// 日志
-  static _log(String msg) => debugPrint("[通知助手]:$msg");
+  static _log(String msg) => LogHelper.info("[通知助手]:$msg");
 
   /// 监听器
   static final Map<String, void Function(NotificationAction action)> _listener = {};

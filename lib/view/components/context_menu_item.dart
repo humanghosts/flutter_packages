@@ -11,8 +11,9 @@ Widget buildContextMenuItem({
     child: ListTile(
       contentPadding: EdgeInsets.zero,
       visualDensity: VisualDensity.compact,
-      leading: icon,
+      leading: DeviceInfoHelper.isDesktop ? icon : null,
       title: text,
+      trailing: DeviceInfoHelper.isDesktop ? null : icon,
       iconColor: theme.colorScheme.onPrimaryContainer,
       textColor: theme.colorScheme.onPrimaryContainer,
       minLeadingWidth: 0,

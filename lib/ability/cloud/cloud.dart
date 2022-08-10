@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../log/log.dart';
 import 'icloud.dart';
 
 /// 云存储工具
@@ -24,7 +25,7 @@ class CloudHelper {
   static String getLocalPath(String fileName) => join(appDocumentDir.path, fileName);
 
   static Future<void> init(Clouds clouds, {int maxVersionNumbers = 10}) async {
-    debugPrint("[云服务]:初始化[${clouds.cloud.runtimeType}]");
+    LogHelper.info("[云服务]:初始化[${clouds.cloud.runtimeType}]");
     appDocumentDir = await getApplicationDocumentsDirectory();
     CloudHelper.maxVersionNumbers = maxVersionNumbers;
     await clouds.cloud.init();

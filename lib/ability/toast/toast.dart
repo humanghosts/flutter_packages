@@ -343,7 +343,6 @@ class ToastHelper {
     List<T> destructiveValue = const [],
     String cancelText = "取消",
   }) async {
-    ThemeData theme = AppLogic.instance.themeData;
     return await showCupertinoModalPopup<T>(
       context: context,
       builder: (context) {
@@ -359,7 +358,7 @@ class ToastHelper {
         }).toList();
         return CupertinoActionSheet(
           title: title,
-          message: message == null ? null : DefaultTextStyle(style: theme.textTheme.titleLarge ?? const TextStyle(), child: message),
+          message: message,
           actions: actions,
           cancelButton: CupertinoActionSheetAction(
             child: Text(cancelText),

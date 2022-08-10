@@ -47,7 +47,7 @@ abstract class OrientationListener {
       try {
         value(deviceOrientation);
       } catch (e) {
-        e.printError();
+        LogHelper.error(e.toString());
       }
     }
   }
@@ -184,7 +184,7 @@ abstract class ThemeListener {
       try {
         value();
       } catch (e) {
-        e.printError();
+        LogHelper.error(e.toString());
       }
     }
   }
@@ -419,7 +419,7 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
   /// 应用初始化时调用
   /// 调用点为[InitializeHelper.init]
   Future<void> onAppInit(AppConfig appConfig) async {
-    debugPrint("[应用]:初始化");
+    LogHelper.info("[应用]:初始化");
     config = appConfig;
     await _onAppInitTheme();
   }
@@ -437,7 +437,7 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
       try {
         value();
       } catch (e) {
-        e.printError();
+        LogHelper.error(e.toString());
       }
     }
   }
@@ -449,7 +449,7 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
       try {
         value();
       } catch (e) {
-        e.printError();
+        LogHelper.error(e.toString());
       }
     }
   }
@@ -482,7 +482,7 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
       try {
         value(appLifecycleState);
       } catch (e) {
-        e.printError();
+        LogHelper.error(e.toString());
       }
     }
     didChangePlatformBrightness();
@@ -507,7 +507,7 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
       try {
         callback.call();
       } catch (e) {
-        e.printError();
+        LogHelper.error(e.toString());
       }
     }
   }

@@ -5,6 +5,7 @@ import 'package:hg_framework/app/logic.dart';
 import 'package:soundpool/soundpool.dart';
 
 import '../device_info/device_info.dart';
+import '../log/log.dart';
 
 /// 音效助手
 class SoundHelper {
@@ -40,6 +41,6 @@ class SoundHelper {
     int? soundId = _soundIdMap[path];
     soundId ??= await loadSound(path);
     int res = await _notificationPool.play(soundId);
-    debugPrint("音频文件:$soundPath播放$res");
+    LogHelper.info("音频文件:$soundPath播放$res");
   }
 }
