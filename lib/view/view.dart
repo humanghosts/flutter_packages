@@ -45,6 +45,10 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
 
   View get widget => _widget;
 
+  set dataSource(D dataSource) => _dataSource = dataSource;
+
+  set args(A args) => _args = args;
+
   /// 控制器标签
   String get tag => _key;
 
@@ -63,6 +67,7 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
     _args = args ?? const ViewArgs();
     _dataSource = dataSource ?? const ViewDataSource();
     _widget = widget;
+    afterArgsUpdate();
   }
 
   /// 新建组件的最后步骤
@@ -160,7 +165,6 @@ abstract class View<L extends ViewLogic> extends StatelessWidget {
   View({required String key, required L logic, ViewArgs? args, ViewDataSource? dataSource}) : super(key: ValueKey("${key}_$L")) {
     this.logic = Get.put<L>(logic, tag: key);
     this.logic.onWidgetCreate(key: key, args: args, dataSource: dataSource, widget: this);
-    this.logic.afterArgsUpdate();
   }
 
   @override

@@ -138,7 +138,7 @@ abstract class ThemeListener {
   }
 
   /// 删除主题
-  Future<void> removeThemeTemplate(ThemeTemplate template) async {
+  Future<bool> removeThemeTemplate(ThemeTemplate template) async {
     String id = template.id.value;
     String inUseId = themeConfig.templateInUse.value.id.value;
     if (id == inUseId) {
@@ -147,12 +147,14 @@ abstract class ThemeListener {
         title: "无法删除",
         message: "主题${template.name.value ?? "未命名"}正在使用中",
       );
+      return false;
     }
-    ThemeConfigService.instance.transaction((tx) async {
+    await ThemeConfigService.instance.transaction((tx) async {
       await themeTemplateService.remove(template, tx: tx);
       themeConfig.templateList.removeWhere((element) => element.id.value == template.id.value);
       themeConfigService.save(themeConfig);
     });
+    return true;
   }
 
   /// 使用主题

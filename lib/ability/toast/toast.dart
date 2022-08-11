@@ -356,15 +356,22 @@ class ToastHelper {
             child: childBuilder(value),
           );
         }).toList();
-        return CupertinoActionSheet(
-          title: title,
-          message: message,
-          actions: actions,
-          cancelButton: CupertinoActionSheetAction(
-            child: Text(cancelText),
-            onPressed: () {
-              RouteHelper.back(result: null);
-            },
+        return AnimatedPadding(
+          padding: EdgeInsets.only(
+            // 下面这一行是重点
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          duration: Duration.zero,
+          child: CupertinoActionSheet(
+            title: title,
+            message: message,
+            actions: actions,
+            cancelButton: CupertinoActionSheetAction(
+              child: Text(cancelText),
+              onPressed: () {
+                RouteHelper.back(result: null);
+              },
+            ),
           ),
         );
       },

@@ -252,7 +252,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
               viewportFraction: 0.8,
               delegate: SliverChildBuilderDelegate(
                 (context, index) => Container(
-                  padding: EdgeInsets.only(right: 4),
+                  padding: const EdgeInsets.only(right: 4),
                   child: buildMenu(context),
                 ),
                 childCount: 1,
