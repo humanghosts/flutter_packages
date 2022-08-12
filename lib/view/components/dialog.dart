@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/hg_framework.dart';
 
@@ -126,12 +127,12 @@ class DialogView<L extends DialogViewLogic> extends View<L> {
         minWidth: DeviceInfoHelper.isDesktop ? Get.width * 0.3 : Get.width * 0.9,
         minHeight: 0,
       ),
-      decoration: BoxDecoration(color: theme.colorScheme.primaryContainer.withOpacity(0.5)),
+      decoration: const BoxDecoration(),
       child: Stack(
         children: [
           // 毛玻璃效果
           BackdropFilter(filter: ImageFilter.blur(sigmaY: 10, sigmaX: 10), child: const SizedBox()),
-          Container(color: theme.dialogBackgroundColor.withOpacity(0.5)),
+          Container(color: theme.dialogBackgroundColor.withOpacity(0.8)),
           // 实际内容
           Container(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 48),
@@ -161,8 +162,20 @@ class DialogView<L extends DialogViewLogic> extends View<L> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        TextButton(onPressed: logic.cancel, child: const Text("取消")),
-        TextButton(onPressed: logic.done, child: const Text("确定")),
+        TextButton(
+          onPressed: () {
+            HapticFeedback.lightImpact();
+            logic.cancel();
+          },
+          child: const Text("取消"),
+        ),
+        TextButton(
+          onPressed: () {
+            HapticFeedback.lightImpact();
+            logic.done();
+          },
+          child: const Text("确定"),
+        ),
       ],
     );
   }

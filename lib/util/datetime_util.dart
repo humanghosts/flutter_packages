@@ -2,118 +2,67 @@ import 'package:date_format/date_format.dart';
 
 class DateTimeUtil {
   DateTimeUtil._();
-  static String format(DateTime? dateTime, {List<String>? formats}) {
-    if (null == dateTime) {
-      return "";
-    }
-    if (null != formats) {
-      return formatDate(dateTime, formats);
-    }
-    List<String> dateFormats = [mm, "月", dd, "日 ", HH, ":", nn];
-    if (DateTime.now().year != dateTime.year) {
-      dateFormats.insert(0, "年");
-      dateFormats.insert(0, yyyy);
+
+  /// 格式化
+  static String format(DateTime? dateTime, {List<String>? formats, DateTime? base}) {
+    if (null == dateTime) return "";
+    if (null != formats) return formatDate(dateTime, formats);
+    List<String> dateFormats;
+
+    DateTime now = base ?? DateTime.now();
+    if (now.isSameDay(dateTime)) {
+      dateFormats = [HH, ":", nn];
+    } else if (now.isSameMonth(dateTime)) {
+      dateFormats = [dd, "日 ", HH, ":", nn];
+    } else if (now.isSameYear(dateTime)) {
+      dateFormats = [mm, "月", dd, "日 ", HH, ":", nn];
+    } else {
+      dateFormats = [yyyy, "年", mm, "月", dd, "日 ", HH, ":", nn];
     }
 
     return formatDate(dateTime, dateFormats);
   }
 
-  static String yearFormat(DateTime? dateTime) {
-    if (null == dateTime) {
-      return "";
-    }
-    if (DateTime.now().year != dateTime.year) {
-      return format(dateTime, formats: [yyyy, "年"]);
+  /// 格式化日期，忽略时间
+  static String dateFormat(DateTime? dateTime, {DateTime? base}) {
+    if (null == dateTime) return "";
+    DateTime now = base ?? DateTime.now();
+    List<String> dateFormats;
+    if (now.isSameMonth(dateTime)) {
+      dateFormats = [dd, "日"];
+    } else if (now.isSameYear(dateTime)) {
+      dateFormats = [mm, "月", dd, "日"];
     } else {
-      return "";
+      dateFormats = [yyyy, "年", mm, "月", dd, "日"];
     }
-  }
-
-  static String dateFormat(DateTime? dateTime, {List<String>? formats}) {
-    if (null == dateTime) {
-      return "";
-    }
-    if (null != formats) {
-      return format(dateTime, formats: formats);
-    }
-    List<String> dateFormats = [mm, "月", dd, "日"];
-    if (DateTime.now().year != dateTime.year) {
-      dateFormats.insert(0, "年");
-      dateFormats.insert(0, yyyy);
-    }
-
     return format(dateTime, formats: dateFormats);
   }
 
+  /// 格式化时间，忽略日期
   static String timeFormat(DateTime? dateTime, {List<String> formats = const [HH, ":", nn]}) {
-    if (null == dateTime) {
-      return "";
-    }
+    if (null == dateTime) return "";
     return format(dateTime, formats: formats);
   }
 
   /// [base] 是对比时间
   /// [isShowDay] 是是否显示日期
-  static String period(DateTime? start, DateTime? end, {String joinStr = " ", bool isShowDay = true, DateTime? base}) {
-    if (null == start && null == end) {
-      return "";
-    }
-    List<String> formats = [yyyy, "年", mm, "月", dd, "日 ", HH, ":", nn];
-    // start formats
-    List<String> thisYearFormats = [mm, "月", dd, "日 ", HH, ":", nn];
-    List<String> thisDayFormats = [HH, ":", nn];
-
-    // end formats
-    List<String> sameDayFormats = [HH, ":", nn];
-    List<String> sameMonthFormats = [dd, "日 ", HH, ":", nn];
-    List<String> sameYearFormats = [mm, "月", dd, "日 ", HH, ":", nn];
+  static String period(DateTime? start, DateTime? end, {String joinStr = " ", DateTime? base}) {
+    if (null == start && null == end) return "";
 
     DateTime now = base ?? DateTime.now();
 
-    String formatWithNow(DateTime dateTime) {
-      List<String> realFormats;
-      if (dateTime.isSameYear(now)) {
-        if (!isShowDay && dateTime.isSameDay(now)) {
-          realFormats = thisDayFormats;
-        } else {
-          realFormats = thisYearFormats;
-        }
-      } else {
-        realFormats = formats;
-      }
-      return format(dateTime, formats: realFormats);
-    }
-
     List<String> dateStringList = [];
     // format Start
-    if (null != start) {
-      dateStringList.add(formatWithNow(start));
-    } else {
-      dateStringList.add("");
-    }
+    if (null != start) dateStringList.add(format(start, base: now));
     // format end
     if (null != end) {
       if (null == start) {
-        dateStringList.add(formatWithNow(end));
+        dateStringList.add(format(end, base: now));
       } else {
-        List<String> endFormats = [];
-        if (start.isSameMinute(end)) {
-          return dateStringList[0];
-        }
-        if (start.isSameDay(end)) {
-          endFormats = sameDayFormats;
-        } else if (start.isSameMonth(end)) {
-          endFormats = sameMonthFormats;
-        } else if (start.isSameYear(end)) {
-          endFormats = sameYearFormats;
-        } else {
-          endFormats = formats;
-        }
-        dateStringList.add(format(end, formats: endFormats));
+        if (!start.isSameMinute(end)) dateStringList.add(format(end, base: start));
       }
-    } else {
-      return dateStringList[0];
     }
+
     return dateStringList.join(joinStr);
   }
 

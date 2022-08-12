@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
@@ -32,24 +33,24 @@ extension NotificationCacheNodeTypeEx on NotificationCacheNodeType {
 
 /// 通知方法参数
 class NotificationArgs {
+  /// 通知ID
   final int id;
 
+  /// 通知负载
   final NotificationPayload? payload;
 
+  /// 通知标题
   final String? title;
 
+  /// 通知内容
   final String? body;
 
-  NotificationArgs({
-    required this.id,
-    this.payload,
-    this.title,
-    this.body,
-  });
+  NotificationArgs({required this.id, this.payload, this.title, this.body});
 }
 
 /// 普通通知方法参数
 class ScheduleNotificationArgs extends NotificationArgs {
+  /// 计划通知时间
   final DateTime dateTime;
 
   ScheduleNotificationArgs({
@@ -63,6 +64,7 @@ class ScheduleNotificationArgs extends NotificationArgs {
 
 /// 重复通知方法参数
 class RepeatNotificationArgs extends NotificationArgs {
+  /// 重复间隔
   final RepeatInterval repeatInterval;
 
   RepeatNotificationArgs({
@@ -76,6 +78,7 @@ class RepeatNotificationArgs extends NotificationArgs {
 
 /// 延迟通知方法参数
 class DelayNotificationArgs extends NotificationArgs {
+  /// 延迟
   final Duration duration;
 
   DelayNotificationArgs({
@@ -89,7 +92,10 @@ class DelayNotificationArgs extends NotificationArgs {
 
 /// 指定时间重复通知方法参数
 class ScheduleRepeatNotificationArgs extends NotificationArgs {
+  /// 通知时间
   final DateTime dateTime;
+
+  /// 重复规则
   final DateTimeComponents matchDateTimeComponents;
 
   ScheduleRepeatNotificationArgs({
@@ -102,8 +108,8 @@ class ScheduleRepeatNotificationArgs extends NotificationArgs {
   }) : super(id: id, payload: payload, title: title, body: body);
 }
 
-/// 通知缓存节点
-class NotificationCacheNode {
+/// 单个通知
+class NotificationNode {
   /// 节点类型
   NotificationCacheNodeType type;
   static const String _typeKey = "type";
@@ -136,7 +142,7 @@ class NotificationCacheNode {
   DateTimeComponents? matchDateTimeComponents;
   static const String _matchDateTimeComponentsKey = "matchDateTimeComponents";
 
-  NotificationCacheNode.normal({
+  NotificationNode.normal({
     required this.id,
     this.payload,
     this.title,
@@ -145,7 +151,7 @@ class NotificationCacheNode {
   }) : type = NotificationCacheNodeType.normal;
 
   /// 重复提醒的缓存节点
-  NotificationCacheNode.repeat({
+  NotificationNode.repeat({
     required this.id,
     this.payload,
     this.title,
@@ -155,7 +161,7 @@ class NotificationCacheNode {
   }) : type = NotificationCacheNodeType.repeat;
 
   /// 指定时间重复缓存节点
-  NotificationCacheNode.scheduleRepeat({
+  NotificationNode.scheduleRepeat({
     required this.id,
     this.payload,
     this.title,
@@ -165,7 +171,7 @@ class NotificationCacheNode {
   }) : type = NotificationCacheNodeType.scheduleRepeat;
 
   /// 解码
-  static NotificationCacheNode? decode(String? encode) {
+  static NotificationNode? decode(String? encode) {
     if (null == encode) return null;
     Map<String, dynamic> encodeMap = json.decode(encode);
     // id
@@ -173,7 +179,7 @@ class NotificationCacheNode {
     if (null == id) return null;
     String? typeStr = encodeMap[_typeKey];
     // 类型
-    NotificationCacheNodeType type = null == typeStr ? NotificationCacheNodeType.normal : _getCacheNodeTypeByString(typeStr);
+    NotificationCacheNodeType type = null == typeStr ? NotificationCacheNodeType.normal : _getNodeTypeByString(typeStr);
     // 标题
     String? title = encodeMap[_titleKey];
     // 内容
@@ -194,17 +200,17 @@ class NotificationCacheNode {
 
     switch (type) {
       case NotificationCacheNodeType.normal:
-        return NotificationCacheNode.normal(id: id, dateTime: dateTime, payload: payload, title: title, body: body);
+        return NotificationNode.normal(id: id, dateTime: dateTime, payload: payload, title: title, body: body);
       case NotificationCacheNodeType.repeat:
         // 重复周期
         String? repeatIntervalStr = encodeMap[_repeatIntervalKey];
         RepeatInterval? repeatInterval = repeatIntervalStr == null ? null : _getRepeatIntervalByString(repeatIntervalStr);
-        return NotificationCacheNode.repeat(id: id, payload: payload, title: title, body: body, repeatInterval: repeatInterval, dateTime: dateTime);
+        return NotificationNode.repeat(id: id, payload: payload, title: title, body: body, repeatInterval: repeatInterval, dateTime: dateTime);
       case NotificationCacheNodeType.scheduleRepeat:
         // 指定时间重复周期
         String? dateTimeComponentsStr = encodeMap[_matchDateTimeComponentsKey];
         DateTimeComponents? dateTimeComponents = dateTimeComponentsStr == null ? null : _getDateTimeComponentsByString(dateTimeComponentsStr);
-        return NotificationCacheNode.scheduleRepeat(
+        return NotificationNode.scheduleRepeat(
           id: id,
           dateTime: dateTime,
           payload: payload,
@@ -230,7 +236,7 @@ class NotificationCacheNode {
   }
 
   /// 获取缓存类型
-  static NotificationCacheNodeType _getCacheNodeTypeByString(String typeStr) {
+  static NotificationCacheNodeType _getNodeTypeByString(String typeStr) {
     if (typeStr == NotificationCacheNodeType.normal.toString()) return NotificationCacheNodeType.normal;
     if (typeStr == NotificationCacheNodeType.repeat.toString()) return NotificationCacheNodeType.repeat;
     if (typeStr == NotificationCacheNodeType.scheduleRepeat.toString()) return NotificationCacheNodeType.scheduleRepeat;
@@ -256,49 +262,38 @@ class NotificationCacheNode {
   }
 }
 
-enum NotificationAction {
-  find,
-  add,
-  notify,
-  cancel,
-  remove,
-  recover,
-}
+/// 通知操作
+enum NotificationAction { find, add, notify, cancel, remove, recover }
 
 /// 通知助手
 class NotificationHelper {
   NotificationHelper._();
 
   /// 日志
-  static _log(String msg) => LogHelper.info("[通知助手]:$msg");
+  static void _log(String msg) => LogHelper.info("[通知助手]:$msg");
 
-  /// 监听器
+  /// 通知监听器
   static final Map<String, void Function(NotificationAction action)> _listener = {};
 
-  static void addListener(String key, void Function(NotificationAction action) callback) {
-    _listener[key] = callback;
-  }
+  /// 添加监听
+  static void addListener(String key, void Function(NotificationAction action) callback) => _listener[key] = callback;
 
   /// 初始化 用于应用启动时调用
   static Future<bool?> init() async {
     _log("初始化通知助手");
-    _log("初始化本地通知");
+    // 初始化本地通知插件
     await LocalNotificationHelper.init();
-    _log("查询数据库数据");
-    await _findInDatabase(tx: null);
-    _log("检查前台任务");
+    // 查询数据库数据
+    await _find(tx: null);
+    // 检查通知
     NotificationHelper.checkAutoNotification();
-    _log("注册应用启动回调，检测是否通过通知启动应用");
+    // 检查是否是由通知启动应用
     AppLogic.instance.listenOnReady("notification", () {
-      if (LocalNotificationHelper.launchDetails?.didNotificationLaunchApp == true) {
-        String? payload = LocalNotificationHelper.launchDetails?.payload;
-        _log("通过通知启动应用，使用通知负载触发回调，通知负载$payload");
-        LocalNotificationHelper.onSelectNotification(payload);
-      } else {
-        _log("非通知启动应用");
-      }
+      if (LocalNotificationHelper.launchDetails?.didNotificationLaunchApp != true) return _log("非通知启动应用");
+      String? payload = LocalNotificationHelper.launchDetails?.payload;
+      _log("通过通知启动应用，使用通知负载触发回调，通知负载$payload");
+      LocalNotificationHelper.onSelectNotification(payload);
     });
-    _log("通知助手初始化完成");
     return true;
   }
 
@@ -312,12 +307,9 @@ class NotificationHelper {
       onExecute: () async {
         _log("定时任务执行，执行时间${DateTime.now()}");
         // 发送通知
-        DateTime? dateTime = await _notification();
+        DateTime? dateTime = await _notify();
         // 时间不为空，说明是notification已经设置过下次执行时间了
-        if (null != dateTime) {
-          _log("定时任务执行完成，下次任务执行时间$dateTime");
-          return;
-        }
+        if (null != dateTime) return _log("定时任务执行完成，下次任务执行时间$dateTime");
         List<PendingNotificationRequest> pendingList = await LocalNotificationHelper.checkPendingNotificationRequests();
         // 下次执行时间
         DateTime next;
@@ -332,7 +324,7 @@ class NotificationHelper {
           } else {
             DateTime? dateTime;
             for (String encode in encodeSet) {
-              NotificationCacheNode? node = nodeCache[encode];
+              NotificationNode? node = nodeCache[encode];
               if (null == node) continue;
               if (node.dateTime.isBefore(DateTime.now())) continue;
               if (null == dateTime || node.dateTime.isBefore(dateTime)) {
@@ -371,17 +363,17 @@ class NotificationHelper {
     dateTimeCache.clear();
     oldDateTimeCache.clear();
     nodeCache.clear();
-    await _findInDatabase(tx: tx);
-    _notification(tx: tx);
+    await _find(tx: tx);
+    _notify(tx: tx);
   }
 
   /// node缓存，防止多次decode
-  static final Map<String, NotificationCacheNode> nodeCache = {};
+  static final Map<String, NotificationNode> nodeCache = {};
 
-  /// 通知id和通知负载的映射 缓存
+  /// 通知id和通知负载的映射 缓存 value是[nodeCache]的key
   static final Map<int, Set<String>> idCache = {};
 
-  /// 数据库的 内存缓存
+  /// 提醒 内存缓存
   static final Set<String> dbCache = {};
 
   /// 过时的提醒 内存缓存
@@ -390,7 +382,7 @@ class NotificationHelper {
   /// 通知时间和通知id的映射 缓存，由于同一时间可能多个提醒，value设置为Set类型
   static final Map<DateTime, Set<String>> dateTimeCache = {};
 
-  /// 过时的提醒缓存  缓存
+  /// 过时的提醒缓存 缓存
   static final Map<DateTime, Set<String>> oldDateTimeCache = {};
 
   /// 过期的通知数据的key
@@ -401,7 +393,7 @@ class NotificationHelper {
 
   /// 查询数据库数据并处理
   /// 将数据库的数据读到[oldDbCache]和[dbCache]变量中，如果变量有值则跳过
-  static Future<void> _findInDatabase({Transaction? tx}) async {
+  static Future<void> _find({Transaction? tx}) async {
     _log("调用findInDatabase");
     if (oldDbCache.isEmpty) {
       _log("通知历史 内存缓存 不存在，查询数据库 并 处理数据 到 内存缓存");
@@ -411,7 +403,7 @@ class NotificationHelper {
       }
       // 遍历数据处理
       for (String oneDbCache in oldDbCache) {
-        NotificationCacheNode? oneDbCacheNode = NotificationCacheNode.decode(oneDbCache);
+        NotificationNode? oneDbCacheNode = NotificationNode.decode(oneDbCache);
         if (null == oneDbCacheNode) {
           _log("通知$oneDbCache解码失败，跳过");
           continue;
@@ -434,7 +426,7 @@ class NotificationHelper {
       for (int i = 0; i < cloneDbCache.length; i++) {
         String? oneDbCache = cloneDbCache[i] as String?;
         if (null == oneDbCache) continue;
-        NotificationCacheNode? oneDbCacheNode = NotificationCacheNode.decode(oneDbCache);
+        NotificationNode? oneDbCacheNode = NotificationNode.decode(oneDbCache);
         if (null == oneDbCacheNode) {
           _log("通知$oneDbCache解码失败，跳过");
           continue;
@@ -464,15 +456,15 @@ class NotificationHelper {
   }
 
   /// 添加提醒缓存节点
-  /// 所有提醒方法均需要调用这个方法添加提醒 然后调用[_notification]检查并发送
-  static Future<void> _addNotificationToCache(NotificationCacheNode cacheNode, {Transaction? tx}) async {
+  /// 所有提醒方法均需要调用这个方法添加提醒 然后调用[_notify]检查并发送
+  static Future<void> _add(NotificationNode cacheNode, {Transaction? tx}) async {
     String cacheNodeStr = cacheNode.encode();
     _log("添加通知到通知缓存，通知数据$cacheNodeStr");
     // 缓存节点
     int id = cacheNode.id;
     DateTime dateTime = cacheNode.dateTime;
     _log("检查缓存");
-    await _findInDatabase(tx: tx);
+    await _find(tx: tx);
     if (nodeCache.containsKey(cacheNodeStr)) return _log("通知已存在，添加完成");
     nodeCache[cacheNodeStr] = cacheNode;
     // id缓存
@@ -502,10 +494,11 @@ class NotificationHelper {
 
   /// 检查并发送通知
   /// 用于实际上发送通知
-  static Future<DateTime?> _notification({Transaction? tx}) async {
+  static Future<DateTime?> _notify({Transaction? tx}) async {
     _log("发送通知");
     _log("检查缓存");
-    await _findInDatabase(tx: tx);
+    await _find(tx: tx);
+    // 最大通知数量
     int maxCount = AppLogic.appConfig.notificationConfig.maxNotificationCount;
     // 这里取消所有提醒的原因是，有可能先加晚点的提醒，后加早点的提醒，不取消的话就会导致早点的提醒发不出去
     // 也可以一一比对，但是太复杂，容易出错
@@ -516,14 +509,17 @@ class NotificationHelper {
     int count = maxCount;
     _log("设备最大通知数量限制:$maxCount，可用数量:$count");
     // 超过最大数量 或者 没有缓存 不处理
-    if (count <= 0 || dateTimeCache.isEmpty) return _log("没有剩余空间，或缓存为空，不发送。发送通知完成");
+    if (count <= 0 || dateTimeCache.isEmpty) {
+      _log("没有剩余空间，或缓存为空，不发送。发送通知完成");
+      return null;
+    }
     // 时间排序
     List<DateTime> dateTimeKeyList = dateTimeCache.keys.toList();
     dateTimeKeyList.sort((a, b) => a.compareTo(b));
     DateTime now = DateTime.now();
     // 时间遍历
     for (DateTime dateTime in dateTimeKeyList) {
-      _log("处理通知时间为$dateTime的通知。");
+      _log("处理通知时间为$dateTime的通知");
       if (count <= 0) {
         _log("剩余数量为$count，结束处理");
         break;
@@ -558,7 +554,7 @@ class NotificationHelper {
           _log("通知已存在于通知列表中，处理下一个通知");
           continue;
         }
-        NotificationCacheNode? cacheNode = nodeCache[encode];
+        NotificationNode? cacheNode = nodeCache[encode];
         // 有问题的id 跳过
         if (null == cacheNode) {
           _log("缓存中未找到$encode的通知，处理下一个通知");
@@ -609,15 +605,21 @@ class NotificationHelper {
     await flushCache(tx: tx);
     List<PendingNotificationRequest> pendingList = await LocalNotificationHelper.checkPendingNotificationRequests();
     _log("检查待发送通知队列，通知数量${pendingList.length}");
-    if (pendingList.isEmpty) return _log("通知队列为空，发送通知完成");
+    if (pendingList.isEmpty) {
+      _log("通知队列为空，发送通知完成");
+      return null;
+    }
     PendingNotificationRequest last = pendingList.last;
     int id = last.id;
     _log("通知队列不为空，最后一个通知id为$id");
     Set<String>? encodeSet = idCache[id];
-    if (null == encodeSet) return _log("缓存中未找到id为$id的通知，发送通知完成");
+    if (null == encodeSet) {
+      _log("缓存中未找到id为$id的通知，发送通知完成");
+      return null;
+    }
     DateTime? dateTime;
     for (String encode in encodeSet) {
-      NotificationCacheNode? cacheNode = nodeCache[encode];
+      NotificationNode? cacheNode = nodeCache[encode];
       if (cacheNode == null) continue;
       DateTime nodeTime = cacheNode.dateTime;
       if (nodeTime.isBefore(DateTime.now())) continue;
@@ -628,7 +630,7 @@ class NotificationHelper {
     // 如果找不到下次执行的时间 1分钟后再次执行
     dateTime ??= DateTime.now().add(const Duration(minutes: 10));
     _log("更新或新增定时任务，预计定时任务时间:${dateTime.add(const Duration(microseconds: 200))}");
-    _autoNotification(executeTime: dateTime.add(const Duration(microseconds: 200)));
+    _autoNotify(executeTime: dateTime.add(const Duration(microseconds: 200)));
     _log("发送通知完成");
     for (var listener in _listener.values) {
       listener(NotificationAction.notify);
@@ -637,7 +639,7 @@ class NotificationHelper {
   }
 
   /// 自动发送缓存的提醒
-  static Future<void> _autoNotification({DateTime? executeTime}) async {
+  static Future<void> _autoNotify({DateTime? executeTime}) async {
     _log("更新或创建前台定时任务");
     // 没有传时间就立即执行
     DateTime scheduledTime = executeTime ?? DateTime.now().add(const Duration(seconds: 1));
@@ -648,7 +650,7 @@ class NotificationHelper {
       onExecute: () async {
         _log("定时任务执行，执行时间${DateTime.now()}");
         // 发送通知
-        DateTime? dateTime = await _notification();
+        DateTime? dateTime = await _notify();
         // 时间不为空，说明是notification已经设置过下次执行时间了
         if (null != dateTime) {
           _log("定时任务执行完成，下次任务执行时间$dateTime");
@@ -668,7 +670,7 @@ class NotificationHelper {
           } else {
             DateTime? dateTime;
             for (String encode in encodeSet) {
-              NotificationCacheNode? cacheNode = nodeCache[encode];
+              NotificationNode? cacheNode = nodeCache[encode];
               if (cacheNode == null) continue;
               DateTime nodeTime = cacheNode.dateTime;
               if (nodeTime.isBefore(DateTime.now())) continue;
@@ -719,15 +721,15 @@ class NotificationHelper {
   static Future<void> delayNotification(DelayNotificationArgs args, {Transaction? tx}) async {
     DateTime dateTime = DateTime.now().add(args.duration);
     _log("延时通知:${{"id": args.id, "时间": dateTime, "标题": args.title, "内容": args.body}}");
-    NotificationCacheNode cacheNode = NotificationCacheNode.normal(
+    NotificationNode cacheNode = NotificationNode.normal(
       id: args.id,
       dateTime: dateTime,
       payload: args.payload,
       title: args.title,
       body: args.body,
     );
-    await _addNotificationToCache(cacheNode, tx: tx);
-    await _notification(tx: tx);
+    await _add(cacheNode, tx: tx);
+    await _notify(tx: tx);
     _log("延时通知完成{id:${args.id}}");
   }
 
@@ -737,16 +739,16 @@ class NotificationHelper {
     for (DelayNotificationArgs args in argsList) {
       DateTime dateTime = DateTime.now().add(args.duration);
       _log("延时通知:${{"id": args.id, "时间": dateTime, "标题": args.title, "内容": args.body}}");
-      NotificationCacheNode cacheNode = NotificationCacheNode.normal(
+      NotificationNode cacheNode = NotificationNode.normal(
         id: args.id,
         dateTime: dateTime,
         payload: args.payload,
         title: args.title,
         body: args.body,
       );
-      await _addNotificationToCache(cacheNode, tx: tx);
+      await _add(cacheNode, tx: tx);
     }
-    await _notification(tx: tx);
+    await _notify(tx: tx);
     _log("批量延时通知完成，数量${argsList.length}");
   }
 
@@ -756,7 +758,7 @@ class NotificationHelper {
   static Future<void> repeatNotification(RepeatNotificationArgs args, {Transaction? tx}) async {
     DateTime dateTime = DateTime.now().add(const Duration(milliseconds: 200));
     _log("重复通知:${{"id": args.id, "发起时间": dateTime, "重复周期": args.repeatInterval, "标题": args.title, "内容": args.body}}");
-    NotificationCacheNode cacheNode = NotificationCacheNode.repeat(
+    NotificationNode cacheNode = NotificationNode.repeat(
       id: args.id,
       repeatInterval: args.repeatInterval,
       payload: args.payload,
@@ -764,8 +766,8 @@ class NotificationHelper {
       body: args.body,
       dateTime: dateTime,
     );
-    await _addNotificationToCache(cacheNode, tx: tx);
-    await _notification(tx: tx);
+    await _add(cacheNode, tx: tx);
+    await _notify(tx: tx);
     _log("重复通知完成{id:${args.id}}");
   }
 
@@ -775,7 +777,7 @@ class NotificationHelper {
     for (RepeatNotificationArgs args in argsList) {
       DateTime dateTime = DateTime.now().add(const Duration(milliseconds: 200));
       _log("重复通知:${{"id": args.id, "发起时间": dateTime, "重复周期": args.repeatInterval, "标题": args.title, "内容": args.body}}");
-      NotificationCacheNode cacheNode = NotificationCacheNode.repeat(
+      NotificationNode cacheNode = NotificationNode.repeat(
         id: args.id,
         repeatInterval: args.repeatInterval,
         payload: args.payload,
@@ -783,24 +785,24 @@ class NotificationHelper {
         body: args.body,
         dateTime: dateTime,
       );
-      await _addNotificationToCache(cacheNode, tx: tx);
+      await _add(cacheNode, tx: tx);
     }
-    await _notification(tx: tx);
+    await _notify(tx: tx);
     _log("批量重复通知完成，数量${argsList.length}");
   }
 
   /// 定时通知 精确到分钟 超过当前时间忽略
   static Future<void> scheduleNotification(ScheduleNotificationArgs args, {Transaction? tx}) async {
     _log("定时通知:${{"id": args.id, "时间": args.dateTime, "标题": args.title, "内容": args.body}}");
-    NotificationCacheNode cacheNode = NotificationCacheNode.normal(
+    NotificationNode cacheNode = NotificationNode.normal(
       id: args.id,
       dateTime: args.dateTime,
       payload: args.payload,
       title: args.title,
       body: args.body,
     );
-    await _addNotificationToCache(cacheNode, tx: tx);
-    await _notification(tx: tx);
+    await _add(cacheNode, tx: tx);
+    await _notify(tx: tx);
     _log("定时通知完成{id:${args.id}}");
   }
 
@@ -809,16 +811,16 @@ class NotificationHelper {
     _log("批量定时通知，数量${argsList.length}");
     for (ScheduleNotificationArgs args in argsList) {
       _log("定时通知:${{"id": args.id, "时间": args.dateTime, "标题": args.title, "内容": args.body}}");
-      NotificationCacheNode cacheNode = NotificationCacheNode.normal(
+      NotificationNode cacheNode = NotificationNode.normal(
         id: args.id,
         dateTime: args.dateTime,
         payload: args.payload,
         title: args.title,
         body: args.body,
       );
-      await _addNotificationToCache(cacheNode, tx: tx);
+      await _add(cacheNode, tx: tx);
     }
-    await _notification(tx: tx);
+    await _notify(tx: tx);
     _log("批量定时通知完成，数量${argsList.length}");
   }
 
@@ -826,7 +828,7 @@ class NotificationHelper {
   /// 下载覆盖数据需要重新发送通知，因为记录的数据是调用此方法的时间
   static Future<void> scheduleRepeatNotification(ScheduleRepeatNotificationArgs args, {Transaction? tx}) async {
     _log("定时重复通知:${{"id": args.id, "时间": args.dateTime, "重复周期": args.matchDateTimeComponents, "标题": args.title, "内容": args.body}}");
-    NotificationCacheNode cacheNode = NotificationCacheNode.scheduleRepeat(
+    NotificationNode cacheNode = NotificationNode.scheduleRepeat(
       id: args.id,
       dateTime: args.dateTime,
       payload: args.payload,
@@ -834,8 +836,8 @@ class NotificationHelper {
       body: args.body,
       matchDateTimeComponents: args.matchDateTimeComponents,
     );
-    await _addNotificationToCache(cacheNode, tx: tx);
-    await _notification(tx: tx);
+    await _add(cacheNode, tx: tx);
+    await _notify(tx: tx);
     _log("定时通知完成{id:${args.id}}");
   }
 
@@ -844,7 +846,7 @@ class NotificationHelper {
     _log("批量定时重复通知，数量${argsList.length}");
     for (ScheduleRepeatNotificationArgs args in argsList) {
       _log("定时重复通知:${{"id": args.id, "时间": args.dateTime, "重复周期": args.matchDateTimeComponents, "标题": args.title, "内容": args.body}}");
-      NotificationCacheNode cacheNode = NotificationCacheNode.scheduleRepeat(
+      NotificationNode cacheNode = NotificationNode.scheduleRepeat(
         id: args.id,
         dateTime: args.dateTime,
         payload: args.payload,
@@ -852,9 +854,9 @@ class NotificationHelper {
         body: args.body,
         matchDateTimeComponents: args.matchDateTimeComponents,
       );
-      await _addNotificationToCache(cacheNode, tx: tx);
+      await _add(cacheNode, tx: tx);
     }
-    await _notification(tx: tx);
+    await _notify(tx: tx);
     _log("批量定时重复通知完成，数量${argsList.length}");
   }
 
@@ -869,11 +871,11 @@ class NotificationHelper {
   static Future<void> recoverNotification(int id, {Transaction? tx}) async {
     _log("恢复通知");
     _log("检查缓存");
-    await _findInDatabase(tx: tx);
+    await _find(tx: tx);
     Set<String>? encodeSet = idCache[id];
     if (null == encodeSet || encodeSet.isEmpty) return _log("恢复通知完成");
     for (String encode in encodeSet) {
-      NotificationCacheNode? cacheNode = nodeCache[encode];
+      NotificationNode? cacheNode = nodeCache[encode];
       if (null == cacheNode) continue;
       if (dbCache.contains(encode) || !oldDbCache.contains(encode)) continue;
       DateTime dateTime = cacheNode.dateTime;
@@ -881,9 +883,9 @@ class NotificationHelper {
       nodeCache.remove(encode);
       oldDbCache.remove(encode);
       oldDateTimeCache[dateTime]?.remove(encode);
-      await _addNotificationToCache(cacheNode, tx: tx);
+      await _add(cacheNode, tx: tx);
     }
-    await _notification(tx: tx);
+    await _notify(tx: tx);
     for (var listener in _listener.values) {
       listener(NotificationAction.recover);
     }
@@ -895,11 +897,11 @@ class NotificationHelper {
     _log("取消通知");
     await LocalNotificationHelper.cancelNotification(id);
     _log("检查缓存");
-    await _findInDatabase(tx: tx);
+    await _find(tx: tx);
     Set<String>? encodeSet = idCache[id];
     if (null == encodeSet || encodeSet.isEmpty) return _log("取消通知完成");
     for (String encode in encodeSet) {
-      NotificationCacheNode? cacheNode = nodeCache[encode];
+      NotificationNode? cacheNode = nodeCache[encode];
       if (null == cacheNode) continue;
       DateTime dateTime = cacheNode.dateTime;
       dbCache.remove(encode);
@@ -920,7 +922,7 @@ class NotificationHelper {
     _log("取消所有通知");
     await LocalNotificationHelper.cancelAllNotifications();
     _log("检查缓存");
-    await _findInDatabase(tx: tx);
+    await _find(tx: tx);
     oldDbCache.addAll(dbCache);
     dbCache.clear();
     dateTimeCache.forEach((key, value) {
@@ -940,12 +942,12 @@ class NotificationHelper {
     _log("删除本地通知");
     await LocalNotificationHelper.cancelNotification(id);
     _log("检查缓存");
-    await _findInDatabase(tx: tx);
+    await _find(tx: tx);
     Set<String>? encodeSet = idCache[id];
     if (null == encodeSet) return _log("根据id未找到通知，删除完成");
     _log("清除缓存");
     for (String encode in encodeSet) {
-      NotificationCacheNode? cacheNode = nodeCache[encode];
+      NotificationNode? cacheNode = nodeCache[encode];
       if (null == cacheNode) continue;
       DateTime dateTime = cacheNode.dateTime;
       dbCache.remove(encode);
@@ -969,7 +971,7 @@ class NotificationHelper {
     _log("删除本地所有通知");
     await LocalNotificationHelper.cancelAllNotifications();
     _log("检查缓存");
-    await _findInDatabase(tx: tx);
+    await _find(tx: tx);
     _log("清除缓存");
     idCache.clear();
     dbCache.clear();
@@ -1000,7 +1002,7 @@ class NotificationCallback {
     NotificationPayload? notificationPayload = NotificationPayload.decode(payload);
     if (null == notificationPayload) {
       _log("负载解码为空，不执行，发送新的通知");
-      NotificationHelper._notification();
+      NotificationHelper._notify();
       return;
     }
     NotificationType type = notificationPayload.type;
@@ -1008,7 +1010,7 @@ class NotificationCallback {
     _log("回调执行");
     type.callback(realPayload);
     _log("发送新通知");
-    NotificationHelper._notification();
+    NotificationHelper._notify();
   }
 }
 

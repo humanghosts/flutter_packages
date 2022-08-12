@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hg_framework/hg_framework.dart';
 
 class Clickable extends StatelessWidget {
@@ -7,7 +8,12 @@ class Clickable extends StatelessWidget {
     Key? key,
     required this.child,
     this.showInk = true,
+    this.showHover = true,
+    this.showFocus = true,
+    this.showSplash = true,
+    this.showHighlight = true,
     this.cursor = MaterialStateMouseCursor.clickable,
+    this.feedback = true,
     this.tooltip,
     this.color,
     this.forceTooltip = false,
@@ -81,8 +87,13 @@ class Clickable extends StatelessWidget {
   final bool forceTooltip;
   final bool? tooltipBelow;
   final bool showInk;
+  final bool showHover;
+  final bool showFocus;
+  final bool showSplash;
+  final bool showHighlight;
   final double? radius;
   final Color? color;
+  final bool feedback;
 
   final Widget child;
 
@@ -247,7 +258,7 @@ class Clickable extends StatelessWidget {
     }
     VoidCallback? onTap;
     if (this.onTap != null || onPressed != null) {
-      onTap = this.onTap ?? onPressed;
+      onTap = (this.onTap ?? onPressed)!;
     } else if (onTapUp != null || onTapDown != null || onTapCancel != null) {
       onTap = () {};
     }
@@ -266,7 +277,12 @@ class Clickable extends StatelessWidget {
       onTertiaryTapCancel: onTertiaryTapCancel,
       onDoubleTapDown: onDoubleTapDown,
       onDoubleTapCancel: onDoubleTapCancel,
-      onDoubleTap: onDoubleTap,
+      onDoubleTap: onDoubleTap == null
+          ? null
+          : () {
+              if (feedback) HapticFeedback.mediumImpact();
+              onDoubleTap!();
+            },
       onLongPressDown: onLongPressDown,
       onLongPressCancel: onLongPressCancel,
       onLongPressStart: onLongPressStart,
@@ -318,8 +334,16 @@ class Clickable extends StatelessWidget {
           child: InkWell(
             mouseCursor: cursor,
             borderRadius: BorderRadius.circular(radius ?? 12),
-            hoverColor: showInk ? null : Colors.transparent,
-            onTap: onTap,
+            hoverColor: showInk && showHover ? null : Colors.transparent,
+            focusColor: showInk && showFocus ? null : Colors.transparent,
+            highlightColor: showInk && showHighlight ? null : Colors.transparent,
+            splashColor: showInk && showSplash ? null : Colors.transparent,
+            onTap: onTap == null
+                ? null
+                : () {
+                    if (feedback) HapticFeedback.lightImpact();
+                    onTap!();
+                  },
             onHover: onHover,
             onTapDown: onTapDown,
             onTapUp: onTapUp,

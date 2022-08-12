@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hg_entity/hg_entity.dart';
 import 'package:hg_framework/hg_framework.dart';
@@ -349,6 +350,7 @@ class ToastHelper {
         List<CupertinoActionSheetAction> actions = valueList.map((value) {
           return CupertinoActionSheetAction(
             onPressed: () {
+              HapticFeedback.lightImpact();
               RouteHelper.back(result: value);
             },
             isDefaultAction: defaultValue.contains(value),
@@ -369,6 +371,7 @@ class ToastHelper {
             cancelButton: CupertinoActionSheetAction(
               child: Text(cancelText),
               onPressed: () {
+                HapticFeedback.lightImpact();
                 RouteHelper.back(result: null);
               },
             ),

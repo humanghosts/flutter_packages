@@ -336,13 +336,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.6.4"
-  keyboard_actions:
-    dependency: transitive
-    description:
-      name: keyboard_actions
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "4.0.1"
   lints:
     dependency: transitive
     description:

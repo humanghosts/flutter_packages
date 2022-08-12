@@ -44,8 +44,8 @@ class DataModelService<M extends DataModel> extends ModelService<M, DataDao<M>> 
     return await dao.findFirst(tx: tx);
   }
 
-  Future<M?> findById(String id) async {
-    return await dao.findByID(id);
+  Future<M?> findById(String id, {Transaction? tx}) async {
+    return await dao.findByID(id, tx: tx);
   }
 
   Future<void> saveList(List<M> modelList, {Transaction? tx}) async {
