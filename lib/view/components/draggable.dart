@@ -95,6 +95,7 @@ class DraggableLogic extends ViewLogicOnlyArgs<DraggableArgs> {
 
   /// 重置父组件大小
   void resizeParent(Size size) {
+    LogHelper.info("resizeParent:$parentSize->$size");
     oldParentSize = parentSize;
     parentSize = size;
   }
@@ -102,6 +103,7 @@ class DraggableLogic extends ViewLogicOnlyArgs<DraggableArgs> {
   /// 重置子组件大小
   void resizeChild(Size size) {
     if (childSize.value != null && !args.resizeable) return;
+    LogHelper.info("resizeChild:$childSize->$size");
     oldChildSize = childSize.value;
     childSize.value = size;
   }
@@ -126,7 +128,9 @@ class DraggableLogic extends ViewLogicOnlyArgs<DraggableArgs> {
   bool isCalculate(bool force) {
     List list = [childOffset, childSize, parentSize, parentOffset];
     for (dynamic value in list) {
-      if (value == null) return false;
+      if (value == null) {
+        return false;
+      }
     }
     if (force) return true;
     bool childrenSizeChanged = !isSizeEquals(oldChildSize, childSize.value);
@@ -220,38 +224,44 @@ class DraggableWidget extends View<DraggableLogic> {
             );
           });
     // 初始化组件数据
-    initWidgetData(parentKey, childKey);
-    return Container(
-      key: parentKey,
-      alignment: Alignment.center,
-      child: DragTarget(
-        key: getChildLocalKey(DragTarget),
-        hitTestBehavior: HitTestBehavior.deferToChild,
-        builder: (context, candidateItems, rejectedItems) {
-          return Obx(() {
-            return Stack(
-              children: [
-                Positioned(
-                  left: logic.left.value,
-                  top: logic.top.value,
-                  right: logic.right.value,
-                  bottom: logic.bottom.value,
-                  child: buildChild(context, childKey, child),
-                )
-              ],
-            );
-          });
-        },
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        initWidgetData(parentKey, childKey);
+        logic.resizeParent(Size(constraints.maxWidth, constraints.maxHeight));
+        return Container(
+          key: parentKey,
+          constraints: constraints,
+          alignment: Alignment.center,
+          child: DragTarget(
+            key: getChildLocalKey(DragTarget),
+            hitTestBehavior: HitTestBehavior.deferToChild,
+            builder: (context, candidateItems, rejectedItems) {
+              return Obx(() {
+                return Stack(
+                  children: [
+                    Positioned(
+                      left: logic.left.value,
+                      top: logic.top.value,
+                      right: logic.right.value,
+                      bottom: logic.bottom.value,
+                      child: buildChild(context, parentKey, childKey, child),
+                    )
+                  ],
+                );
+              });
+            },
+          ),
+        );
+      },
     );
   }
 
   // 构建可拖拽的子组件
-  Widget buildChild(BuildContext context, GlobalKey childKey, Widget child) {
+  Widget buildChild(BuildContext context, GlobalKey parentKey, GlobalKey childKey, Widget child) {
     DraggableMode mode = logic.args.mode;
     if (logic.args.builder != null) {
       return logic.args.builder!(context, child, (details) {
-        onDragUpdate(details, childKey);
+        onDragUpdate(details, parentKey, childKey);
       });
     }
     Widget draggable;
@@ -261,7 +271,7 @@ class DraggableWidget extends View<DraggableLogic> {
           key: getChildLocalKey(Draggable),
           feedback: child,
           childWhenDragging: const SizedBox.shrink(),
-          onDragUpdate: (details) => onDragUpdate(details, childKey),
+          onDragUpdate: (details) => onDragUpdate(details, parentKey, childKey),
           child: child,
         );
         break;
@@ -270,7 +280,7 @@ class DraggableWidget extends View<DraggableLogic> {
           key: getChildLocalKey(LongPressDraggable),
           feedback: child,
           childWhenDragging: const SizedBox.shrink(),
-          onDragUpdate: (details) => onDragUpdate(details, childKey),
+          onDragUpdate: (details) => onDragUpdate(details, parentKey, childKey),
           delay: const Duration(milliseconds: 200),
           child: child,
         );
@@ -297,7 +307,12 @@ class DraggableWidget extends View<DraggableLogic> {
   }
 
   /// 拖拽更新
-  void onDragUpdate(DragUpdateDetails details, GlobalKey childKey) {
+  void onDragUpdate(DragUpdateDetails details, GlobalKey parentKey, GlobalKey childKey) {
+    final RenderBox? parentRenderBox = parentKey.currentContext?.findRenderObject() as RenderBox?;
+    if (null != parentRenderBox) {
+      Offset global = parentRenderBox.localToGlobal(Offset.zero);
+      logic.parentOffset = global;
+    }
     final RenderBox childRenderBox = childKey.currentContext!.findRenderObject()! as RenderBox;
     Offset global = childRenderBox.localToGlobal(Offset.zero);
     logic.childOffset = global;
