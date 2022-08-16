@@ -272,6 +272,8 @@ class NotificationHelper {
   /// 日志
   static void _log(String msg) => LogHelper.info("[通知助手]:$msg");
 
+  static void _logError(String msg) => LogHelper.error("[通知助手]:$msg");
+
   /// 通知监听器
   static final Map<String, void Function(NotificationAction action)> _listener = {};
 
@@ -394,7 +396,6 @@ class NotificationHelper {
   /// 查询数据库数据并处理
   /// 将数据库的数据读到[oldDbCache]和[dbCache]变量中，如果变量有值则跳过
   static Future<void> _find({Transaction? tx}) async {
-    _log("调用findInDatabase");
     if (oldDbCache.isEmpty) {
       _log("通知历史 内存缓存 不存在，查询数据库 并 处理数据 到 内存缓存");
       for (dynamic value in DatabaseHelper.kv.get(oldNotificationCache) ?? []) {
@@ -405,7 +406,7 @@ class NotificationHelper {
       for (String oneDbCache in oldDbCache) {
         NotificationNode? oneDbCacheNode = NotificationNode.decode(oneDbCache);
         if (null == oneDbCacheNode) {
-          _log("通知$oneDbCache解码失败，跳过");
+          _logError("通知$oneDbCache解码失败，跳过");
           continue;
         }
         int oneDbId = oneDbCacheNode.id;
@@ -428,7 +429,7 @@ class NotificationHelper {
         if (null == oneDbCache) continue;
         NotificationNode? oneDbCacheNode = NotificationNode.decode(oneDbCache);
         if (null == oneDbCacheNode) {
-          _log("通知$oneDbCache解码失败，跳过");
+          _logError("通知$oneDbCache解码失败，跳过");
           continue;
         }
         int oneDbId = oneDbCacheNode.id;
@@ -452,39 +453,38 @@ class NotificationHelper {
     for (var listener in _listener.values) {
       listener(NotificationAction.find);
     }
-    _log("findInDatabase调用完成");
   }
 
   /// 添加提醒缓存节点
   /// 所有提醒方法均需要调用这个方法添加提醒 然后调用[_notify]检查并发送
   static Future<void> _add(NotificationNode cacheNode, {Transaction? tx}) async {
     String cacheNodeStr = cacheNode.encode();
-    _log("添加通知到通知缓存，通知数据$cacheNodeStr");
+    _log("[添加缓存]添加通知到通知缓存，通知数据$cacheNodeStr");
     // 缓存节点
     int id = cacheNode.id;
     DateTime dateTime = cacheNode.dateTime;
-    _log("检查缓存");
+    _log("[添加缓存]检查缓存");
     await _find(tx: tx);
-    if (nodeCache.containsKey(cacheNodeStr)) return _log("通知已存在，添加完成");
+    if (nodeCache.containsKey(cacheNodeStr)) return _log("[添加缓存]通知已存在，添加完成");
     nodeCache[cacheNodeStr] = cacheNode;
     // id缓存
     idCache.putIfAbsent(id, () => {}).add(cacheNodeStr);
     // 此刻
     DateTime now = DateTime.now();
     if (dateTime.isBefore(now)) {
-      _log("通知的通知时间{$dateTime}早于此刻{$now}，不通知，放入通知历史");
+      _log("[添加缓存]通知的通知时间{$dateTime}早于此刻{$now}，不通知，放入通知历史");
       // 更新缓存
       oldDbCache.add(cacheNodeStr);
       // 时间缓存
       oldDateTimeCache.putIfAbsent(dateTime, () => {}).add(cacheNodeStr);
-      _log("通知放入通知历史完成");
+      _log("[添加缓存]通知放入通知历史完成");
     } else {
-      _log("通知的通知时间{$dateTime}晚于此刻{$now}，放入通知缓存");
+      _log("[添加缓存]通知的通知时间{$dateTime}晚于此刻{$now}，放入通知缓存");
       // 更新缓存
       dbCache.add(cacheNodeStr);
       // 时间缓存
       dateTimeCache.putIfAbsent(dateTime, () => {}).add(cacheNodeStr);
-      _log("通知放入通知缓存完成");
+      _log("[添加缓存]通知放入通知缓存完成");
     }
     await flushCache(tx: tx);
     for (var listener in _listener.values) {
@@ -495,76 +495,77 @@ class NotificationHelper {
   /// 检查并发送通知
   /// 用于实际上发送通知
   static Future<DateTime?> _notify({Transaction? tx}) async {
-    _log("发送通知");
-    _log("检查缓存");
+    _log("[发送通知]检查缓存");
     await _find(tx: tx);
     // 最大通知数量
     int maxCount = AppLogic.appConfig.notificationConfig.maxNotificationCount;
     // 这里取消所有提醒的原因是，有可能先加晚点的提醒，后加早点的提醒，不取消的话就会导致早点的提醒发不出去
     // 也可以一一比对，但是太复杂，容易出错
-    _log("取消所有提醒");
+    _log("[发送通知]取消所有提醒");
     await LocalNotificationHelper.cancelAllNotifications();
     // 等待发送的id
     Set<String> noticed = {};
     int count = maxCount;
-    _log("设备最大通知数量限制:$maxCount，可用数量:$count");
-    // 超过最大数量 或者 没有缓存 不处理
+    _log("[发送通知]设备最大通知数量限制:$maxCount，可用数量:$count");
+    // 最大数量小于等于0 或者 没有缓存 不处理
     if (count <= 0 || dateTimeCache.isEmpty) {
-      _log("没有剩余空间，或缓存为空，不发送。发送通知完成");
+      _log("[发送通知]没有剩余空间，或缓存为空，不发送。发送通知完成");
       return null;
     }
+    _log("[发送通知]按照通知时间排序");
     // 时间排序
     List<DateTime> dateTimeKeyList = dateTimeCache.keys.toList();
     dateTimeKeyList.sort((a, b) => a.compareTo(b));
     DateTime now = DateTime.now();
     // 时间遍历
     for (DateTime dateTime in dateTimeKeyList) {
-      _log("处理通知时间为$dateTime的通知");
+      _log("[发送通知]处理通知时间为$dateTime的通知");
       if (count <= 0) {
-        _log("剩余数量为$count，结束处理");
+        _log("[发送通知]剩余数量为$count，结束处理");
         break;
       }
       // 获取这个时间的提醒id列表 为空跳过
       Set<String> encodeSet = dateTimeCache[dateTime] ?? {};
       if (encodeSet.isEmpty) {
-        _log("通知时间为$dateTime的通知为空，处理下一个时间");
+        _log("[发送通知]通知时间为$dateTime的通知为空，处理下一个时间");
+        dateTimeCache.remove(dateTime);
         continue;
       }
       // 早于此刻 放入历史缓存
       if (dateTime.isBefore(now)) {
-        _log("通知时间$dateTime早于此刻$now，移入通知历史");
+        _log("[发送通知]通知时间$dateTime早于此刻$now，移入通知历史");
         for (String encode in encodeSet) {
           dbCache.remove(encode);
           oldDbCache.add(encode);
         }
         dateTimeCache.remove(dateTime);
         oldDateTimeCache.putIfAbsent(dateTime, () => {}).addAll(encodeSet);
-        _log("通知时间$dateTime的通知移入通知历史完成，处理下一个时间");
+        _log("[发送通知]通知时间$dateTime的通知移入通知历史完成，处理下一个时间");
         continue;
       }
       // 不早于此刻遍历提醒
       for (String encode in encodeSet) {
-        _log("处理$encode通知");
+        _log("[发送通知]处理$encode通知");
         if (count <= 0) {
-          _log("剩余数量为$count，结束处理");
+          _log("[发送通知]剩余数量为$count，结束处理");
           break;
         }
         // 已在提醒列表中 跳过
         if (noticed.contains(encode)) {
-          _log("通知已存在于通知列表中，处理下一个通知");
+          _log("[发送通知]通知已存在于通知列表中，处理下一个通知");
           continue;
         }
         NotificationNode? cacheNode = nodeCache[encode];
         // 有问题的id 跳过
         if (null == cacheNode) {
-          _log("缓存中未找到$encode的通知，处理下一个通知");
+          _logError("[发送通知]缓存中未找到$encode的通知，处理下一个通知");
           continue;
         }
         NotificationCacheNodeType type = cacheNode.type;
         // 根据不同提醒类型发送提醒
         switch (type) {
           case NotificationCacheNodeType.normal:
-            _log("通知类型为$type,发送定时通知，通知时间$dateTime，当前时间${DateTime.now()}");
+            _log("[发送通知]通知类型为$type,发送定时通知，通知时间$dateTime，当前时间${DateTime.now()}");
             await LocalNotificationHelper.scheduleNotification(
               id: cacheNode.id,
               dateTime: dateTime,
@@ -574,7 +575,7 @@ class NotificationHelper {
             );
             break;
           case NotificationCacheNodeType.repeat:
-            _log("通知类型为$type,发送重复通知");
+            _log("[发送通知]通知类型为$type,发送重复通知");
             await LocalNotificationHelper.repeatNotification(
               id: cacheNode.id,
               payload: cacheNode.payload,
@@ -584,7 +585,7 @@ class NotificationHelper {
             );
             break;
           case NotificationCacheNodeType.scheduleRepeat:
-            _log("通知类型为$type,发送指定时间重复通知");
+            _log("[发送通知]通知类型为$type,发送指定时间重复通知");
             await LocalNotificationHelper.scheduleNotification(
               id: cacheNode.id,
               dateTime: dateTime,
@@ -597,24 +598,27 @@ class NotificationHelper {
         }
         noticed.add(encode);
         count--;
-        _log("剩余可通知数量$count");
+        _log("[发送通知]剩余可通知数量$count");
       }
     }
-    _log("通知处理完成，刷新数据库缓存数据");
+    _log("[发送通知]通知处理完成，刷新数据库缓存数据");
     // 刷新缓存
     await flushCache(tx: tx);
     List<PendingNotificationRequest> pendingList = await LocalNotificationHelper.checkPendingNotificationRequests();
-    _log("检查待发送通知队列，通知数量${pendingList.length}");
+    _log("[发送通知]检查待发送通知队列，通知数量${pendingList.length}");
+    for (PendingNotificationRequest pending in pendingList) {
+      _log("[发送通知]通知队列:${{"id": pending.id, "title": pending.title, "body": pending.body, "payload": pending.payload.toString()}}");
+    }
     if (pendingList.isEmpty) {
-      _log("通知队列为空，发送通知完成");
+      _log("[发送通知]通知队列为空，发送通知完成");
       return null;
     }
     PendingNotificationRequest last = pendingList.last;
     int id = last.id;
-    _log("通知队列不为空，最后一个通知id为$id");
+    _log("[发送通知]通知队列不为空，最后一个通知id为$id");
     Set<String>? encodeSet = idCache[id];
     if (null == encodeSet) {
-      _log("缓存中未找到id为$id的通知，发送通知完成");
+      _log("[发送通知]缓存中未找到id为$id的通知，发送通知完成");
       return null;
     }
     DateTime? dateTime;
@@ -629,9 +633,9 @@ class NotificationHelper {
     }
     // 如果找不到下次执行的时间 1分钟后再次执行
     dateTime ??= DateTime.now().add(const Duration(minutes: 10));
-    _log("更新或新增定时任务，预计定时任务时间:${dateTime.add(const Duration(microseconds: 200))}");
+    _log("[发送通知]更新或新增定时任务，预计定时任务时间:${dateTime.add(const Duration(microseconds: 200))}");
     _autoNotify(executeTime: dateTime.add(const Duration(microseconds: 200)));
-    _log("发送通知完成");
+    _log("[发送通知]发送通知完成");
     for (var listener in _listener.values) {
       listener(NotificationAction.notify);
     }
@@ -640,7 +644,7 @@ class NotificationHelper {
 
   /// 自动发送缓存的提醒
   static Future<void> _autoNotify({DateTime? executeTime}) async {
-    _log("更新或创建前台定时任务");
+    _log("[自动发送通知]更新或创建前台定时任务");
     // 没有传时间就立即执行
     DateTime scheduledTime = executeTime ?? DateTime.now().add(const Duration(seconds: 1));
     // 定时执行器
@@ -648,12 +652,12 @@ class NotificationHelper {
     timer = ScheduledTimer.fromId(
       id: "auto_send_notification",
       onExecute: () async {
-        _log("定时任务执行，执行时间${DateTime.now()}");
+        _log("[自动发送通知]定时任务执行，执行时间${DateTime.now()}");
         // 发送通知
         DateTime? dateTime = await _notify();
         // 时间不为空，说明是notification已经设置过下次执行时间了
         if (null != dateTime) {
-          _log("定时任务执行完成，下次任务执行时间$dateTime");
+          _log("[自动发送通知]定时任务执行完成，下次任务执行时间$dateTime");
           return;
         }
         List<PendingNotificationRequest> pendingList = await LocalNotificationHelper.checkPendingNotificationRequests();
@@ -683,30 +687,30 @@ class NotificationHelper {
         }
         // 更新计时器
         timer.schedule(next);
-        _log("定时任务执行完成，下次任务执行时间$next");
+        _log("[自动发送通知]定时任务执行完成，下次任务执行时间$next");
       },
       onMissedSchedule: () {
-        _log("错过定时任务执行时间，立即执行");
+        _log("[自动发送通知]错过定时任务执行时间，立即执行");
         timer.execute();
       },
     );
     if (timer.scheduledTime == null) {
-      _log("定时任务上次执行时间为空，尝试从数据库中加载");
+      _log("[自动发送通知]定时任务上次执行时间为空，尝试从数据库中加载");
       await timer.load();
     }
     DateTime? oldScheduledTime = timer.scheduledTime;
     if (oldScheduledTime == null || oldScheduledTime.isBefore(DateTime.now())) {
       await timer.schedule(scheduledTime);
-      _log("定时任务上次执行时间:$oldScheduledTime,定时任务下次执行时间:$scheduledTime");
+      _log("[自动发送通知]定时任务上次执行时间:$oldScheduledTime,定时任务下次执行时间:$scheduledTime");
     } else {
       if (oldScheduledTime.isAfter(scheduledTime)) {
         await timer.schedule(scheduledTime);
-        _log("更新定时任务时间,旧的时间$oldScheduledTime,新的时间:$scheduledTime");
+        _log("[自动发送通知]更新定时任务时间,旧的时间$oldScheduledTime,新的时间:$scheduledTime");
       } else {
-        _log("旧的时间$oldScheduledTime早于新的时间:$scheduledTime，不更新定时任务时间");
+        _log("[自动发送通知]旧的时间$oldScheduledTime早于新的时间:$scheduledTime，不更新定时任务时间");
       }
     }
-    _log("更新或创建前台定时任务完成");
+    _log("[自动发送通知]更新或创建前台定时任务完成");
   }
 
   /// 显示简单通知，立即通知，不占用缓存
@@ -869,11 +873,10 @@ class NotificationHelper {
 
   /// 恢复指定通知
   static Future<void> recoverNotification(int id, {Transaction? tx}) async {
-    _log("恢复通知");
-    _log("检查缓存");
+    _log("[恢复通知]检查缓存");
     await _find(tx: tx);
     Set<String>? encodeSet = idCache[id];
-    if (null == encodeSet || encodeSet.isEmpty) return _log("恢复通知完成");
+    if (null == encodeSet || encodeSet.isEmpty) return _log("[恢复通知]恢复通知完成");
     for (String encode in encodeSet) {
       NotificationNode? cacheNode = nodeCache[encode];
       if (null == cacheNode) continue;
@@ -889,17 +892,17 @@ class NotificationHelper {
     for (var listener in _listener.values) {
       listener(NotificationAction.recover);
     }
-    _log("恢复通知完成");
+    _log("[恢复通知]恢复通知完成");
   }
 
   /// 取消指定通知 将通知移入历史通知
   static Future<void> cancelNotification(int id, {Transaction? tx}) async {
-    _log("取消通知");
+    _log("[取消通知]取消通知");
     await LocalNotificationHelper.cancelNotification(id);
-    _log("检查缓存");
+    _log("[取消通知]检查缓存");
     await _find(tx: tx);
     Set<String>? encodeSet = idCache[id];
-    if (null == encodeSet || encodeSet.isEmpty) return _log("取消通知完成");
+    if (null == encodeSet || encodeSet.isEmpty) return _log("[取消通知]取消通知完成");
     for (String encode in encodeSet) {
       NotificationNode? cacheNode = nodeCache[encode];
       if (null == cacheNode) continue;
@@ -914,14 +917,14 @@ class NotificationHelper {
     for (var listener in _listener.values) {
       listener(NotificationAction.cancel);
     }
-    _log("取消通知完成");
+    _log("[取消通知]取消通知完成");
   }
 
   /// 取消所有通知 将通知移入历史通知
   static Future<void> cancelAllNotifications({Transaction? tx}) async {
-    _log("取消所有通知");
+    _log("[取消所有通知]取消所有通知");
     await LocalNotificationHelper.cancelAllNotifications();
-    _log("检查缓存");
+    _log("[取消所有通知]检查缓存");
     await _find(tx: tx);
     oldDbCache.addAll(dbCache);
     dbCache.clear();
@@ -933,19 +936,18 @@ class NotificationHelper {
     for (var listener in _listener.values) {
       listener(NotificationAction.cancel);
     }
-    _log("取消所有通知完成");
+    _log("[取消所有通知]取消所有通知完成");
   }
 
   /// 删除指定通知
   static Future<void> removeNotification(int id, {Transaction? tx}) async {
-    _log("删除通知");
-    _log("删除本地通知");
+    _log("[删除通知]删除本地通知");
     await LocalNotificationHelper.cancelNotification(id);
-    _log("检查缓存");
+    _log("[删除通知]检查缓存");
     await _find(tx: tx);
     Set<String>? encodeSet = idCache[id];
-    if (null == encodeSet) return _log("根据id未找到通知，删除完成");
-    _log("清除缓存");
+    if (null == encodeSet) return _log("[删除通知]根据id未找到通知，删除完成");
+    _log("[删除通知]清除缓存");
     for (String encode in encodeSet) {
       NotificationNode? cacheNode = nodeCache[encode];
       if (null == cacheNode) continue;
@@ -956,35 +958,34 @@ class NotificationHelper {
       oldDateTimeCache[dateTime]?.remove(encode);
       nodeCache.remove(encode);
     }
-    _log("清除缓存完成，更新数据库存储");
+    _log("[删除通知]清除缓存完成，更新数据库存储");
     await flushCache(tx: tx);
     idCache.remove(id);
     for (var listener in _listener.values) {
       listener(NotificationAction.remove);
     }
-    _log("更新数据库存储完成，删除通知完成");
+    _log("[删除通知]更新数据库存储完成，删除通知完成");
   }
 
   /// 删除所有通知
   static Future<void> removeAllNotifications({Transaction? tx}) async {
-    _log("删除所有通知");
-    _log("删除本地所有通知");
+    _log("[删除所有通知]删除本地所有通知");
     await LocalNotificationHelper.cancelAllNotifications();
-    _log("检查缓存");
+    _log("[删除所有通知]检查缓存");
     await _find(tx: tx);
-    _log("清除缓存");
+    _log("[删除所有通知]清除缓存");
     idCache.clear();
     dbCache.clear();
     oldDbCache.clear();
     dateTimeCache.clear();
     oldDateTimeCache.clear();
     nodeCache.clear();
-    _log("清除缓存完成，更新数据库存储");
+    _log("[删除所有通知]清除缓存完成，更新数据库存储");
     await flushCache(tx: tx);
     for (var listener in _listener.values) {
       listener(NotificationAction.remove);
     }
-    _log("更新数据库存储完成，删除所有完成");
+    _log("[删除所有通知]更新数据库存储完成，删除所有完成");
   }
 }
 
