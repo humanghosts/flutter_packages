@@ -152,33 +152,28 @@ class ToastHelper {
     List<T> destructiveValue = const [],
     String cancelText = "取消",
   }) async {
-    switch (DeviceInfoHelper.targetPlatform) {
-      case TargetPlatform.fuchsia:
-      case TargetPlatform.linux:
-      case TargetPlatform.windows:
-      case TargetPlatform.macOS:
-        return await showDialogActionSheet<T>(
-          context,
-          valueList: valueList,
-          childBuilder: childBuilder,
-          message: message,
-          title: title,
-          defaultValue: defaultValue,
-          destructiveValue: destructiveValue,
-          cancelText: cancelText,
-        );
-      case TargetPlatform.android:
-      case TargetPlatform.iOS:
-        return await showCupertinoActionSheet<T>(
-          context,
-          valueList: valueList,
-          childBuilder: childBuilder,
-          message: message,
-          title: title,
-          defaultValue: defaultValue,
-          destructiveValue: destructiveValue,
-          cancelText: cancelText,
-        );
+    if (DeviceInfoHelper.isDesktop) {
+      return await showDialogActionSheet<T>(
+        context,
+        valueList: valueList,
+        childBuilder: childBuilder,
+        message: message,
+        title: title,
+        defaultValue: defaultValue,
+        destructiveValue: destructiveValue,
+        cancelText: cancelText,
+      );
+    } else {
+      return await showCupertinoActionSheet<T>(
+        context,
+        valueList: valueList,
+        childBuilder: childBuilder,
+        message: message,
+        title: title,
+        defaultValue: defaultValue,
+        destructiveValue: destructiveValue,
+        cancelText: cancelText,
+      );
     }
   }
 
@@ -229,24 +224,24 @@ class ToastHelper {
     List<T> destructiveValue = const [],
     String cancelText = "取消",
   }) async {
-    switch (DeviceInfoHelper.targetPlatform) {
-      case TargetPlatform.fuchsia:
-      case TargetPlatform.linux:
-      case TargetPlatform.windows:
-      case TargetPlatform.macOS:
-        return await showPopupContextMenu(context, valueList: valueList, childBuilder: childBuilder, position: position);
-      case TargetPlatform.android:
-      case TargetPlatform.iOS:
-        return await showCupertinoActionSheet(
-          context,
-          valueList: valueList,
-          childBuilder: childBuilder,
-          message: message,
-          title: title,
-          defaultValue: defaultValue,
-          destructiveValue: destructiveValue,
-          cancelText: cancelText,
-        );
+    if (DeviceInfoHelper.isDesktop) {
+      return await showPopupContextMenu(
+        context,
+        valueList: valueList,
+        childBuilder: childBuilder,
+        position: position,
+      );
+    } else {
+      return await showCupertinoActionSheet(
+        context,
+        valueList: valueList,
+        childBuilder: childBuilder,
+        message: message,
+        title: title,
+        defaultValue: defaultValue,
+        destructiveValue: destructiveValue,
+        cancelText: cancelText,
+      );
     }
   }
 
