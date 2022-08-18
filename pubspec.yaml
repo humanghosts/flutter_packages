@@ -40,13 +40,13 @@ dependencies:
   ## todo 提示音播放 android ios macos web
   soundpool: ^2.3.0
   ## 设备信息 all
-  device_info_plus: ^4.0.1
+  device_info_plus: ^4.1.2
   ## 网络链接检查 all
-  connectivity_plus: ^2.3.6
+  connectivity_plus: ^2.3.6+1
 
   # 移动端专用库
   ## 本地通知 android ios macos linux
-  flutter_local_notifications: ^9.7.0
+  flutter_local_notifications: ^9.8.0+1
   ## 本地时区 本地通知用 android ios web
   flutter_native_timezone: ^2.0.0
   timezone: ^0.8.0

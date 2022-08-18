@@ -10,7 +10,7 @@ class LogHelper {
   static final MemoryOutput memoryOutput = MemoryOutput(bufferSize: 100, secondOutput: ConsoleOutput());
 
   /// 日志工具
-  static final Logger memory = Logger(output: memoryOutput, printer: PrefixPrinter(SimplePrinter(printTime: true, colors: true)));
+  static final Logger memory = Logger(output: memoryOutput, printer: PrefixPrinter(SimplePrinter(printTime: true, colors: false)));
 
   /// 日志输出
   static ListQueue<OutputEvent> get output => memoryOutput.buffer;
