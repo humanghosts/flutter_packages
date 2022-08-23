@@ -68,9 +68,10 @@ Future<void> _presetDataInit(PresetData? presetData) async {
   int version = DatabaseHelper.database.version;
   LogHelper.info("[数据库预置数据]:数据库版本$version");
   bool? isInitData;
-  if (version < 2) {
-    isInitData = PrefsHelper.prefs.getBool(key);
-    await DatabaseHelper.database.kv.putSave(key, isInitData);
+  bool? isPrefsInit = PrefsHelper.prefs.getBool(key);
+  if (isPrefsInit != null) {
+    isInitData = isPrefsInit;
+    await DatabaseHelper.database.kv.putSave(key, isPrefsInit);
   } else {
     isInitData = DatabaseHelper.database.kv.get(key);
   }
