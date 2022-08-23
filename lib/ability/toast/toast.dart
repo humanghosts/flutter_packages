@@ -46,10 +46,11 @@ class ToastHelper {
     String? key,
     Color? background,
     VoidCallback? onTap,
+    VoidCallback? onClose,
   }) {
-    String key = UUIDGenerator.instance.id;
+    String noticeKey = key ?? UUIDGenerator.instance.id;
     AppLogic.instance.showNotification(
-      key,
+      noticeKey,
       Clickable(
         child: Card(
           color: background,
@@ -84,7 +85,8 @@ class ToastHelper {
                 Clickable(
                   child: const Icon(Icons.close_outlined),
                   onTap: () {
-                    AppLogic.instance.closeNotification(key);
+                    closeInAppNotification(noticeKey);
+                    onClose?.call();
                   },
                 ),
               ],
@@ -92,11 +94,16 @@ class ToastHelper {
           ),
         ),
         onTap: () {
-          AppLogic.instance.closeNotification(key);
+          closeInAppNotification(noticeKey);
           onTap?.call();
         },
       ),
     );
+  }
+
+  /// 关闭应用内提示
+  static void closeInAppNotification(String key) {
+    AppLogic.instance.closeNotification(key);
   }
 
   /// 单选提示框
