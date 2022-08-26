@@ -20,8 +20,8 @@ class AppHelper {
         runApp(app);
       },
       (error, stackTrace) {
-        ToastHelper.inAppNotification(leading: const Icon(Icons.error_outlined), title: "发生了意料之外的错误", message: error.toString());
         LogHelper.wtf(error.toString(), error: error, stackTrace: stackTrace);
+        ToastHelper.inAppNotification(leading: const Icon(Icons.error_outlined), title: "发生了意料之外的错误", message: error.toString());
       },
       zoneSpecification: const ZoneSpecification(),
     );

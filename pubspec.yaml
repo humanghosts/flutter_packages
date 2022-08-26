@@ -55,7 +55,7 @@ dependencies:
   ## 背景窗口设置
   flutter_acrylic: ^1.0.0+2
   ## 窗口设置
-  window_manager: ^0.2.5
+  window_manager: ^0.2.6
   ## 本地通知
   local_notifier: ^0.1.5
   ## 快捷键

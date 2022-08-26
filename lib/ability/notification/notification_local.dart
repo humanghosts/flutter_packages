@@ -58,7 +58,7 @@ class LocalNotificationHelper {
     tz.setLocalLocation(tz.getLocation(timeZoneName));
     // 是否通过通知启动应用 来判断应该进入哪个页面
     launchDetails = DeviceInfoHelper.targetPlatform == TargetPlatform.linux ? null : await plugin!.getNotificationAppLaunchDetails();
-    // app_icon是应用图标文件
+    // app_icon是应用图标文件 放在android drawable下
     AndroidInitializationSettings android = const AndroidInitializationSettings('app_icon');
     // ios配置 [onDidReceiveLocalNotification]是ios10 之前的系统点击通知回调的方法
     IOSInitializationSettings ios = IOSInitializationSettings(onDidReceiveLocalNotification: ((id, title, body, payload) => onSelectNotification(payload)));

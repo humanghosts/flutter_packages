@@ -200,7 +200,7 @@ extension DevicePlatformEx on DevicePlatform {
         return TargetPlatform.iOS;
       case DevicePlatform.android:
       case DevicePlatform.androidWeb:
-        return TargetPlatform.macOS;
+        return TargetPlatform.android;
       case DevicePlatform.macOS:
       case DevicePlatform.macOSWeb:
         return TargetPlatform.macOS;
