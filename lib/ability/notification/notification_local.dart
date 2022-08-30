@@ -243,7 +243,6 @@ class LocalNotificationHelper {
   /// 请求通知权限
   static Future<bool> requestNotificationPermission() async {
     Permission notification = Permission.notification;
-    notification.shouldShowRequestRationale;
     PermissionStatus status = await notification.request();
     switch (status) {
       case PermissionStatus.denied:

@@ -1,22 +1,124 @@
 import 'package:flutter/material.dart';
 import 'package:hg_framework/hg_framework.dart';
 
+const double _kMenuHorizontalPadding = 16.0;
+
+class MyPopupMenuItem<T> extends PopupMenuEntry<T> {
+  const MyPopupMenuItem({
+    Key? key,
+    this.value,
+    this.onTap,
+    this.enabled = true,
+    this.height = kMinInteractiveDimension,
+    this.padding,
+    this.margin,
+    this.textStyle,
+    this.mouseCursor,
+    required this.child,
+  }) : super(key: key);
+
+  final T? value;
+  final VoidCallback? onTap;
+  final bool enabled;
+  @override
+  final double height;
+  final EdgeInsets? padding;
+  final EdgeInsets? margin;
+  final TextStyle? textStyle;
+  final MouseCursor? mouseCursor;
+  final Widget? child;
+
+  @override
+  bool represents(T? value) => value == this.value;
+
+  @override
+  PopupMenuItemState<T, MyPopupMenuItem<T>> createState() => PopupMenuItemState<T, MyPopupMenuItem<T>>();
+}
+
+class PopupMenuItemState<T, W extends MyPopupMenuItem<T>> extends State<W> {
+  @protected
+  Widget? buildChild() => widget.child;
+
+  @protected
+  void handleTap() {
+    widget.onTap?.call();
+    Navigator.pop<T>(context, widget.value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final PopupMenuThemeData popupMenuTheme = PopupMenuTheme.of(context);
+    TextStyle style = widget.textStyle ?? popupMenuTheme.textStyle ?? theme.textTheme.subtitle1!;
+    if (!widget.enabled) style = style.copyWith(color: theme.disabledColor);
+    Widget item = AnimatedDefaultTextStyle(
+      style: style,
+      duration: kThemeChangeDuration,
+      child: Container(
+        alignment: AlignmentDirectional.centerStart,
+        constraints: BoxConstraints(minHeight: widget.height),
+        padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: _kMenuHorizontalPadding),
+        child: buildChild(),
+      ),
+    );
+    if (!widget.enabled) {
+      final bool isDark = theme.brightness == Brightness.dark;
+      item = IconTheme.merge(
+        data: IconThemeData(opacity: isDark ? 0.5 : 0.38),
+        child: item,
+      );
+    }
+
+    return MergeSemantics(
+      child: Semantics(
+        enabled: widget.enabled,
+        button: true,
+        child: Container(
+          margin: widget.margin,
+          child: Clickable(
+            onTap: widget.enabled ? handleTap : null,
+            child: item,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 Widget buildContextMenuItem({
   Widget? icon,
   required Widget text,
 }) {
-  ThemeData theme = AppLogic.instance.themeData;
+  Widget realIcon = SizedBox.square(
+    dimension: 16,
+    child: FittedBox(
+      child: icon,
+    ),
+  );
+
+  Widget realText = SizedBox(
+    height: 20,
+    child: FittedBox(
+      child: text,
+    ),
+  );
+
   return Material(
     color: Colors.transparent,
-    child: ListTile(
-      contentPadding: EdgeInsets.zero,
-      visualDensity: VisualDensity.compact,
-      leading: DeviceInfoHelper.isDesktop ? icon : null,
-      title: text,
-      trailing: DeviceInfoHelper.isDesktop ? null : icon,
-      iconColor: theme.colorScheme.onPrimaryContainer,
-      textColor: theme.colorScheme.onPrimaryContainer,
-      minLeadingWidth: 0,
+    child: Row(
+      children: [
+        if (DeviceInfoHelper.isDesktop && null != icon) ...[
+          realIcon,
+          const SizedBox(width: 12),
+        ],
+        if (DeviceInfoHelper.isMobile) const SizedBox(width: 12),
+        realText,
+        if (DeviceInfoHelper.isMobile && null != icon) ...[
+          const Spacer(),
+          realIcon,
+          const SizedBox(width: 12),
+        ],
+      ],
     ),
   );
 }

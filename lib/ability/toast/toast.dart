@@ -263,14 +263,13 @@ class ToastHelper {
     List<PopupMenuEntry<T>> items = [];
     for (int i = 0; i < valueList.length; i++) {
       T value = valueList[i];
-      items.add(PopupMenuItem(
+      items.add(MyPopupMenuItem(
         value: value,
         height: kToolbarHeight / 3 * 2,
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        margin: const EdgeInsets.symmetric(horizontal: 6),
         child: childBuilder(value),
       ));
-      if (i != valueList.length - 1) {
-        items.add(const PopupMenuDivider(height: 0));
-      }
     }
     // 样式
     final PopupMenuThemeData popupMenuTheme = PopupMenuTheme.of(context);
