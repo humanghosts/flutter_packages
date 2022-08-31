@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/hg_framework.dart';
@@ -21,7 +22,9 @@ class AppHelper {
       },
       (error, stackTrace) {
         LogHelper.wtf(error.toString(), error: error, stackTrace: stackTrace);
-        ToastHelper.inAppNotification(leading: const Icon(Icons.error_outlined), title: "发生了意料之外的错误", message: error.toString());
+        if (kDebugMode) {
+          ToastHelper.inAppNotification(leading: const Icon(Icons.error_outlined), title: "发生了意料之外的错误", message: error.toString());
+        }
       },
       zoneSpecification: const ZoneSpecification(),
     );

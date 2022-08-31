@@ -4,10 +4,11 @@ import 'package:hg_entity/hg_entity.dart';
 import 'package:hg_framework/hg_framework.dart';
 
 class ThemeTemplate extends DataModel {
-  /// 模板名称
+  // 基础设置
   late final Attribute<String?> name;
   late final Attribute<String?> fontFamily;
 
+  // ===========================================================================
   // 全局设置.
   late final Attribute<ThemeModeValue> themeMode;
   late final Attribute<double?> defaultRadius;
@@ -24,6 +25,7 @@ class ThemeTemplate extends DataModel {
   late final Attribute<ColorValue> tertiaryDark;
   late final Attribute<ColorValue> tertiaryContainerDark;
 
+  // ===========================================================================
   // 色彩方案设置
   // ===========================================================================
   late final Attribute<bool> useKeyColors;
@@ -43,6 +45,7 @@ class ThemeTemplate extends DataModel {
   late final Attribute<bool> keepDarkTertiaryContainer;
   late final Attribute<int> usedFlexToneSetup;
 
+  // ===========================================================================
   // 表面色彩混合设置
   // ===========================================================================
   late final Attribute<FlexSurfaceModeValue> surfaceModeLight;
@@ -59,6 +62,7 @@ class ThemeTemplate extends DataModel {
   late final Attribute<bool> blendLightTextTheme;
   late final Attribute<bool> blendDarkTextTheme;
 
+  // ===========================================================================
   // 文本输入框设置
   // ===========================================================================
   late final Attribute<SchemeColorValue> inputDecoratorSchemeColorLight;
@@ -69,7 +73,8 @@ class ThemeTemplate extends DataModel {
   late final Attribute<bool> inputDecoratorUnfocusedHasBorder;
   late final Attribute<bool> inputDecoratorUnfocusedBorderIsColored;
 
-  // 应用栏设置 SETTINGS.
+  // ===========================================================================
+  // 应用栏设置
   // ===========================================================================
   late final Attribute<FlexAppBarStyleValue> appBarStyleLight;
   late final Attribute<FlexAppBarStyleValue> appBarStyleDark;
@@ -81,6 +86,7 @@ class ThemeTemplate extends DataModel {
   late final Attribute<SchemeColorValue> appBarBackgroundSchemeColorLight;
   late final Attribute<SchemeColorValue> appBarBackgroundSchemeColorDark;
 
+  // ===========================================================================
   // 标签页栏设置
   // ===========================================================================
   late final Attribute<FlexTabBarStyleValue> tabBarStyle;
@@ -89,16 +95,19 @@ class ThemeTemplate extends DataModel {
   late final Attribute<SchemeColorValue> tabBarItemSchemeColorLight;
   late final Attribute<SchemeColorValue> tabBarItemSchemeColorDark;
 
+  // ===========================================================================
   // 底部弹框
   // ===========================================================================
   late final Attribute<double?> bottomSheetBorderRadius;
 
+  // ===========================================================================
   // 安卓导航栏设置
   // ===========================================================================
   late final Attribute<FlexSystemNavBarStyleValue> sysNavBarStyle;
   late final Attribute<double> sysNavBarOpacity;
   late final Attribute<bool> useSysNavDivider;
 
+  // ===========================================================================
   // 底部导航栏设置
   // ===========================================================================
   late final Attribute<SchemeColorValue> bottomNavBarBackgroundSchemeColor;
@@ -110,6 +119,7 @@ class ThemeTemplate extends DataModel {
   late final Attribute<bool> bottomNavShowSelectedLabels;
   late final Attribute<bool> bottomNavShowUnselectedLabels;
 
+  // ===========================================================================
   // 导航栏设置
   // ===========================================================================
   late final Attribute<SchemeColorValue> navBarBackgroundSchemeColor;
@@ -122,6 +132,7 @@ class ThemeTemplate extends DataModel {
   late final Attribute<double?> navBarIndicatorOpacity;
   late final Attribute<NavigationDestinationLabelBehaviorValue> navBarLabelBehavior;
 
+  // ===========================================================================
   // 侧导航栏设置
   // ===========================================================================
   late final Attribute<SchemeColorValue> navRailBackgroundSchemeColor;
@@ -135,6 +146,7 @@ class ThemeTemplate extends DataModel {
   late final Attribute<SchemeColorValue> navRailIndicatorSchemeColor;
   late final Attribute<double?> navRailIndicatorOpacity;
 
+  // ===========================================================================
   // 按钮设置
   // ===========================================================================
   late final Attribute<SchemeColorValue> textButtonSchemeColor;
@@ -144,6 +156,7 @@ class ThemeTemplate extends DataModel {
   late final Attribute<SchemeColorValue> outlinedButtonSchemeColor;
   late final Attribute<double?> outlinedButtonBorderRadius;
 
+  // ===========================================================================
   // 可切换组件设置
   // ===========================================================================
   late final Attribute<SchemeColorValue> toggleButtonsSchemeColor;
@@ -153,6 +166,7 @@ class ThemeTemplate extends DataModel {
   late final Attribute<SchemeColorValue> checkboxSchemeColor;
   late final Attribute<SchemeColorValue> radioSchemeColor;
 
+  // ===========================================================================
   // 其他组件设置
   // ===========================================================================
   late final Attribute<double?> fabBorderRadius;

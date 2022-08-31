@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:ui';
 
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -117,6 +118,14 @@ abstract class ThemeListener {
         themeData = darkTheme;
         break;
     }
+    SystemChrome.setSystemUIOverlayStyle(
+      FlexColorScheme.themedSystemNavigationBar(
+        Get.context,
+        systemNavBarStyle: themeTemplate.sysNavBarStyle.value.style,
+        useDivider: themeTemplate.useSysNavDivider.value,
+        opacity: themeTemplate.sysNavBarOpacity.value,
+      ),
+    );
   }
 
   /// 查询主题配置 在应用启动时候初始化完数据库调用

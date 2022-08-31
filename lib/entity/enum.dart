@@ -177,6 +177,21 @@ extension FlexSystemNavBarStyleEx on FlexSystemNavBarStyle {
         return "透明";
     }
   }
+
+  String getExplain(bool isLight) {
+    switch (this) {
+      case FlexSystemNavBarStyle.system:
+        return isLight ? '系统默认, 浅色模式下不透明' : '系统默认, 深色模式下不透明';
+      case FlexSystemNavBarStyle.surface:
+        return '使用${ColorType.surface.title}, 混合透明度设置';
+      case FlexSystemNavBarStyle.background:
+        return '使用${ColorType.background.title}, 混合透明度设置';
+      case FlexSystemNavBarStyle.scaffoldBackground:
+        return '使用背景色, 混合透明度设置';
+      case FlexSystemNavBarStyle.transparent:
+        return '透明，忽略透明度设置';
+    }
+  }
 }
 
 extension NavigationDestinationLabelBehaviorEx on NavigationDestinationLabelBehavior {
