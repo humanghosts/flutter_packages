@@ -412,7 +412,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
     return Obx(() {
       bool isExpand = logic.isMenuOpen.value;
       bool isHover = logic.isHoverMenuButton.value;
-      if (DeviceInfoHelper.isTablet) isHover = true;
+      if (DeviceInfoHelper.isTablet || DeviceInfoHelper.isAndroidApp) isHover = true;
       double menuWidth = logic.menuWidth.value;
       double opacity;
       if (isExpand) {
@@ -444,7 +444,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
     return Obx(() {
       bool isOpen = logic.isSecondaryBodyOpen.value;
       bool isHover = logic.isHoverSecondaryBodyButton.value;
-      if (DeviceInfoHelper.isTablet) isHover = true;
+      if (DeviceInfoHelper.isTablet || DeviceInfoHelper.isAndroidApp) isHover = true;
       double bodyWidth = logic.secondaryBodyWidth.value;
       double opacity;
       if (isOpen) {

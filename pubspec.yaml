@@ -18,9 +18,9 @@ dependencies:
   hg_entity:
     path: ../hg_entity
   scheduled_timer:
-    path: ../../scheduled_timer
+    path: ../scheduled_timer
   icloud_storage:
-    path: ../../icloud_storage
+    path: ../icloud_storage
 
   # 框架类的库
   ## 依赖、状态管理、路由框架
@@ -58,10 +58,6 @@ dependencies:
   window_manager: ^0.2.6
   ## 本地通知
   local_notifier: ^0.1.5
-  ## 快捷键
-  # hotkey_manager:
-  ## 自动更新
-  # auto_updater:
 
   # web端专用库
   ## 解析浏览器userAgent

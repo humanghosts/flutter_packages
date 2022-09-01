@@ -160,7 +160,7 @@ class ToastHelper {
     String cancelText = "取消",
   }) async {
     if (DeviceInfoHelper.isDesktop) {
-      return await showDialogActionSheet<T>(
+      return await showCupertinoAlertDialog<T>(
         context,
         valueList: valueList,
         childBuilder: childBuilder,
@@ -291,7 +291,7 @@ class ToastHelper {
   }
 
   /// dialog形式的弹出请求
-  static Future<T?> showDialogActionSheet<T>(
+  static Future<T?> showCupertinoAlertDialog<T>(
     BuildContext context, {
     Widget? message,
     Widget? title,

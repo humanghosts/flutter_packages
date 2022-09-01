@@ -311,7 +311,7 @@ packages:
   icloud_storage:
     dependency: transitive
     description:
-      path: "../../../icloud_storage"
+      path: "../../icloud_storage"
       relative: true
     source: path
     version: "0.2.3+2"
@@ -514,7 +514,7 @@ packages:
   scheduled_timer:
     dependency: transitive
     description:
-      path: "../../../scheduled_timer"
+      path: "../../scheduled_timer"
       relative: true
     source: path
     version: "2.0.1+4"
