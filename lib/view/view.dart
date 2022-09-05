@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/hg_framework.dart';
+import 'package:hg_framework/hg_framework.dart' as f;
 
 /// 页面外部参数
 @immutable
@@ -79,10 +80,10 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
     super.onReady();
     // 防止不同类型的组件key重复导致回调不正确
     String key = "${this.key}_$runtimeType";
-    AppLogic.instance.listenRefresh(key, () => update());
-    AppLogic.instance.listenThemeUpdate(key, () => update());
-    // AppLogic.instance.listenAppLifecycleUpdate(key, (lifecycle) => update());
-    AppLogic.instance.listenOrientationUpdate(key, (orientation) => update());
+    appLogic.listenRefresh(key, () => update());
+    appLogic.listenThemeUpdate(key, () => update());
+    // appLogic.listenAppLifecycleUpdate(key, (lifecycle) => update());
+    appLogic.listenOrientationUpdate(key, (orientation) => update());
   }
 
   @mustCallSuper
@@ -91,10 +92,10 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
     super.onClose();
     // 防止不同类型的组件key重复导致回调不正确
     String key = "${this.key}_$runtimeType";
-    AppLogic.instance.removeRefreshListener(key);
-    AppLogic.instance.removeThemeUpdateListener(key);
-    // AppLogic.instance.removeAppLifecycleListener(key);
-    AppLogic.instance.removeOrientationUpdateListener(key);
+    appLogic.removeRefreshListener(key);
+    appLogic.removeThemeUpdateListener(key);
+    // appLogic.removeAppLifecycleListener(key);
+    appLogic.removeOrientationUpdateListener(key);
   }
 
   /// 组件构建回调
@@ -116,13 +117,13 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
   void onWidgetDispose(BuildContext context, GetBuilderState state) {}
 
   /// 当前应用数据
-  ThemeData get theme => AppLogic.instance.themeData;
+  ThemeData get theme => appLogic.themeData;
 
   /// 当前应用模板
-  ThemeTemplate get themeTemplate => AppLogic.instance.themeTemplate;
+  ThemeTemplate get themeTemplate => appLogic.themeTemplate;
 
   /// 应用配置
-  AppConfig get appConfig => AppLogic.appConfig;
+  AppConfig get appConfig => f.appConfig;
 
   /// 动画配置
   AnimationConfig get animationConfig => appConfig.animationConfig;
@@ -142,13 +143,13 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
   /// 显示加载框
   void showLoading({String? message, Widget? messageWidget}) {
     isBusy.value = true;
-    AppLogic.instance.showLoading(runtimeType.toString(), message: messageWidget ?? (message == null ? null : Text(message)));
+    appLogic.showLoading(runtimeType.toString(), message: messageWidget ?? (message == null ? null : Text(message)));
   }
 
   /// 关闭加载框
   void closeLoading() {
     isBusy.value = false;
-    AppLogic.instance.closeLoading(runtimeType.toString());
+    appLogic.closeLoading(runtimeType.toString());
   }
 }
 

@@ -477,7 +477,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
 
   /// 可拖拽分隔符
   Widget buildDesktopDraggableDivider(BuildContext context, void Function(DragUpdateDetails details) onDragUpdate) {
-    ThemeData theme = AppLogic.instance.themeData;
+    ThemeData theme = appLogic.themeData;
     return MouseRegion(
       cursor: SystemMouseCursors.resizeColumn,
       child: Draggable(

@@ -35,7 +35,7 @@ class AppInit {
     // 预置数据
     await _presetDataInit(config.presetData);
     // 主题等数据加载
-    await AppLogic.instance.onAppInit(config);
+    await appLogic.onAppInit(config);
     // 初始化通知服务
     await NotificationHelper.init();
     // 初始化云服务

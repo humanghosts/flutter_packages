@@ -290,7 +290,7 @@ class NotificationHelper {
     // 检查通知
     NotificationHelper.checkAutoNotification();
     // 检查是否是由通知启动应用
-    AppLogic.instance.listenOnReady("notification", () {
+    appLogic.listenOnReady("notification", () {
       if (LocalNotificationHelper.launchDetails?.didNotificationLaunchApp != true) return _log("非通知启动应用");
       String? payload = LocalNotificationHelper.launchDetails?.payload;
       _log("通过通知启动应用，使用通知负载触发回调，通知负载$payload");
@@ -498,7 +498,7 @@ class NotificationHelper {
     _log("[发送通知]检查缓存");
     await _find(tx: tx);
     // 最大通知数量
-    int maxCount = AppLogic.appConfig.notificationConfig.maxNotificationCount;
+    int maxCount = appConfig.notificationConfig.maxNotificationCount;
     // 这里取消所有提醒的原因是，有可能先加晚点的提醒，后加早点的提醒，不取消的话就会导致早点的提醒发不出去
     // 也可以一一比对，但是太复杂，容易出错
     _log("[发送通知]取消所有提醒");

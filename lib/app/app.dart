@@ -33,7 +33,7 @@ class AppHelper {
 
 /// 主程序
 abstract class App extends StatelessWidget with WidgetsBindingObserver {
-  AppLogic get logic => AppLogic.instance;
+  AppLogic get logic => appLogic;
 
   const App({Key? key}) : super(key: key);
 

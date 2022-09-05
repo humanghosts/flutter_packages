@@ -40,8 +40,8 @@ class RouteHelper {
       sheet,
       settings: RouteSettings(name: routeName),
       barrierColor: barrierColor,
-      enterBottomSheetDuration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
-      exitBottomSheetDuration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
+      enterBottomSheetDuration: appConfig.animationConfig.middleAnimationDuration,
+      exitBottomSheetDuration: appConfig.animationConfig.middleAnimationDuration,
     );
   }
 
@@ -63,7 +63,7 @@ class RouteHelper {
       id: id,
       routeName: routeName,
       fullscreenDialog: fullScreenDialog,
-      duration: AppLogic.appConfig.animationConfig.slowAnimationDuration,
+      duration: appConfig.animationConfig.slowAnimationDuration,
     );
   }
 

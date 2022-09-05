@@ -152,7 +152,7 @@ abstract class ThemeListener {
     String inUseId = themeConfig.templateInUse.value.id.value;
     if (id == inUseId) {
       ToastHelper.inAppNotification(
-        leading: Icon(Icons.sms_failed_outlined, color: AppLogic.instance.themeData.errorColor),
+        leading: Icon(Icons.sms_failed_outlined, color: appLogic.themeData.errorColor),
         title: "无法删除",
         message: "主题${template.name.value ?? "未命名"}正在使用中",
       );
@@ -231,7 +231,7 @@ abstract class OverlayHelper {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SpinKitCircle(color: AppLogic.instance.themeData.iconTheme.color),
+            SpinKitCircle(color: appLogic.themeData.iconTheme.color),
             if (null != message) message,
           ],
         ),
@@ -291,7 +291,7 @@ class InAppNotificationHelper {
     notificationKeyIndex[key] = order;
     indexNotificationKeys.putIfAbsent(order, () => {}).add(key);
     if (indexNotificationWidget.length == 1) {
-      AppLogic.instance.showOverlay(
+      appLogic.showOverlay(
         key: "in_app_notification",
         widget: Obx(() {
           inAppNotificationUpdateFlag.value;
@@ -313,7 +313,7 @@ class InAppNotificationHelper {
               AnimationController controller = notificationController.putIfAbsent(
                 overlayKey,
                 () => AnimationController(
-                  duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
+                  duration: appConfig.animationConfig.middleAnimationDuration,
                   vsync: SimpleTickerProvider(),
                 ),
               );
@@ -375,27 +375,35 @@ class InAppNotificationHelper {
     indexNotificationKeys[order]?.remove(key);
     await notificationController[key]?.reverse();
     if (indexNotificationWidget.isEmpty) {
-      AppLogic.instance.closeOverlay("in_app_notification");
+      appLogic.closeOverlay("in_app_notification");
     }
     inAppNotificationUpdateFlag++;
   }
 }
 
+/// 快捷获取控制器
+AppLogic get appLogic => AppLogic();
+
+/// 快捷获取配置
+AppConfig get appConfig => appLogic.config;
+
+/// 快捷获取模版数据
+ThemeTemplate get currentThemeTemplate => appLogic.themeTemplate;
+
 /// 主页控制器
 class AppLogic extends GetxController with OrientationListener, ThemeListener, AppLifecycleListener, OverlayHelper, InAppNotificationHelper {
   AppLogic._();
 
-  /// 获取实例
-  static AppLogic get instance => Get.put<AppLogic>(AppLogic._());
+  AppLogic.forExtends();
+
+  static AppLogic? _instance;
+
+  factory AppLogic() {
+    return _instance ??= Get.put<AppLogic>(AppLogic._());
+  }
 
   /// 应用配置
   late final AppConfig config;
-
-  /// 快速获取应用配置
-  static AppConfig get appConfig => instance.config;
-
-  /// 快速获取当前主题模板
-  static ThemeTemplate get currentThemeTemplate => instance.themeTemplate;
 
   /// 应用构建完回调函数
   /// 调用点为[onReady]

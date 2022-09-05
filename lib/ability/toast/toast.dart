@@ -11,7 +11,7 @@ class ToastHelper {
   /// 提示框
   static Future<void> toast({String? msg, Duration? duration}) async {
     String key = "toast_${msg.hashCode}";
-    AppLogic.instance.showOverlay(
+    appLogic.showOverlay(
       key: key,
       widget: GestureDetector(
         child: Material(
@@ -26,14 +26,14 @@ class ToastHelper {
           ),
         ),
         onTap: () {
-          AppLogic.instance.closeOverlay(key);
+          appLogic.closeOverlay(key);
         },
       ),
       background: const SizedBox.shrink(),
     );
     Duration delay = duration ?? const Duration(seconds: 3);
     await Future.delayed(delay);
-    AppLogic.instance.closeOverlay(key);
+    appLogic.closeOverlay(key);
   }
 
   /// 应用内提示
@@ -49,7 +49,7 @@ class ToastHelper {
     VoidCallback? onClose,
   }) {
     String noticeKey = key ?? UUIDGenerator.instance.id;
-    AppLogic.instance.showNotification(
+    appLogic.showNotification(
       noticeKey,
       Clickable(
         child: Card(
@@ -70,13 +70,13 @@ class ToastHelper {
                       titleWidget ??
                           Text(
                             title ?? "",
-                            style: AppLogic.instance.themeData.textTheme.bodyText1,
+                            style: appLogic.themeData.textTheme.bodyText1,
                           ),
                       if (message != null || messageWidget != null)
                         messageWidget ??
                             Text(
                               message ?? "",
-                              style: AppLogic.instance.themeData.textTheme.bodyText2,
+                              style: appLogic.themeData.textTheme.bodyText2,
                             ),
                     ],
                   ),
@@ -103,7 +103,7 @@ class ToastHelper {
 
   /// 关闭应用内提示
   static void closeInAppNotification(String key) {
-    AppLogic.instance.closeNotification(key);
+    appLogic.closeNotification(key);
   }
 
   /// 单选提示框
@@ -191,7 +191,7 @@ class ToastHelper {
     // 关闭弹框方法
     void Function(VoidCallback action)? close,
   }) {
-    ThemeData themeData = AppLogic.instance.themeData;
+    ThemeData themeData = appLogic.themeData;
     BuildContext context = Get.overlayContext!;
     NavigatorState navigatorState = Navigator.of(context, rootNavigator: true);
     OverlayState overlayState = navigatorState.overlay!;

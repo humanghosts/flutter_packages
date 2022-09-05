@@ -38,7 +38,7 @@ class LocalNotificationHelper {
   /// local_notifier插件
   static Future<bool?> initLocalNotifier() async {
     // 在 main 方法中添加。参数 shortcutPolicy 仅适用于 Windows
-    await localNotifier.setup(appName: AppLogic.appConfig.appName, shortcutPolicy: ShortcutPolicy.requireCreate);
+    await localNotifier.setup(appName: appConfig.appName, shortcutPolicy: ShortcutPolicy.requireCreate);
     windowPlugin = DesktopNotificationsPlugin(onSelectNotification);
     return true;
   }
@@ -232,7 +232,7 @@ class LocalNotificationHelper {
       if (isOpen == true) {
         isOpen = await openAppSettings();
         if (isOpen == false) {
-          ToastHelper.inAppNotification(leading: Icon(Icons.sms_failed_outlined, color: AppLogic.instance.themeData.errorColor), title: "打开系统设置失败,请手动打开");
+          ToastHelper.inAppNotification(leading: Icon(Icons.sms_failed_outlined, color: appLogic.themeData.errorColor), title: "打开系统设置失败,请手动打开");
         }
       }
       return false;

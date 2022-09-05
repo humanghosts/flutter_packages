@@ -103,7 +103,7 @@ class HeaderCard extends View<HeaderCardLogic> {
                                     onPressed: () => logic.isOpen.value = !logic.isOpen.value,
                                     tooltip: logic.isOpen.value ? "收起" : "展开",
                                     child: AnimatedSwitcher(
-                                      duration: AppLogic.appConfig.animationConfig.middleAnimationDuration,
+                                      duration: appConfig.animationConfig.middleAnimationDuration,
                                       child: Icon(
                                         logic.isOpen.value ? Icons.expand_less_outlined : Icons.expand_more_outlined,
                                         key: ValueKey(logic.isOpen.value),

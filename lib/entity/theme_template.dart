@@ -510,11 +510,11 @@ extension FlexColorSchemeConvert on ThemeTemplate {
   }
 
   FlexSchemeColor toFlexSchemeColor({Brightness? brightness}) {
-    return (brightness ?? AppLogic.instance.brightness) == Brightness.light ? toFlexSchemeColorLight() : toFlexSchemeColorDark();
+    return (brightness ?? appLogic.brightness) == Brightness.light ? toFlexSchemeColorLight() : toFlexSchemeColorDark();
   }
 
   FlexColorScheme toFlexColorTheme({Brightness? brightness}) {
-    return (brightness ?? AppLogic.instance.brightness) == Brightness.light ? toFlexColorThemeLight() : toFlexColorThemeDark();
+    return (brightness ?? appLogic.brightness) == Brightness.light ? toFlexColorThemeLight() : toFlexColorThemeDark();
   }
 
   FlexColorScheme toFlexColorThemeLight() {

@@ -1,5 +1,4 @@
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hg_framework/app/logic.dart';
 import 'package:soundpool/soundpool.dart';
@@ -36,7 +35,7 @@ class SoundHelper {
       double versionD = double.parse(version);
       if (versionD < 14.5) return;
     }
-    prefix ??= AppLogic.appConfig.assetsConfig.soundAssetsPath;
+    prefix ??= appConfig.assetsConfig.soundAssetsPath;
     String path = "$prefix$soundPath";
     int? soundId = _soundIdMap[path];
     soundId ??= await loadSound(path);
