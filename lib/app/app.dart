@@ -15,16 +15,11 @@ class AppHelper {
     // 监控应用
     runZonedGuarded(
       () async {
-        await config.beforeInit();
-        await AppInit.init(config);
-        await config.afterInit();
+        await config.init();
         runApp(app);
       },
       (error, stackTrace) {
         LogHelper.wtf(error.toString(), error: error, stackTrace: stackTrace);
-        if (kDebugMode) {
-          ToastHelper.inAppNotification(leading: const Icon(Icons.error_outlined), title: "发生了意料之外的错误", message: error.toString());
-        }
       },
       zoneSpecification: const ZoneSpecification(),
     );

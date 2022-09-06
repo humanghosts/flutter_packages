@@ -43,6 +43,8 @@ dependencies:
   device_info_plus: ^4.1.2
   ## 网络链接检查 all
   connectivity_plus: ^2.3.6+1
+  ## 网络发现
+  multicast_dns: ^0.3.2+2
 
   # 移动端专用库
   ## 本地通知 android ios macos linux

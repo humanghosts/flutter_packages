@@ -12,7 +12,7 @@ import 'package:hg_framework/service/theme.dart';
 import 'package:hg_orm/hg_orm.dart';
 
 /// TODO 屏幕方向监听器 暂时没用
-abstract class OrientationListener {
+abstract class OrientationHelper {
   // --- 屏幕方向 ---
   /// 当前屏幕方向 使用这个参数的原因是，当应用禁用左右旋转之后，mediaQuery的方向就不会变化了
   /// 这个参数即使是锁定旋转也可以生效
@@ -55,7 +55,7 @@ abstract class OrientationListener {
 }
 
 /// 主题监听器
-abstract class ThemeListener {
+abstract class ThemeHelper {
   /// 主题服务
   ThemeConfigService get themeConfigService => ThemeConfigService.instance;
 
@@ -202,7 +202,7 @@ abstract class ThemeListener {
 }
 
 /// 应用生命周期监听器
-abstract class AppLifecycleListener {
+abstract class AppLifecycleHelper {
   /// 当前app状态
   AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
 
@@ -268,7 +268,7 @@ abstract class OverlayHelper {
 }
 
 /// 应用内通知助手
-class InAppNotificationHelper {
+abstract class InAppNotificationHelper {
   /// 通知更新标识
   RxInt inAppNotificationUpdateFlag = 0.obs;
 
@@ -391,7 +391,7 @@ AppConfig get appConfig => appLogic.config;
 ThemeTemplate get currentThemeTemplate => appLogic.themeTemplate;
 
 /// 主页控制器
-class AppLogic extends GetxController with OrientationListener, ThemeListener, AppLifecycleListener, OverlayHelper, InAppNotificationHelper {
+class AppLogic extends GetxController with OrientationHelper, ThemeHelper, AppLifecycleHelper, OverlayHelper, InAppNotificationHelper {
   AppLogic._();
 
   AppLogic.forExtends();
@@ -405,26 +405,36 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
   /// 应用配置
   late final AppConfig config;
 
+  /// 应用初始化回调函数
+  /// 调用点为[InitializeHelper.init]
+  final Map<String, FutureOr<void> Function()> _onAppInitCallback = {};
+
   /// 应用构建完回调函数
   /// 调用点为[onReady]
-  final Map<String, VoidCallback> _onReadyCallback = {};
+  final Map<String, FutureOr<void> Function()> _onReadyCallback = {};
 
   /// 应用重新构建回调
   /// 调用点为[rebuild]
-  final Map<String, VoidCallback> _onRefreshCallback = {};
+  final Map<String, FutureOr<void> Function()> _onRefreshCallback = {};
 
   /// 应用销毁回调
   /// 调用点为[onClose]
-  final Map<String, VoidCallback> _onCloseCallback = {};
+  final Map<String, FutureOr<void> Function()> _onCloseCallback = {};
 
   /// 注册构建完回调，用于为其他组件提供应用构建回调
-  void listenOnReady(String key, VoidCallback callback) => _onReadyCallback[key] = callback;
+  void listenOnAppInit(String key, FutureOr<void> Function() callback) => _onAppInitCallback[key] = callback;
+
+  /// 注册构建完回调，用于为其他组件提供应用构建回调
+  void listenOnReady(String key, FutureOr<void> Function() callback) => _onReadyCallback[key] = callback;
 
   /// 注册重建完回调，用于为其他组件提供应用构建回调
-  void listenRefresh(String key, VoidCallback callback) => _onRefreshCallback[key] = callback;
+  void listenRefresh(String key, FutureOr<void> Function() callback) => _onRefreshCallback[key] = callback;
 
   /// 监听销毁
-  void listenOnClose(String key, VoidCallback callback) => _onCloseCallback[key] = callback;
+  void listenOnClose(String key, FutureOr<void> Function() callback) => _onCloseCallback[key] = callback;
+
+  /// 移除应用构建监听器
+  void removeAppInitListener(String key) => _onAppInitCallback.remove(key);
 
   /// 移除重建监听器
   void removeRefreshListener(String key) => _onRefreshCallback.remove(key);
@@ -438,9 +448,19 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
   /// 应用初始化时调用
   /// 调用点为[InitializeHelper.init]
   Future<void> onAppInit(AppConfig appConfig) async {
-    LogHelper.info("[应用]:初始化");
+    LogHelper.info("[AppLogic]:初始化");
     config = appConfig;
     await _onAppInitTheme();
+    for (var value in _onAppInitCallback.values) {
+      try {
+        FutureOr res = value();
+        if (res is Future) {
+          await res;
+        }
+      } catch (e) {
+        LogHelper.error(e.toString());
+      }
+    }
   }
 
   /// 应用构建时调用
@@ -451,10 +471,13 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
   }
 
   @override
-  onReady() {
+  onReady() async {
     for (var value in _onReadyCallback.values) {
       try {
-        value();
+        FutureOr res = value();
+        if (res is Future) {
+          await res;
+        }
       } catch (e) {
         LogHelper.error(e.toString());
       }
@@ -462,11 +485,14 @@ class AppLogic extends GetxController with OrientationListener, ThemeListener, A
   }
 
   @override
-  onClose() {
+  onClose() async {
     _onCloseOrientation();
     for (var value in _onCloseCallback.values) {
       try {
-        value();
+        FutureOr res = value();
+        if (res is Future) {
+          await res;
+        }
       } catch (e) {
         LogHelper.error(e.toString());
       }

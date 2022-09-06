@@ -30,9 +30,10 @@ class MyApp extends App {
   Widget buildHome(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: TextButton(
+        child: Clickable(
           onPressed: () {},
-          child: const Text('\u{1f600}'),
+          tooltip: "tap it",
+          child: const Text('hello'),
         ),
       ),
     );

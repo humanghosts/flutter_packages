@@ -1,5 +1,7 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:hg_framework/ability/export.dart';
 import 'package:user_agent_analyzer/user_agent_analyzer.dart';
 
@@ -146,6 +148,8 @@ class DeviceInfoHelper {
 }
 
 extension TargetPlatformEx on TargetPlatform {
+  String get value => name;
+
   DevicePlatform get device {
     switch (this) {
       case TargetPlatform.android:
@@ -161,6 +165,11 @@ extension TargetPlatformEx on TargetPlatform {
       case TargetPlatform.windows:
         return DevicePlatform.windows;
     }
+  }
+
+  static TargetPlatform? fromValue(String? value) {
+    if (null == value) return null;
+    return TargetPlatform.values.firstWhereOrNull((e) => e.value == value);
   }
 }
 

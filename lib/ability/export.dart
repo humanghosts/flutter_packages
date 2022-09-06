@@ -1,11 +1,11 @@
 export 'cloud/cloud.dart';
 export 'cloud/icloud.dart';
 export 'device_info/device_info.dart';
-export 'event/export.dart';
-export 'log/export.dart';
+export 'event/event.dart';
+export 'log/log.dart';
 export 'notification/export.dart';
 export 'route/export.dart';
-export 'shared_preferences/export.dart';
-export 'sound/export.dart';
-export 'toast/export.dart';
+export 'shared_preferences/prefs.dart';
+export 'sound/sound.dart';
+export 'toast/toast.dart';
 export 'work/export.dart';
