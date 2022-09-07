@@ -54,8 +54,6 @@ dependencies:
   timezone: ^0.8.0
 
   # 桌面端专用库
-  ## 背景窗口设置
-  flutter_acrylic: ^1.0.0+2
   ## 窗口设置
   window_manager: ^0.2.7
   ## 本地通知

@@ -20,11 +20,14 @@ class AdaptiveScaffoldArgs extends ViewArgs {
   /// 获取控制器
   final void Function(AdaptiveScaffoldLogic controller)? controller;
 
+  final double? initMenuWidth;
+
   const AdaptiveScaffoldArgs({
     required this.menu,
     required this.body,
     this.secondBody,
     this.controller,
+    this.initMenuWidth,
   });
 }
 
@@ -88,6 +91,7 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
     super.afterArgsUpdate();
     secondaryBody.value ??= args.secondBody;
     args.controller?.call(this);
+    if (null != args.initMenuWidth) menuWidth.value = args.initMenuWidth!;
     menuWidth.value = math.max(
       math.min(menuWidth.value, maxWidth / 3),
       maxWidth / 6,
@@ -161,6 +165,9 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
   void clearAndCloseSecondaryBody() {
     isSecondaryBodyOpen.value = false;
     secondaryBody.value = null;
+    if (DeviceInfoHelper.isMobile) {
+      RouteHelper.back();
+    }
   }
 
   /// 关闭第二内容

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hg_entity/hg_entity.dart';
 import 'package:hg_framework/hg_framework.dart';
@@ -75,24 +74,16 @@ abstract class AppConfig {
     // 桌面端初始化设置
     if (DeviceInfoHelper.devicePlatform.isDesktop && !DeviceInfoHelper.isWeb) {
       await windowManager.ensureInitialized();
-      await Window.initialize();
       WindowOptions? options;
       if (windowOptions is Future<WindowOptions?>) {
         options = await windowOptions;
       } else {
         options = options;
       }
-      windowManager.waitUntilReadyToShow(options, () async {
+      await windowManager.waitUntilReadyToShow(options, () async {
         await windowManager.show();
         await windowManager.focus();
         await windowManager.setTitle(appName);
-        if (DeviceInfoHelper.isMacOS) {
-          await Window.setEffect(effect: WindowEffect.aero);
-          windowManager.setTitleBarStyle(TitleBarStyle.hidden, windowButtonVisibility: true);
-        } else {
-          await Window.setEffect(effect: WindowEffect.acrylic);
-          windowManager.setTitleBarStyle(TitleBarStyle.normal, windowButtonVisibility: true);
-        }
       });
     }
   }
