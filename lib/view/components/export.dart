@@ -5,4 +5,5 @@ export 'dialog.dart';
 export 'draggable.dart';
 export 'header_card.dart';
 export 'panel_selector.dart';
+export 'styled_widget.dart';
 export 'tree_view.dart';

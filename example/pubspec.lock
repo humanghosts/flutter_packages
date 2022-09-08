@@ -322,6 +322,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.6.4"
+  lint:
+    dependency: transitive
+    description:
+      name: lint
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.10.0"
   lints:
     dependency: transitive
     description:
@@ -656,6 +663,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.1"
+  styled_widget:
+    dependency: transitive
+    description:
+      name: styled_widget
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.4.0+3"
   synchronized:
     dependency: transitive
     description:

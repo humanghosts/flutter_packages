@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/hg_framework.dart';
 import 'package:reorderables/reorderables.dart';
+import 'package:styled_widget/styled_widget.dart';
 
 /// 树形节点 收缩展开按钮模式，决定是否占用空间
 enum TreeNodeIconMode { hidden, disable, none }
@@ -45,6 +46,9 @@ class TreeArgs<T> extends ViewArgs {
   /// 展开收缩按钮大小
   final double? iconSize;
 
+  /// 展开按钮
+  final Widget? icon;
+
   /// 垂直分割线是否显示
   final bool showVerticalDivider;
 
@@ -63,6 +67,7 @@ class TreeArgs<T> extends ViewArgs {
     this.iconSize,
     this.showVerticalDivider = true,
     this.onReorder,
+    this.icon,
   });
 }
 
@@ -86,6 +91,7 @@ class TreeViewArgs<T> extends TreeArgs<T> {
     super.iconSize,
     super.showVerticalDivider,
     super.onReorder,
+    super.icon,
   });
 }
 
@@ -260,6 +266,7 @@ class TreeNodeArgs<T> extends TreeArgs<T> {
           iconSize: treeViewArgs.iconSize,
           showVerticalDivider: treeViewArgs.showVerticalDivider,
           onReorder: treeViewArgs.onReorder,
+          icon: treeViewArgs.icon,
         );
 
   TreeNodeArgs.fromNode({
@@ -277,6 +284,7 @@ class TreeNodeArgs<T> extends TreeArgs<T> {
           iconSize: treeNodeArgs.iconSize,
           showVerticalDivider: treeNodeArgs.showVerticalDivider,
           onReorder: treeNodeArgs.onReorder,
+          icon: treeNodeArgs.icon,
         );
 }
 
@@ -417,6 +425,9 @@ class TreeNodeView<T> extends View<TreeNodeLogic<T>> {
     ThemeData theme = appLogic.themeData;
     // 按钮色彩
     Color? color = iconMode == TreeNodeIconMode.disable && isLeaf ? theme.disabledColor : theme.textButtonTheme.style?.foregroundColor?.resolve({});
+
+    Widget icon = logic.args.icon ?? const Icon(Icons.expand_circle_down_outlined);
+
     // 按钮
     Widget iconButton = Clickable(
       onTap: iconMode == TreeNodeIconMode.disable && isLeaf ? null : logic.turn,
@@ -430,7 +441,10 @@ class TreeNodeView<T> extends View<TreeNodeLogic<T>> {
         child: AnimatedRotation(
           turns: logic.isExpanded.value ? 0 : -0.25,
           duration: logic.fastAnimationDuration,
-          child: Icon(Icons.expand_circle_down_outlined, size: logic.args.iconSize),
+          child: SizedBox.square(
+            dimension: logic.args.iconSize,
+            child: icon.fittedBox(fit: BoxFit.fitHeight),
+          ),
         ),
       ),
     );

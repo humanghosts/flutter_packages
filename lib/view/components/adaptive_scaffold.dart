@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/hg_framework.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
+import 'package:styled_widget/styled_widget.dart';
 
 @immutable
 class AdaptiveScaffoldArgs extends ViewArgs {
@@ -14,52 +15,43 @@ class AdaptiveScaffoldArgs extends ViewArgs {
   /// 内容
   final Widget body;
 
-  /// 第二内容
-  final Widget? secondBody;
-
   /// 获取控制器
   final void Function(AdaptiveScaffoldLogic controller)? controller;
 
-  final double? initMenuWidth;
+  /// 初始化菜单宽度
+  final double initMenuRadio;
+
+  /// 最大菜单宽度
+  final double menuWidthMinRadio;
+
+  /// 最大菜单宽度
+  final double menuWidthMaxRadio;
+
+  /// 当菜单宽度超过最大值
+  final VoidCallback? onMenuWidthOverMax;
+
+  /// 当菜单宽度超过最小值
+  final VoidCallback? onMenuWidthOverMain;
 
   const AdaptiveScaffoldArgs({
     required this.menu,
     required this.body,
-    this.secondBody,
     this.controller,
-    this.initMenuWidth,
+    this.initMenuRadio = 0.25,
+    this.menuWidthMaxRadio = 0.5,
+    this.menuWidthMinRadio = 0.25,
+    this.onMenuWidthOverMax,
+    this.onMenuWidthOverMain,
   });
 }
 
 class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
-  /// 菜单宽度
-  RxDouble menuWidth = 304.0.obs;
+  // ----组件参数----
 
-  /// 第二内容宽度
-  Rx<double> secondaryBodyWidth = (-1.0).obs;
-
-  /// 菜单是否打开
-  Rx<bool> isMenuOpen = true.obs;
-
-  /// 第二内容是否打开
-  Rx<bool> isSecondaryBodyOpen = true.obs;
-
-  /// 鼠标是否悬停在开关按钮上
-  Rx<bool> isHoverMenuButton = false.obs;
-
-  /// 鼠标是否悬停在开关按钮上
-  Rx<bool> isHoverSecondaryBodyButton = false.obs;
-
-  /// 是否展开第二内容
-  RxBool isExpandSecondaryBody = false.obs;
-
-  /// 第二内容
-  Rxn<Widget?> secondaryBody = Rxn(null);
-
-  /// 组件开始起点
+  /// 组件开始起点x
   RxDouble dx = 0.0.obs;
 
-  /// 组件开始起点
+  /// 组件开始起点y
   RxDouble dy = 0.0.obs;
 
   /// 最大宽度
@@ -67,8 +59,6 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
 
   /// 最大高度
   double? _maxHeight;
-
-  final ScrollController mobileController = ScrollController();
 
   double get maxWidth => _maxWidth ?? Get.width;
 
@@ -78,36 +68,71 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
 
   set maxHeight(double value) => _maxHeight = value;
 
+  // ----菜单参数----
+
+  /// 是否初始化过菜单
+  bool hasInitMenu = false;
+
+  /// 菜单宽度
+  RxDouble menuWidth = 304.0.obs;
+
+  /// 菜单是否打开
+  RxBool isMenuOpen = true.obs;
+
+  // ----移动端参数----
+  final ScrollController mobileController = ScrollController();
+
   @override
   void onReady() {
     super.onReady();
+    args.controller?.call(this);
+    // 移动端刚启动 跳到body页面
     if (DeviceInfoHelper.isMobile) {
       isMenuOpen.value = false;
+      mobileController.jumpTo(maxWidth * 0.8);
     }
   }
 
   @override
   void afterArgsUpdate() {
     super.afterArgsUpdate();
-    secondaryBody.value ??= args.secondBody;
-    args.controller?.call(this);
-    if (null != args.initMenuWidth) menuWidth.value = args.initMenuWidth!;
-    menuWidth.value = math.max(
-      math.min(menuWidth.value, maxWidth / 3),
-      maxWidth / 6,
-    );
-    if (secondaryBodyWidth.value < 0) return;
-    secondaryBodyWidth.value = math.max(
-      math.min(secondaryBodyWidth.value, maxWidth / 2),
-      maxWidth / 4,
-    );
   }
+
+  /// 组件大小变化回调
+  void afterLayoutChanged(BuildContext context) {
+    // 组件位置
+    final RenderBox stack = context.findRenderObject()! as RenderBox;
+    Offset global = stack.localToGlobal(Offset.zero);
+    dx.value = global.dx;
+    dy.value = global.dy;
+    // 菜单宽度
+    double menuWidth = this.menuWidth.value;
+    if (!hasInitMenu) menuWidth = maxWidth * args.initMenuRadio;
+    // 超过最大值
+    if (menuWidth > maxWidth * args.menuWidthMaxRadio) {
+      args.onMenuWidthOverMax?.call();
+      menuWidth = maxWidth * args.menuWidthMaxRadio;
+    }
+    // 超过最小值
+    if (menuWidth < maxWidth * args.menuWidthMinRadio) {
+      args.onMenuWidthOverMain?.call();
+      menuWidth = maxWidth * args.menuWidthMinRadio;
+    }
+    this.menuWidth.value = menuWidth;
+  }
+
+  /// 打开或关闭菜单栏
+  void toggleMenu() => isMenuOpen.value ? closeMenu() : openMenu();
 
   /// 打开菜单
   void openMenu() {
     isMenuOpen.value = true;
     if (DeviceInfoHelper.isMobile) {
-      mobileController.animateTo(0, duration: fastAnimationDuration, curve: Curves.linear);
+      mobileController.animateTo(
+        0,
+        duration: fastAnimationDuration,
+        curve: Curves.linear,
+      );
     }
   }
 
@@ -115,89 +140,27 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
   void closeMenu() {
     isMenuOpen.value = false;
     if (DeviceInfoHelper.isMobile) {
-      mobileController.animateTo(maxWidth * 0.8, duration: fastAnimationDuration, curve: Curves.linear);
+      mobileController.animateTo(
+        maxWidth * 0.8,
+        duration: fastAnimationDuration,
+        curve: Curves.linear,
+      );
     }
   }
 
-  /// 打开或关闭菜单栏
-  void openCloseMenu() {
-    bool value = isMenuOpen.value;
-    if (value) {
-      closeMenu();
-    } else {
-      openMenu();
+  /// 菜单宽度变化回调
+  void afterMenuWidthChanged(double menuWidth) {
+    // 超过最大值
+    if (menuWidth > maxWidth * args.menuWidthMaxRadio) {
+      args.onMenuWidthOverMax?.call();
+      menuWidth = maxWidth * args.menuWidthMaxRadio;
     }
-  }
-
-  /// 打开第二内容 只有有内容的情况下才能打开
-  void openSecondaryBody({Widget? secondaryBody, bool? isExpand = false}) {
-    if (null != secondaryBody) {
-      this.secondaryBody.value = secondaryBody;
-      // 计算窗口初始大小
-      if (secondaryBodyWidth.value < 0) {
-        bool isMenuOpen = this.isMenuOpen.value;
-        if (isMenuOpen) {
-          secondaryBodyWidth.value = (maxWidth - menuWidth.value) / 2;
-        } else {
-          secondaryBodyWidth.value = (maxWidth / 2);
-        }
-        // 初始长度不超过屏幕一半
-        secondaryBodyWidth.value = math.min(secondaryBodyWidth.value, maxWidth / 2);
-      }
+    // 超过最小值
+    if (menuWidth < maxWidth * args.menuWidthMinRadio) {
+      args.onMenuWidthOverMain?.call();
+      menuWidth = maxWidth * args.menuWidthMinRadio;
     }
-    if (null != isExpand) {
-      isExpandSecondaryBody.value = isExpand;
-    }
-    if (null != this.secondaryBody.value) {
-      isSecondaryBodyOpen.value = true;
-      if (DeviceInfoHelper.isMobile) {
-        RouteHelper.offUntilAndToPage(
-          page: this.secondaryBody.value!,
-          predicate: (route) => route.settings.name == "/",
-        );
-      }
-    } else {
-      closeSecondaryBody();
-    }
-  }
-
-  /// 关闭并清空第二内容
-  void clearAndCloseSecondaryBody() {
-    isSecondaryBodyOpen.value = false;
-    secondaryBody.value = null;
-    if (DeviceInfoHelper.isMobile) {
-      RouteHelper.back();
-    }
-  }
-
-  /// 关闭第二内容
-  void closeSecondaryBody() {
-    isSecondaryBodyOpen.value = false;
-    if (DeviceInfoHelper.isMobile) {
-      RouteHelper.back();
-    }
-  }
-
-  /// 开启或关闭第二内容
-  void openCloseSecondaryBody() {
-    bool value = isSecondaryBodyOpen.value;
-    if (value) {
-      closeSecondaryBody();
-    } else {
-      openSecondaryBody();
-    }
-  }
-
-  /// 扩展第二内容
-  void expandSecondaryBody() {
-    if (null == secondaryBody.value) return;
-    isExpandSecondaryBody.value = true;
-  }
-
-  /// 收缩第二内容
-  void collapseSecondaryBody() {
-    if (null == secondaryBody.value) return;
-    isExpandSecondaryBody.value = false;
+    this.menuWidth.value = menuWidth;
   }
 }
 
@@ -213,15 +176,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
     return LayoutBuilder(builder: (context, constraints) {
       logic.maxWidth = math.min(constraints.maxWidth, Get.width);
       logic.maxHeight = math.min(constraints.maxHeight, Get.height);
-      Future.delayed(Duration.zero, () {
-        final RenderBox stack = context.findRenderObject()! as RenderBox;
-        Offset global = stack.localToGlobal(Offset.zero);
-        logic.dx.value = global.dx;
-        logic.dy.value = global.dy;
-        if (DeviceInfoHelper.isMobile) {
-          logic.mobileController.jumpTo(logic.maxWidth * 0.8);
-        }
-      });
+      Future.delayed(Duration.zero, () => logic.afterLayoutChanged(context));
       return ConstrainedBox(
         constraints: BoxConstraints(
           minHeight: constraints.minHeight,
@@ -230,12 +185,12 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
           maxHeight: logic.maxHeight,
         ),
         child: Material(
-          key: const ValueKey("material"),
+          key: getChildLocalKey(Material),
           color: Colors.transparent,
           child: Scaffold(
             resizeToAvoidBottomInset: false,
             backgroundColor: Colors.transparent,
-            body: DeviceInfoHelper.isMobile ? buildMobile(context) : Obx(() => buildDesktop(context)),
+            body: DeviceInfoHelper.isMobile ? buildMobile(context) : buildDesktop(context),
           ),
         ),
       );
@@ -258,10 +213,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
               padEnds: false,
               viewportFraction: 0.8,
               delegate: SliverChildBuilderDelegate(
-                (context, index) => Container(
-                  padding: const EdgeInsets.only(right: 4),
-                  child: buildMenu(context),
-                ),
+                (context, index) => SizedBox.expand(child: logic.args.menu),
                 childCount: 1,
               ),
             ),
@@ -272,18 +224,16 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
               delegate: SliverChildBuilderDelegate(
                 (context, index) => Scaffold(
                   resizeToAvoidBottomInset: false,
+                  backgroundColor: Colors.transparent,
                   body: Builder(builder: (context) {
                     if (DeviceInfoHelper.isWeb) {
                       return SimpleGestureDetector(
-                        onHorizontalSwipe: (direction) {
-                          if (direction == SwipeDirection.right) logic.openMenu();
-                        },
-                        child: buildBody(context),
+                        onHorizontalSwipe: (direction) => doWhen(direction == SwipeDirection.right, logic.openMenu),
+                        child: logic.args.body,
                       );
                     }
-                    return buildBody(context);
+                    return logic.args.body;
                   }),
-                  backgroundColor: Colors.transparent,
                 ),
                 childCount: 1,
               ),
@@ -294,225 +244,53 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
     );
   }
 
-  /// 构建菜单项
-  Widget buildMenu(BuildContext context) {
-    // 调用传入参数构建菜单项
-    return SizedBox.expand(child: logic.args.menu);
-  }
-
   /// 展开收起模式菜单
   Widget buildDesktop(BuildContext context) {
-    bool isExpandSecondary = logic.isExpandSecondaryBody.value;
-    Widget? secondary = logic.secondaryBody.value;
-    Duration duration = logic.fastAnimationDuration;
-
-    return Stack(
-      alignment: Alignment.centerLeft,
-      children: [
-        // 菜单 和内容
-        AnimatedSwitcher(
-          duration: duration,
-          child: isExpandSecondary && null != secondary
-              ? buildDesktopSecondaryBody(context)
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    // 菜单
-                    AnimatedSwitcher(
-                      key: const ValueKey("animated_container_menu"),
-                      duration: duration,
-                      child: buildDesktopMenu(context),
-                      transitionBuilder: (Widget child, Animation<double> animation) {
-                        return SizeTransition(sizeFactor: animation, axis: Axis.horizontal, child: child);
-                      },
-                    ),
-                    Expanded(
-                      child: Container(
-                        constraints: BoxConstraints(minWidth: logic.maxWidth / 3),
-                        child: buildBody(context),
-                      ),
-                    ),
-                    // 内容
-                    AnimatedSwitcher(
-                      key: const ValueKey("animated_container_secondary_body"),
-                      duration: duration,
-                      transitionBuilder: (Widget child, Animation<double> animation) {
-                        return SizeTransition(sizeFactor: animation, axis: Axis.horizontal, child: child);
-                      },
-                      child: buildDesktopSecondaryBody(context),
-                    ),
-                  ],
-                ),
-        ),
-        // 菜单展开收起按钮
-        isExpandSecondary && null != secondary ? const SizedBox.shrink() : buildDesktopMenuOpenButton(context),
-        // 第二内容展开收起按钮
-        isExpandSecondary && null != secondary ? const SizedBox.shrink() : buildDesktopSecondaryBodyOpenButton(context),
-      ],
-    );
+    return [buildDesktopMenu(context), logic.args.body.expanded()].toRow();
   }
 
   /// 构建菜单
   Widget buildDesktopMenu(BuildContext context) {
-    bool isExpand = logic.isMenuOpen.value;
-    if (!isExpand) return const SizedBox.shrink();
-    return Obx(() {
-      return MouseRegion(
-        onEnter: (event) => logic.isHoverMenuButton.value = true,
-        onExit: (event) => logic.isHoverMenuButton.value = false,
-        child: SizedBox(
-          width: logic.menuWidth.value,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 菜单
-              Expanded(child: buildMenu(context)),
-              // 可拖拽的框
-              buildDesktopDraggableDivider(context, (detail) {
-                Offset offset = detail.globalPosition;
-                logic.menuWidth.value = math.max(
-                  math.min(offset.dx - logic.dx.value, logic.maxWidth / 3),
-                  logic.maxWidth / 6,
-                );
-              }),
-            ],
-          ),
-        ),
+    // 构建切换器
+    Widget buildSwitcherWithChild(Widget child) {
+      return AnimatedSwitcher(
+        key: getChildLocalKey(AnimatedSwitcher, "menu_switcher"),
+        duration: logic.fastAnimationDuration,
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return SizeTransition(sizeFactor: animation, axis: Axis.horizontal, child: child);
+        },
+        child: child,
       );
-    });
-  }
+    }
 
-  /// 构建第二内容
-  Widget buildDesktopSecondaryBody(BuildContext context) {
-    bool isSecondaryBodyOpen = logic.isSecondaryBodyOpen.value;
-    Widget? secondaryBody = logic.secondaryBody.value;
-    if (!isSecondaryBodyOpen || secondaryBody == null) return const SizedBox.shrink(key: ValueKey("secondary_body_close"));
-    bool isExpandSecondary = logic.isExpandSecondaryBody.value;
-
-    return SizedBox(
-      key: const ValueKey("secondary_body_open"),
-      width: isExpandSecondary ? logic.maxWidth : math.min(logic.secondaryBodyWidth.value, logic.maxWidth / 2),
-      child: MouseRegion(
-        onEnter: (event) => logic.isHoverSecondaryBodyButton.value = true,
-        onExit: (event) => logic.isHoverSecondaryBodyButton.value = false,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 可拖拽的框
-            buildDesktopDraggableDivider(context, (detail) {
-              Offset offset = detail.globalPosition;
-              logic.secondaryBodyWidth.value = math.max(
-                math.min(logic.maxWidth - (offset.dx - logic.dx.value), logic.maxWidth / 2),
-                logic.maxWidth / 4,
-              );
-            }),
-            // 第二内容
-            Expanded(child: buildSecondaryBody(context)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// 菜单展开收起按钮
-  Widget buildDesktopMenuOpenButton(BuildContext context) {
     return Obx(() {
-      bool isExpand = logic.isMenuOpen.value;
-      bool isHover = logic.isHoverMenuButton.value;
-      if (DeviceInfoHelper.isTablet || DeviceInfoHelper.isAndroidApp) isHover = true;
-      double menuWidth = logic.menuWidth.value;
-      double opacity;
-      if (isExpand) {
-        opacity = isHover ? 1 : 0;
-      } else {
-        opacity = 1;
-      }
-      return Positioned(
-        left: isExpand ? math.min(menuWidth, logic.maxWidth / 2) : 0,
-        child: MouseRegion(
-          cursor: MaterialStateMouseCursor.clickable,
-          onEnter: (event) => logic.isHoverMenuButton.value = true,
-          onExit: (event) => logic.isHoverMenuButton.value = false,
-          child: Visibility(
-            visible: opacity == 1,
-            child: Clickable(
-              tooltip: "${isExpand ? "收起" : "展开"}菜单",
-              onTap: () => logic.openCloseMenu(),
-              child: Icon(isExpand ? Icons.arrow_left_outlined : Icons.arrow_right_outlined, size: 40),
-            ),
-          ),
-        ),
-      );
-    });
-  }
-
-  /// 第二内容展开收起按钮
-  Widget buildDesktopSecondaryBodyOpenButton(BuildContext context) {
-    return Obx(() {
-      bool isOpen = logic.isSecondaryBodyOpen.value;
-      bool isHover = logic.isHoverSecondaryBodyButton.value;
-      if (DeviceInfoHelper.isTablet || DeviceInfoHelper.isAndroidApp) isHover = true;
-      double bodyWidth = logic.secondaryBodyWidth.value;
-      double opacity;
-      if (isOpen) {
-        opacity = isHover ? 1 : 0;
-      } else {
-        if (logic.secondaryBody.value == null) {
-          opacity = 0;
-        } else {
-          opacity = 1;
-        }
-      }
-      return Positioned(
-        right: isOpen ? math.min(bodyWidth, logic.maxWidth / 2) : 0,
-        child: MouseRegion(
-          cursor: MaterialStateMouseCursor.clickable,
-          onEnter: (event) => logic.isHoverSecondaryBodyButton.value = true,
-          onExit: (event) => logic.isHoverSecondaryBodyButton.value = false,
-          child: Visibility(
-            visible: opacity == 1,
-            child: Clickable(
-              tooltip: "${isOpen ? "收起" : "展开"}内容",
-              onTap: () => logic.openCloseSecondaryBody(),
-              child: Icon(!isOpen ? Icons.arrow_left_outlined : Icons.arrow_right_outlined, size: 40),
-            ),
-          ),
-        ),
-      );
+      // 菜单是否打开
+      bool isMenuOpen = logic.isMenuOpen.value;
+      if (!isMenuOpen) return buildSwitcherWithChild(const SizedBox.shrink());
+      return buildSwitcherWithChild(Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 菜单
+          Expanded(child: logic.args.menu),
+          // 可拖拽的框
+          buildDesktopDraggableDivider(context, (detail) {
+            Offset offset = detail.globalPosition;
+            logic.afterMenuWidthChanged(offset.dx - logic.dx.value);
+          }),
+        ],
+      ).width(logic.menuWidth.value));
     });
   }
 
   /// 可拖拽分隔符
   Widget buildDesktopDraggableDivider(BuildContext context, void Function(DragUpdateDetails details) onDragUpdate) {
-    ThemeData theme = appLogic.themeData;
     return MouseRegion(
       cursor: SystemMouseCursors.resizeColumn,
       child: Draggable(
         feedback: const SizedBox.shrink(),
         onDragUpdate: onDragUpdate,
-        child: Container(width: 2, color: theme.dividerColor),
+        child: Container(width: 2, color: Colors.transparent),
       ),
-    );
-  }
-
-  /// 构建内容
-  Widget buildBody(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      extendBody: true,
-      extendBodyBehindAppBar: true,
-      backgroundColor: Colors.transparent,
-      body: logic.args.body,
-    );
-  }
-
-  Widget buildSecondaryBody(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      extendBody: true,
-      extendBodyBehindAppBar: true,
-      backgroundColor: Colors.transparent,
-      body: logic.secondaryBody.value,
     );
   }
 }
