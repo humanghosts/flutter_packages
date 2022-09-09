@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import 'package:hg_framework/hg_framework.dart';
 import 'package:hg_framework/service/theme.dart';
 import 'package:hg_orm/hg_orm.dart';
+import 'package:window_manager/window_manager.dart';
 
 /// TODO 屏幕方向监听器 暂时没用
 abstract class OrientationHelper {
@@ -391,7 +392,7 @@ AppConfig get appConfig => appLogic.config;
 ThemeTemplate get currentThemeTemplate => appLogic.themeTemplate;
 
 /// 主页控制器
-class AppLogic extends GetxController with OrientationHelper, ThemeHelper, AppLifecycleHelper, OverlayHelper, InAppNotificationHelper {
+class AppLogic extends GetxController with OrientationHelper, ThemeHelper, AppLifecycleHelper, OverlayHelper, InAppNotificationHelper, WindowListener {
   AppLogic._();
 
   AppLogic.forExtends();
@@ -445,11 +446,27 @@ class AppLogic extends GetxController with OrientationHelper, ThemeHelper, AppLi
   /// 移除销毁监听器
   void removeOnCloseListener(String key) => _onCloseCallback.remove(key);
 
+  /// 窗口高度
+  final RxDouble windowHeight = 1024.0.obs;
+
+  /// 窗口宽度
+  final RxDouble windowWidth = 1024.0.obs;
+
+  @override
+  void onWindowResize() {
+    super.onWindowResize();
+    windowHeight.value = Get.height;
+    windowWidth.value = Get.width;
+  }
+
   /// 应用初始化时调用
   /// 调用点为[InitializeHelper.init]
   Future<void> onAppInit(AppConfig appConfig) async {
     LogHelper.info("[AppLogic]:初始化");
+    windowManager.addListener(this);
     config = appConfig;
+    windowHeight.value = Get.height;
+    windowWidth.value = Get.width;
     await _onAppInitTheme();
     for (var value in _onAppInitCallback.values) {
       try {
