@@ -116,6 +116,13 @@ class TreeNodeArgs extends TreeArgs {
           transitionBuilder: treeNodeArgs.transitionBuilder,
           nodeContentBuilder: treeNodeArgs.nodeContentBuilder,
         );
+
+  String get logicKey {
+    if (null != parentNodeLogic) {
+      return "${parentNodeLogic!.key}_${treeNode.key}";
+    }
+    return "${treeViewLogic.key}_${treeNode.key}";
+  }
 }
 
 /// 树节点控制器
@@ -190,9 +197,8 @@ class TreeNodeLogic extends ViewLogicOnlyArgs<TreeNodeArgs> {
 /// 子节点控件
 class TreeNodeView extends View<TreeNodeLogic> {
   TreeNodeView({
-    required String key,
     required TreeNodeArgs args,
-  }) : super(key: key, args: args, logic: TreeNodeLogic());
+  }) : super(key: args.logicKey, args: args, logic: TreeNodeLogic());
 
   @override
   Widget buildView(BuildContext context) {
@@ -379,7 +385,6 @@ class TreeNodeView extends View<TreeNodeLogic> {
   Widget buildChildNode(BuildContext context, TreeNode node) {
     Widget nodeWidget;
     TreeNodeView treeNodeView = TreeNodeView(
-      key: node.key,
       args: TreeNodeArgs.fromNode(treeNode: node, treeNodeArgs: logic.args, parentLogic: logic),
     );
     if (logic.args.transitionBuilder != null) {

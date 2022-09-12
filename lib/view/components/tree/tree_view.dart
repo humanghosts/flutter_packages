@@ -87,13 +87,6 @@ class TreeViewLogic extends ViewLogicOnlyArgs<TreeViewArgs> {
     args.treeController?.call(this);
   }
 
-  /// 获取节点控制器
-  TreeNodeLogic? treeNodeLogic(String key) {
-    bool isRegistered = Get.isRegistered<TreeNodeLogic>(tag: key);
-    if (!isRegistered) return null;
-    return Get.find<TreeNodeLogic>(tag: key);
-  }
-
   /// 根节点更新标识
   RxInt rootUpdateFlag = 0.obs;
 
@@ -167,7 +160,6 @@ class TreeView extends View<TreeViewLogic> {
   Widget buildNode(BuildContext context, TreeNode node) {
     Widget nodeWidget;
     TreeNodeView treeNodeView = TreeNodeView(
-      key: node.key,
       args: TreeNodeArgs.fromTree(treeNode: node, treeViewLogic: logic, treeViewArgs: logic.args),
     );
     if (logic.args.transitionBuilder != null) {
