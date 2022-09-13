@@ -88,17 +88,23 @@ class PopupMenuItemState<T, W extends MyPopupMenuItem<T>> extends State<W> {
 Widget buildContextMenuItem({
   Widget? icon,
   required Widget text,
+  BoxFit iconFit = BoxFit.contain,
+  BoxFit textFit = BoxFit.contain,
+  double iconSize = 16,
+  double fontSize = 20,
 }) {
-  Widget realIcon = SizedBox.square(
-    dimension: 16,
+  Widget realIcon = SizedBox(
+    height: iconSize,
     child: FittedBox(
+      fit: iconFit,
       child: icon,
     ),
   );
 
   Widget realText = SizedBox(
-    height: 20,
+    height: fontSize,
     child: FittedBox(
+      fit: textFit,
       child: text,
     ),
   );

@@ -243,6 +243,7 @@ class Clickable extends StatelessWidget {
         preferBelow: tooltipBelow,
         waitDuration: const Duration(seconds: 1),
         child: child,
+        triggerMode: TooltipTriggerMode.manual,
       );
     } else {
       if (forceTooltip) {
@@ -251,6 +252,7 @@ class Clickable extends StatelessWidget {
           preferBelow: tooltipBelow,
           waitDuration: const Duration(seconds: 1),
           child: child,
+          triggerMode: TooltipTriggerMode.manual,
         );
       } else {
         widget = child;
