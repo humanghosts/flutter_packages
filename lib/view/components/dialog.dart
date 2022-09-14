@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/hg_framework.dart';
+import 'package:styled_widget/styled_widget.dart';
 
 /// 外部参数
 @immutable
 class DialogViewArgs extends ViewArgs {
   final Widget? title;
+  final Widget? titleIcon;
+  final Widget? titleText;
   final List<Widget> content;
   final Widget? buttonBar;
   final VoidCallback? onCancel;
@@ -18,6 +21,8 @@ class DialogViewArgs extends ViewArgs {
 
   const DialogViewArgs({
     this.title,
+    this.titleIcon,
+    this.titleText,
     this.content = const [],
     this.buttonBar,
     this.onDone,
@@ -181,7 +186,13 @@ class DialogView<L extends DialogViewLogic> extends View<L> {
   }
 
   /// 标题
-  Widget? buildTitle(BuildContext context) => logic.args.title;
+  Widget? buildTitle(BuildContext context) {
+    if (logic.args.title != null) return logic.args.title;
+    return [
+      if (null != logic.args.titleIcon) logic.args.titleIcon!.padding(right: 6),
+      if (null != logic.args.titleText) logic.args.titleText!,
+    ].toRow();
+  }
 
   /// 内容
   List<Widget> buildContents(BuildContext context) => logic.args.content;
