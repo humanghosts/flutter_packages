@@ -42,7 +42,7 @@ dependencies:
   ## 设备信息 all
   device_info_plus: ^4.1.2
   ## 网络链接检查 all
-  connectivity_plus: ^2.3.6+1
+  connectivity_plus: ^2.3.7
 
 
   # 移动端专用库
