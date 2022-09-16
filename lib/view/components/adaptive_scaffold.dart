@@ -185,6 +185,9 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
       backgroundColor: Colors.transparent,
       resizeToAvoidBottomInset: false,
       drawer: SizedBox.expand(child: logic.args.menu),
+      onDrawerChanged: (isOpened) {
+        logic.isMenuOpen.value = isOpened;
+      },
       body: Builder(builder: (context) {
         logic.mobileContext = context;
         if (DeviceInfoHelper.isWeb) {
@@ -221,11 +224,11 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
       // 菜单是否打开
       bool isMenuOpen = logic.isMenuOpen.value;
       if (!isMenuOpen) return buildSwitcherWithChild(const SizedBox.shrink());
-      return buildSwitcherWithChild(Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      return buildSwitcherWithChild(Stack(
+        alignment: Alignment.centerRight,
         children: [
           // 菜单
-          Expanded(child: logic.args.menu),
+          SizedBox.expand(child: logic.args.menu),
           // 可拖拽的框
           buildDesktopDraggableDivider(context, (detail) {
             Offset offset = detail.globalPosition;
