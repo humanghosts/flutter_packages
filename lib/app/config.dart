@@ -78,8 +78,14 @@ abstract class AppConfig {
       if (windowOptions is Future<WindowOptions?>) {
         options = await windowOptions;
       } else {
-        options = options;
+        options = windowOptions as WindowOptions?;
       }
+      options = options?.copyWithIfNull(
+        size: Size(
+          PrefsHelper.prefs.getDouble("window_width") ?? 800,
+          PrefsHelper.prefs.getDouble("window_height") ?? 600,
+        ),
+      );
       await windowManager.waitUntilReadyToShow(options, () async {
         await windowManager.show();
         await windowManager.focus();
@@ -282,4 +288,58 @@ Map<Type, SimpleModel Function()> _getSimpleModelInitData() {
   return {
     ThemeConfig: () => ThemeConfig.initData,
   };
+}
+
+extension WindowOpeionsEx on WindowOptions {
+  WindowOptions copyWith({
+    Size? size,
+    bool? center,
+    Size? minimumSize,
+    Size? maximumSize,
+    bool? alwaysOnTop,
+    bool? fullScreen,
+    Color? backgroundColor,
+    bool? skipTaskbar,
+    String? title,
+    TitleBarStyle? titleBarStyle,
+  }) {
+    return WindowOptions(
+      size: size ?? this.size,
+      center: center ?? this.center,
+      minimumSize: minimumSize ?? this.minimumSize,
+      maximumSize: maximumSize ?? this.maximumSize,
+      alwaysOnTop: alwaysOnTop ?? this.alwaysOnTop,
+      fullScreen: fullScreen ?? this.fullScreen,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      skipTaskbar: skipTaskbar ?? this.skipTaskbar,
+      title: title ?? this.title,
+      titleBarStyle: titleBarStyle ?? this.titleBarStyle,
+    );
+  }
+
+  WindowOptions copyWithIfNull({
+    Size? size,
+    bool? center,
+    Size? minimumSize,
+    Size? maximumSize,
+    bool? alwaysOnTop,
+    bool? fullScreen,
+    Color? backgroundColor,
+    bool? skipTaskbar,
+    String? title,
+    TitleBarStyle? titleBarStyle,
+  }) {
+    return WindowOptions(
+      size: this.size ?? size,
+      center: this.center ?? center,
+      minimumSize: this.minimumSize ?? minimumSize,
+      maximumSize: this.maximumSize ?? maximumSize,
+      alwaysOnTop: this.alwaysOnTop ?? alwaysOnTop,
+      fullScreen: this.fullScreen ?? fullScreen,
+      backgroundColor: this.backgroundColor ?? backgroundColor,
+      skipTaskbar: this.skipTaskbar ?? skipTaskbar,
+      title: this.title ?? title,
+      titleBarStyle: this.titleBarStyle ?? titleBarStyle,
+    );
+  }
 }

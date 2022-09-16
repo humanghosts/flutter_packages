@@ -453,10 +453,12 @@ class AppLogic extends GetxController with OrientationHelper, ThemeHelper, AppLi
   final RxDouble windowWidth = 1024.0.obs;
 
   @override
-  void onWindowResize() {
+  void onWindowResize() async {
     super.onWindowResize();
     windowHeight.value = Get.height;
     windowWidth.value = Get.width;
+    await PrefsHelper.prefs.setDouble("window_height", windowHeight.value);
+    await PrefsHelper.prefs.setDouble("window_width", windowWidth.value);
   }
 
   /// 应用初始化时调用

@@ -1,8 +1,6 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/hg_framework.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
@@ -19,14 +17,11 @@ class AdaptiveScaffoldArgs extends ViewArgs {
   /// 获取控制器
   final void Function(AdaptiveScaffoldLogic controller)? controller;
 
-  /// 初始化菜单宽度
-  final double initMenuRadio;
-
-  /// 最大菜单宽度
-  final double menuWidthMinRadio;
-
   /// 最大菜单宽度
   final double menuWidthMaxRadio;
+
+  /// 最小菜单宽度
+  final double menuWidthMin;
 
   /// 当菜单宽度超过最大值
   final VoidCallback? onMenuWidthOverMax;
@@ -38,9 +33,8 @@ class AdaptiveScaffoldArgs extends ViewArgs {
     required this.menu,
     required this.body,
     this.controller,
-    this.initMenuRadio = 0.25,
     this.menuWidthMaxRadio = 0.5,
-    this.menuWidthMinRadio = 0.25,
+    this.menuWidthMin = 304,
     this.onMenuWidthOverMax,
     this.onMenuWidthOverMain,
   });
@@ -102,18 +96,19 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
     dy.value = global.dy;
     // 菜单宽度
     double menuWidth = this.menuWidth.value;
-    if (!hasInitMenu) menuWidth = maxWidth * args.initMenuRadio;
+    if (!hasInitMenu) menuWidth = maxWidth * 0.25;
     // 超过最大值
     if (menuWidth > maxWidth * args.menuWidthMaxRadio) {
       args.onMenuWidthOverMax?.call();
       menuWidth = maxWidth * args.menuWidthMaxRadio;
     }
     // 超过最小值
-    if (menuWidth < maxWidth * args.menuWidthMinRadio) {
+    if (menuWidth < args.menuWidthMin) {
       args.onMenuWidthOverMain?.call();
-      menuWidth = maxWidth * args.menuWidthMinRadio;
+      menuWidth = args.menuWidthMin;
     }
     this.menuWidth.value = menuWidth;
+    hasInitMenu = true;
   }
 
   /// 打开或关闭菜单栏
@@ -143,9 +138,9 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
       menuWidth = maxWidth * args.menuWidthMaxRadio;
     }
     // 超过最小值
-    if (menuWidth < maxWidth * args.menuWidthMinRadio) {
+    if (menuWidth < args.menuWidthMin) {
       args.onMenuWidthOverMain?.call();
-      menuWidth = maxWidth * args.menuWidthMinRadio;
+      menuWidth = args.menuWidthMin;
     }
     this.menuWidth.value = menuWidth;
   }
