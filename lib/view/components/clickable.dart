@@ -6,6 +6,7 @@ import 'package:hg_framework/hg_framework.dart';
 class Clickable extends StatelessWidget {
   const Clickable({
     Key? key,
+    this.clickableType = ClickableType.inkwell,
     required this.child,
     this.showInk = true,
     this.showHover = true,
@@ -81,6 +82,7 @@ class Clickable extends StatelessWidget {
     this.excludeFromSemantics = false,
     this.dragStartBehavior = DragStartBehavior.start,
     this.onHover,
+    this.buttonStyle,
   }) : super(key: key);
 
   final String? tooltip;
@@ -94,6 +96,8 @@ class Clickable extends StatelessWidget {
   final double? radius;
   final Color? color;
   final bool feedback;
+  final ClickableType clickableType;
+  final ButtonStyle? buttonStyle;
 
   final Widget child;
 
@@ -225,15 +229,17 @@ class Clickable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
-    Widget child = IconTheme.merge(
-      data: IconThemeData(
-        color: color ?? theme.primaryColor,
-      ),
-      child: DefaultTextStyle(
-        style: TextStyle(color: color ?? theme.primaryColor),
-        child: this.child,
-      ),
-    );
+    if (null != color) {
+      Widget child = IconTheme.merge(
+        data: IconThemeData(
+          color: color ?? theme.primaryColor,
+        ),
+        child: DefaultTextStyle(
+          style: TextStyle(color: color ?? theme.primaryColor),
+          child: this.child,
+        ),
+      );
+    }
     Widget widget;
     if (null == tooltip) {
       widget = child;
@@ -251,7 +257,7 @@ class Clickable extends StatelessWidget {
           message: tooltip,
           preferBelow: tooltipBelow,
           waitDuration: const Duration(seconds: 1),
-          triggerMode: TooltipTriggerMode.manual,
+          triggerMode: TooltipTriggerMode.longPress,
           child: child,
         );
       } else {
@@ -260,16 +266,69 @@ class Clickable extends StatelessWidget {
     }
     VoidCallback? onTap;
     if (this.onTap != null || onPressed != null) {
-      onTap = (this.onTap ?? onPressed)!;
+      onTap = () {
+        if (feedback) HapticFeedback.lightImpact();
+        (this.onTap ?? onPressed)?.call();
+      }!;
     } else if (onTapUp != null || onTapDown != null || onTapCancel != null) {
-      onTap = () {};
+      onTap = () {
+        if (feedback) HapticFeedback.lightImpact();
+      };
     }
     VoidCallback? onDoubleTap;
     if (onDoubleTapDown != null && this.onDoubleTap == null) {
       onDoubleTap = () {};
     }
+    Widget button;
+    switch (clickableType) {
+      case ClickableType.inkwell:
+        button = Material(
+          color: Colors.transparent,
+          child: Ink(
+            child: InkWell(
+              mouseCursor: cursor,
+              borderRadius: BorderRadius.circular(radius ?? 12),
+              hoverColor: showInk && showHover ? null : Colors.transparent,
+              focusColor: showInk && showFocus ? null : Colors.transparent,
+              highlightColor: showInk && showHighlight ? null : Colors.transparent,
+              splashColor: showInk && showSplash ? null : Colors.transparent,
+              onTap: onTap,
+              onHover: onHover,
+              onTapDown: onTapDown,
+              onTapUp: onTapUp,
+              onTapCancel: onTapCancel,
+              onLongPress: onLongPress,
+              child: widget,
+            ),
+          ),
+        );
+        break;
+      case ClickableType.elevatedButton:
+        button = ElevatedButton(
+          onPressed: onTap,
+          onHover: onHover,
+          onLongPress: onLongPress,
+          style: buttonStyle,
+          child: widget,
+        );
+        break;
+      case ClickableType.iconButton:
+        button = MouseRegion(
+          cursor: cursor,
+          child: IconButton(
+            onPressed: onTap,
+            icon: widget,
+            style: buttonStyle,
+            tooltip: tooltip,
+          ),
+          onHover: (detail) => onHover?.call(true),
+          onEnter: (detail) => onHover?.call(false),
+        );
+        break;
+    }
 
     return GestureDetector(
+      onLongPress: clickableType == ClickableType.iconButton ? onLongPress : null,
       onSecondaryTap: onSecondaryTap,
       onSecondaryTapDown: onSecondaryTapDown,
       onSecondaryTapUp: onSecondaryTapUp,
@@ -330,31 +389,13 @@ class Clickable extends StatelessWidget {
       behavior: behavior,
       excludeFromSemantics: excludeFromSemantics,
       dragStartBehavior: dragStartBehavior,
-      child: Material(
-        color: Colors.transparent,
-        child: Ink(
-          child: InkWell(
-            mouseCursor: cursor,
-            borderRadius: BorderRadius.circular(radius ?? 12),
-            hoverColor: showInk && showHover ? null : Colors.transparent,
-            focusColor: showInk && showFocus ? null : Colors.transparent,
-            highlightColor: showInk && showHighlight ? null : Colors.transparent,
-            splashColor: showInk && showSplash ? null : Colors.transparent,
-            onTap: onTap == null
-                ? null
-                : () {
-                    if (feedback) HapticFeedback.lightImpact();
-                    onTap!();
-                  },
-            onHover: onHover,
-            onTapDown: onTapDown,
-            onTapUp: onTapUp,
-            onTapCancel: onTapCancel,
-            onLongPress: onLongPress,
-            child: widget,
-          ),
-        ),
-      ),
+      child: button,
     );
   }
+}
+
+enum ClickableType {
+  inkwell,
+  iconButton,
+  elevatedButton,
 }
