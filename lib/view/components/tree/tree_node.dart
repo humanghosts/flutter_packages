@@ -123,6 +123,10 @@ class TreeNodeArgs extends TreeArgs {
     }
     return "${treeViewLogic.key}_${treeNode.key}";
   }
+
+  static getKey(String parentKey, String key) {
+    return "${parentKey}_$key}";
+  }
 }
 
 /// 树节点控制器
@@ -178,8 +182,10 @@ class TreeNodeLogic extends ViewLogicOnlyArgs<TreeNodeArgs> {
 
   /// 移除子节点
   Future<void> removeChild(String key) async {
-    await childrenAnimationControllerMap[key]?.reverse();
-    childrenAnimationControllerMap.remove(key);
+    String id = TreeNodeArgs.getKey(this.key, key);
+
+    await childrenAnimationControllerMap[id]?.reverse();
+    childrenAnimationControllerMap.remove(id);
     args.treeNode.children.removeWhere((element) => element.key == key);
     childrenUpdateFlag++;
   }
@@ -384,8 +390,9 @@ class TreeNodeView extends View<TreeNodeLogic> {
   /// 构建单个节点
   Widget buildChildNode(BuildContext context, TreeNode node) {
     Widget nodeWidget;
+    TreeNodeArgs treeNodeArgs = TreeNodeArgs.fromNode(treeNode: node, treeNodeArgs: logic.args, parentLogic: logic);
     TreeNodeView treeNodeView = TreeNodeView(
-      args: TreeNodeArgs.fromNode(treeNode: node, treeNodeArgs: logic.args, parentLogic: logic),
+      args: treeNodeArgs,
     );
     if (logic.args.transitionBuilder != null) {
       nodeWidget = logic.args.transitionBuilder!.call(node, treeNodeView);
@@ -393,7 +400,7 @@ class TreeNodeView extends View<TreeNodeLogic> {
       nodeWidget = buildSlideInLeft(node, treeNodeView);
     }
     return Column(
-      key: ValueKey(node.key),
+      key: ValueKey(treeNodeArgs.logicKey),
       children: [
         nodeWidget,
         if (node != logic.args.treeNode.children.last && logic.args.divider != null)
@@ -403,7 +410,7 @@ class TreeNodeView extends View<TreeNodeLogic> {
   }
 
   Widget buildSlideInLeft(TreeNode node, Widget child) {
-    String id = node.key;
+    String id = TreeNodeArgs.getKey(logic.key, node.key);
     // 动画控制器
     AnimationController controller = logic.childrenAnimationControllerMap.putIfAbsent(id, () {
       AnimationController newController = AnimationController(
@@ -417,19 +424,16 @@ class TreeNodeView extends View<TreeNodeLogic> {
     // 立即播放动画
     Future.delayed(Duration.zero, () => controller.forward());
 
-    return Container(
+    return AnimatedBuilder(
       key: ValueKey(id),
-      child: AnimatedBuilder(
-        key: ValueKey(id),
-        animation: controller,
-        builder: (BuildContext context, Widget? child) {
-          return Transform.translate(
-            offset: Offset(animation.value, 0),
-            child: child,
-          );
-        },
-        child: child,
-      ),
+      animation: controller,
+      builder: (BuildContext context, Widget? child) {
+        return Transform.translate(
+          offset: Offset(animation.value, 0),
+          child: child,
+        );
+      },
+      child: child,
     );
   }
 }

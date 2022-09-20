@@ -10,8 +10,8 @@ abstract class ModelService<M extends Model, D extends Dao<M>> extends GetxServi
   D get dao => DaoCache.getByType(M) as D;
 
   /// 转换为map数据
-  Future<Map<String, Object?>?> convertToMap(M model) async {
-    return await dao.convertors.modelConvertor.getValue(model);
+  Future<Map<String, Object?>?> convertToMap(M model, {Transaction? tx}) async {
+    return await dao.convertors.modelConvertor.getValue(model, tx: tx);
   }
 
   /// 加入事务

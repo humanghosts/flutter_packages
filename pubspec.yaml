@@ -72,7 +72,7 @@ dependencies:
 
   # 布局的库
   ## 主题
-  flex_color_scheme: ^5.1.0
+  flex_color_scheme: ^6.0.0
   ## 拖拽排序
   reorderables: ^0.5.0
   ## 组件扩展

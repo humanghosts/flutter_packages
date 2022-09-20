@@ -140,7 +140,7 @@ class DialogView<L extends DialogViewLogic> extends View<L> {
           Container(color: theme.dialogBackgroundColor.withOpacity(0.8)),
           // 实际内容
           Container(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 48),
+            padding: const EdgeInsets.all(16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -150,11 +150,11 @@ class DialogView<L extends DialogViewLogic> extends View<L> {
                   // 控制只能通过上下左右来拖动窗口
                   child: DeviceInfoHelper.isDesktop ? Draggable(feedback: const SizedBox.shrink(), child: content) : content,
                 ),
+                const SizedBox(height: 16),
+                buildButtonBar(context),
               ],
             ),
           ),
-          // 操作栏
-          Positioned(bottom: 8, right: 16, child: buildButtonBar(context)),
         ],
       ),
     );

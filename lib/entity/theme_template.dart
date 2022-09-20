@@ -324,8 +324,8 @@ class ThemeTemplate extends DataModel {
     cardBorderRadius = attributes.floatNullable(name: "card_border_radius", title: "卡片边框圆角半径");
     cardElevation = attributes.floatNullable(name: "card elevation", title: "卡片海拔");
     dialogBackgroundSchemeColor = attributes.custom(name: "dialog_background_scheme_color", title: "对话框背景色");
-    dialogBorderRadius = attributes.floatNullable(name: "dialog_border_radius", title: "对话框边框圆角半径", dvalue: 0);
-    dialogElevation = attributes.floatNullable(name: "dialog elevation", title: "对话框海拔", dvalue: 0);
+    dialogBorderRadius = attributes.floatNullable(name: "dialog_border_radius", title: "对话框边框圆角半径");
+    dialogElevation = attributes.floatNullable(name: "dialog elevation", title: "对话框海拔");
     tooltipsMatchBackground = attributes.boolean(name: "tooltips_match_background", title: "提示匹配背景", dvalue: false);
   }
 

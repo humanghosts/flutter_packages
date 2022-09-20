@@ -109,8 +109,9 @@ class TreeViewLogic extends ViewLogicOnlyArgs<TreeViewArgs> {
 
   /// 移除节点
   void removeRoot(String key) async {
-    await childrenAnimationControllerMap[key]?.reverse();
-    childrenAnimationControllerMap.remove(key);
+    String realKey = TreeNodeArgs.getKey(this.key, key);
+    await childrenAnimationControllerMap[realKey]?.reverse();
+    childrenAnimationControllerMap.remove(realKey);
     args.nodes.removeWhere((element) => element.key == key);
     rootUpdateFlag++;
   }
@@ -143,10 +144,15 @@ class TreeView extends View<TreeViewLogic> {
       }
       // 不支持重排序
       if (logic.args.onReorder == null) {
-        return Column(crossAxisAlignment: CrossAxisAlignment.start, children: children);
+        return Column(
+          key: ValueKey(logic.key),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: children,
+        );
       }
 
       return ReorderableColumn(
+        key: ValueKey(logic.key),
         crossAxisAlignment: CrossAxisAlignment.start,
         onReorder: logic.onReorder,
         needsLongPressDraggable: DeviceInfoHelper.isMobile,
@@ -159,16 +165,15 @@ class TreeView extends View<TreeViewLogic> {
   /// 构建单个节点
   Widget buildNode(BuildContext context, TreeNode node) {
     Widget nodeWidget;
-    TreeNodeView treeNodeView = TreeNodeView(
-      args: TreeNodeArgs.fromTree(treeNode: node, treeViewLogic: logic, treeViewArgs: logic.args),
-    );
+    TreeNodeArgs treeNodeArgs = TreeNodeArgs.fromTree(treeNode: node, treeViewLogic: logic, treeViewArgs: logic.args);
+    TreeNodeView treeNodeView = TreeNodeView(args: treeNodeArgs);
     if (logic.args.transitionBuilder != null) {
       nodeWidget = logic.args.transitionBuilder!.call(node, treeNodeView);
     } else {
       nodeWidget = buildSlideInLeft(logic, node, treeNodeView);
     }
     return Column(
-      key: ValueKey(node.key),
+      key: ValueKey(treeNodeArgs.logicKey),
       children: [
         nodeWidget,
         if (logic.args.divider != null && node != logic.args.nodes.last) logic.args.divider!,
@@ -178,7 +183,7 @@ class TreeView extends View<TreeViewLogic> {
 
   /// 构建滑入动画
   Widget buildSlideInLeft(TreeViewLogic logic, TreeNode node, Widget child) {
-    String id = node.key;
+    String id = TreeNodeArgs.getKey(logic.key, node.key);
     // 动画控制器
     AnimationController controller = logic.childrenAnimationControllerMap.putIfAbsent(id, () {
       AnimationController newController = AnimationController(
@@ -196,19 +201,16 @@ class TreeView extends View<TreeViewLogic> {
       }
     });
 
-    return Container(
+    return AnimatedBuilder(
       key: ValueKey(id),
-      child: AnimatedBuilder(
-        key: ValueKey(id),
-        animation: controller,
-        builder: (BuildContext context, Widget? child) {
-          return Transform.translate(
-            offset: Offset(animation.value, 0),
-            child: child,
-          );
-        },
-        child: child,
-      ),
+      animation: controller,
+      builder: (BuildContext context, Widget? child) {
+        return Transform.translate(
+          offset: Offset(animation.value, 0),
+          child: child,
+        );
+      },
+      child: child,
     );
   }
 }
