@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -223,7 +224,8 @@ abstract class OverlayHelper {
   Map<String, VoidCallback> closeFuncMap = {};
 
   /// 显示加载
-  void showLoading(String key, {Widget? message}) {
+  void showLoading(String key, {Widget? message, bool onlyDebug = false}) {
+    if (onlyDebug && kDebugMode) return;
     showOverlay(
       key: key,
       widget: Material(

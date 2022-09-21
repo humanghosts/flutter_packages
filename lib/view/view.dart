@@ -141,9 +141,13 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
   RxBool isBusy = false.obs;
 
   /// 显示加载框
-  void showLoading({String? message, Widget? messageWidget}) {
+  void showLoading({String? message, Widget? messageWidget, bool onlyDebug = false}) {
     isBusy.value = true;
-    appLogic.showLoading(runtimeType.toString(), message: messageWidget ?? (message == null ? null : Text(message)));
+    appLogic.showLoading(
+      runtimeType.toString(),
+      message: messageWidget ?? (message == null ? null : Text(message)),
+      onlyDebug: onlyDebug,
+    );
   }
 
   /// 关闭加载框
