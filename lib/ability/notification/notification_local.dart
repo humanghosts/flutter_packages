@@ -28,10 +28,6 @@ class LocalNotificationHelper {
 
   /// 初始化通知组件
   static Future<bool?> init() async {
-    // 时区初始化
-    tzd.initializeTimeZones();
-    timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(timeZoneName));
     if (DeviceInfoHelper.isWeb) return await _initInApp();
     if (DeviceInfoHelper.isWindowsApp) {
       await initLocalNotifier();
@@ -58,6 +54,10 @@ class LocalNotificationHelper {
   /// flutter_local_notifications插件
   static Future<bool?> _initFlutterLocalNotifications() async {
     plugin = FlutterLocalNotificationsPlugin();
+    // 时区初始化
+    tzd.initializeTimeZones();
+    timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(timeZoneName));
     // 是否通过通知启动应用 来判断应该进入哪个页面
     launchDetails = DeviceInfoHelper.targetPlatform == TargetPlatform.linux ? null : await plugin!.getNotificationAppLaunchDetails();
     // app_icon是应用图标文件 放在android drawable下
