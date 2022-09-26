@@ -83,7 +83,14 @@ class DeviceInfoHelper {
 
   static Future<void> resetIsDesktop() async => await setIsDesktop(devicePlatform.isDesktop);
 
-  /// 是否是桌面端
+  /// 忽略用户设置，直接返回是否桌面设备
+  static bool get isDesktopDevice => devicePlatform.isDesktop;
+
+  static bool get isDesktopDeviceApp => isDesktopDevice && !isWeb;
+
+  static bool get isDesktopDeviceWeb => isDesktopDevice && isWeb;
+
+  /// 是否是桌面端 可由用户更改
   static bool get isDesktop => _isDesktop ??= devicePlatform.isDesktop;
 
   static bool get isDesktopApp => isDesktop && !isWeb;

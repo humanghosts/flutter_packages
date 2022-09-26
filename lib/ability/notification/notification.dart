@@ -516,7 +516,6 @@ class NotificationHelper {
     // 时间排序
     List<DateTime> dateTimeKeyList = dateTimeCache.keys.toList();
     dateTimeKeyList.sort((a, b) => a.compareTo(b));
-    DateTime now = DateTime.now();
     // 时间遍历
     for (DateTime dateTime in dateTimeKeyList) {
       _log("[发送通知]处理通知时间为$dateTime的通知");
@@ -524,6 +523,7 @@ class NotificationHelper {
         _log("[发送通知]剩余数量为$count，结束处理");
         break;
       }
+      DateTime now = DateTime.now();
       // 获取这个时间的提醒id列表 为空跳过
       Set<String> encodeSet = dateTimeCache[dateTime] ?? {};
       if (encodeSet.isEmpty) {
@@ -565,10 +565,10 @@ class NotificationHelper {
         // 根据不同提醒类型发送提醒
         switch (type) {
           case NotificationCacheNodeType.normal:
-            _log("[发送通知]通知类型为$type,发送定时通知，通知时间$dateTime，当前时间${DateTime.now()}");
+            _log("[发送通知]通知类型为$type,发送定时通知，通知时间${cacheNode.dateTime}，当前时间${DateTime.now()}");
             await LocalNotificationHelper.scheduleNotification(
               id: cacheNode.id,
-              dateTime: dateTime,
+              dateTime: cacheNode.dateTime,
               payload: cacheNode.payload,
               title: cacheNode.title,
               body: cacheNode.body,
@@ -588,7 +588,7 @@ class NotificationHelper {
             _log("[发送通知]通知类型为$type,发送指定时间重复通知");
             await LocalNotificationHelper.scheduleNotification(
               id: cacheNode.id,
-              dateTime: dateTime,
+              dateTime: cacheNode.dateTime,
               payload: cacheNode.payload,
               title: cacheNode.title,
               body: cacheNode.body,

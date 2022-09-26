@@ -72,7 +72,7 @@ abstract class AppConfig {
     // 设置设备可用方向
     SystemChrome.setPreferredOrientations(orientations);
     // 桌面端初始化设置
-    if (DeviceInfoHelper.devicePlatform.isDesktop && !DeviceInfoHelper.isWeb) {
+    if (DeviceInfoHelper.isDesktopDeviceApp) {
       await windowManager.ensureInitialized();
       WindowOptions? options;
       if (windowOptions is Future<WindowOptions?>) {

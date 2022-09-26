@@ -1,3 +1,4 @@
+import 'package:dart_date/dart_date.dart';
 import 'package:date_format/date_format.dart';
 
 class DateTimeUtil {
@@ -7,20 +8,9 @@ class DateTimeUtil {
   static String format(DateTime? dateTime, {List<String>? formats, DateTime? base}) {
     if (null == dateTime) return "";
     if (null != formats) return formatDate(dateTime, formats);
-    List<String> dateFormats;
-
     DateTime now = base ?? DateTime.now();
-    if (now.isSameDay(dateTime)) {
-      dateFormats = [HH, ":", nn];
-    } else if (now.isSameMonth(dateTime)) {
-      dateFormats = [dd, "日 ", HH, ":", nn];
-    } else if (now.isSameYear(dateTime)) {
-      dateFormats = [mm, "月", dd, "日 ", HH, ":", nn];
-    } else {
-      dateFormats = [yyyy, "年", mm, "月", dd, "日 ", HH, ":", nn];
-    }
-
-    return formatDate(dateTime, dateFormats);
+    if (now.isSameDay(dateTime)) return timeFormat(dateTime);
+    return "${dateFormat(dateTime, base: base)} ${timeFormat(dateTime)}";
   }
 
   /// 格式化日期，忽略时间
@@ -28,13 +18,62 @@ class DateTimeUtil {
     if (null == dateTime) return "";
     DateTime now = base ?? DateTime.now();
     List<String> dateFormats;
-    if (now.isSameMonth(dateTime)) {
-      dateFormats = [dd, "日"];
-    } else if (now.isSameYear(dateTime)) {
+    // 处理年和月
+    if (now.isSameYear(dateTime)) {
+      int monthDiff = dateTime.month - now.month;
+      if (monthDiff == 1) {
+        dateFormats = ["次月", dd, "日"];
+      } else if (monthDiff == -1) {
+        dateFormats = ["上月", dd, "日"];
+      } else {
+        dateFormats = [mm, "月", dd, "日"];
+      }
       dateFormats = [mm, "月", dd, "日"];
     } else {
-      dateFormats = [yyyy, "年", mm, "月", dd, "日"];
+      int yearDiff = dateTime.year - now.year;
+      if (yearDiff == 1) {
+        dateFormats = ["明年", mm, "月", dd, "日"];
+      } else if (yearDiff == -1) {
+        dateFormats = ["去年", mm, "月", dd, "日"];
+      } else {
+        dateFormats = [yyyy, "年", mm, "月", dd, "日"];
+      }
     }
+    // 处理天
+    if (dateTime.isSameDay(now)) return "今天";
+
+    int dayDiff = dateTime.difference(now).inDays;
+    if (dayDiff == 0) {
+      // 用微秒比较精确，防止 59:59和00:00判断为同一天
+      int hourDiff = dateTime.difference(now).inMicroseconds;
+      if (hourDiff > 0) {
+        return "明天";
+      } else {
+        return "昨天";
+      }
+    } else if (dayDiff == 1) {
+      return "明天";
+    } else if (dayDiff == 2) {
+      return "后天";
+    } else if (dayDiff == -1) {
+      return "昨天";
+    } else if (dayDiff == -2) {
+      return "前天";
+    } else if (dayDiff.abs() < 14) {
+      int weekDiff = dateTime.getWeekYear - now.getWeekYear;
+      if (weekDiff == 0) {
+        return "本周${dateTime.weekdayTitle}";
+      } else if (weekDiff == 1) {
+        return "下周${dateTime.weekdayTitle}";
+      } else if (weekDiff == -1) {
+        return "上周${dateTime.weekdayTitle}";
+      } else if (now.isSameMonth(dateTime)) {
+        dateFormats = [dd, "日"];
+      }
+    } else if (now.isSameMonth(dateTime)) {
+      dateFormats = [dd, "日"];
+    }
+
     return format(dateTime, formats: dateFormats);
   }
 
@@ -82,31 +121,40 @@ class DateTimeUtil {
 /// 时间比较拓展
 extension DateTimeCompare on DateTime {
   /// 是否同年
-  bool isSameYear(DateTime? other) {
+  bool isSameYearNullable(DateTime? other) {
     if (null == other) return false;
     return year == other.year;
   }
 
   /// 是否同月
-  bool isSameMonth(DateTime? other) {
+  bool isSameMonthNullable(DateTime? other) {
     if (null == other) return false;
     return isSameYear(other) && month == other.month;
   }
 
+  /// 是否同周
+  bool isSameWeekNullable(DateTime? other) {
+    if (null == other) return false;
+    int dayDiff = difference(other).inDays;
+    if (dayDiff.abs() > 7) return false;
+    int otherWeekDay = dayDiff + weekday;
+    return otherWeekDay > 0 && otherWeekDay <= 7;
+  }
+
   /// 是否同日
-  bool isSameDay(DateTime? other) {
+  bool isSameDayNullable(DateTime? other) {
     if (null == other) return false;
     return isSameMonth(other) && day == other.day;
   }
 
   /// 是否同时
-  bool isSameHour(DateTime? other) {
+  bool isSameHourNullable(DateTime? other) {
     if (null == other) return false;
     return isSameDay(other) && hour == other.hour;
   }
 
   /// 是否同分
-  bool isSameMinute(DateTime? other) {
+  bool isSameMinuteNullable(DateTime? other) {
     if (null == other) return false;
     return isSameHour(other) && minute == other.minute;
   }
@@ -121,5 +169,16 @@ extension DateTimeCompare on DateTime {
   bool isAfterOrEquals(DateTime? other) {
     if (null == other) return false;
     return isAtSameMomentAs(other) || isAfter(other);
+  }
+
+  String get weekdayTitle {
+    if (weekday == DateTime.monday) return "周一";
+    if (weekday == DateTime.tuesday) return "周二";
+    if (weekday == DateTime.wednesday) return "周三";
+    if (weekday == DateTime.thursday) return "周四";
+    if (weekday == DateTime.friday) return "周五";
+    if (weekday == DateTime.saturday) return "周六";
+    if (weekday == DateTime.sunday) return "周日";
+    return "";
   }
 }

@@ -69,6 +69,7 @@ dependencies:
   logger: ^1.1.0
   ## 日期格式化
   date_format: ^2.0.6
+  dart_date: ^1.1.1
 
   # 布局的库
   ## 主题

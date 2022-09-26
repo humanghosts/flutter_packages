@@ -24,8 +24,14 @@ class LocalNotificationHelper {
   /// 应用内通知插件
   static late InAppNotificationsPlugin inApp;
 
+  static late String timeZoneName;
+
   /// 初始化通知组件
   static Future<bool?> init() async {
+    // 时区初始化
+    tzd.initializeTimeZones();
+    timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(timeZoneName));
     if (DeviceInfoHelper.isWeb) return await _initInApp();
     if (DeviceInfoHelper.isWindowsApp) {
       await initLocalNotifier();
@@ -52,10 +58,6 @@ class LocalNotificationHelper {
   /// flutter_local_notifications插件
   static Future<bool?> _initFlutterLocalNotifications() async {
     plugin = FlutterLocalNotificationsPlugin();
-    // 时区初始化
-    tzd.initializeTimeZones();
-    final String timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(timeZoneName));
     // 是否通过通知启动应用 来判断应该进入哪个页面
     launchDetails = DeviceInfoHelper.targetPlatform == TargetPlatform.linux ? null : await plugin!.getNotificationAppLaunchDetails();
     // app_icon是应用图标文件 放在android drawable下
@@ -83,10 +85,10 @@ class LocalNotificationHelper {
   }) async {
     // 检查权限 没有权限使用系统内通知 web端也使用系统内通知
     bool hasPermission = await checkNotificationPermission();
-    if (!hasPermission || DeviceInfoHelper.isWeb) return await inApp.show(id, title, body, details ?? buildNotificationDetail(), payload: payload?.encode());
+    if (!hasPermission || DeviceInfoHelper.isWeb) return await inApp.show(id, title, body, details, payload: payload?.encode());
     // 调用本地通知
-    await windowPlugin?.show(id, title, body, details ?? buildNotificationDetail(), payload: payload?.encode());
-    await plugin?.show(id, title, body, details ?? buildNotificationDetail(), payload: payload?.encode());
+    await windowPlugin?.show(id, title, body, details, payload: payload?.encode());
+    await plugin?.show(id, title, body, details, payload: payload?.encode());
   }
 
   /// 定时通知 精确到分钟 超过当前时间忽略 可以指定重复规则
@@ -103,7 +105,7 @@ class LocalNotificationHelper {
     // 检查权限 没有权限使用系统内通知 web端也使用系统内通知
     bool hasPermission = await checkNotificationPermission();
     if (!hasPermission || DeviceInfoHelper.isWeb) {
-      await inApp.show(id, title, body, details ?? buildNotificationDetail(), payload: payload?.encode());
+      await inApp.show(id, title, body, details, payload: payload?.encode());
       return true;
     }
     windowPlugin?.zonedSchedule(
@@ -111,22 +113,22 @@ class LocalNotificationHelper {
       title,
       body,
       DateTime(dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute),
-      details ?? buildNotificationDetail(),
+      details,
       androidAllowWhileIdle: true,
       uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
       payload: payload?.encode(),
       matchDateTimeComponents: matchDateTimeComponents,
     );
     if (null == plugin) return true;
-    tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute);
+    tz.TZDateTime now = tz.TZDateTime.now(tz.getLocation(timeZoneName));
+    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.getLocation(timeZoneName), dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute);
     if (now.isAfter(scheduledDate)) return false;
     await plugin?.zonedSchedule(
       id,
       title,
       body,
       scheduledDate,
-      details ?? buildNotificationDetail(),
+      details ?? const NotificationDetails(),
       androidAllowWhileIdle: true,
       uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
       payload: payload?.encode(),
@@ -147,14 +149,14 @@ class LocalNotificationHelper {
     // 检查权限 没有权限使用系统内通知 web端也使用系统内通知
     bool hasPermission = await checkNotificationPermission();
     if (!hasPermission || DeviceInfoHelper.isWeb) {
-      return await inApp.show(id, title, body, details ?? buildNotificationDetail(), payload: payload?.encode());
+      return await inApp.show(id, title, body, details, payload: payload?.encode());
     }
     windowPlugin?.periodicallyShow(
       id,
       title,
       body,
       repeatInterval,
-      details ?? buildNotificationDetail(),
+      details,
       androidAllowWhileIdle: true,
       payload: payload?.encode(),
     );
@@ -163,7 +165,7 @@ class LocalNotificationHelper {
       title,
       body,
       repeatInterval,
-      details ?? buildNotificationDetail(),
+      details ?? const NotificationDetails(),
       androidAllowWhileIdle: true,
       payload: payload?.encode(),
     );
@@ -190,23 +192,6 @@ class LocalNotificationHelper {
     await windowPlugin?.cancelAll();
     await plugin?.cancelAll();
     await inApp.cancelAll();
-  }
-
-  /// 构建通知配置
-  static NotificationDetails buildNotificationDetail({
-    AndroidNotificationDetails? android,
-    IOSNotificationDetails? ios,
-    MacOSNotificationDetails? macOS,
-    LinuxNotificationDetails? linux,
-  }) {
-    //  安卓的通知设置
-    AndroidNotificationDetails? androidDetails = const AndroidNotificationDetails("notification", "通知");
-    // IOS的通知设置 可以修改音效等 暂时所有通知都用1
-    IOSNotificationDetails iosDetails = ios ?? const IOSNotificationDetails(threadIdentifier: "1");
-    // Mac的通知设置
-    MacOSNotificationDetails macOSDetails = macOS ?? const MacOSNotificationDetails();
-    LinuxNotificationDetails linuxDetails = linux ?? const LinuxNotificationDetails();
-    return NotificationDetails(android: android ?? androidDetails, iOS: iosDetails, macOS: macOSDetails, linux: linuxDetails);
   }
 
   /// 检查是否有通知权限
@@ -303,7 +288,7 @@ abstract class NotificationsPlugin {
     String? title,
     String? body,
     DateTime scheduledDate,
-    NotificationDetails notificationDetails, {
+    NotificationDetails? notificationDetails, {
     required UILocalNotificationDateInterpretation uiLocalNotificationDateInterpretation,
     required bool androidAllowWhileIdle,
     String? payload,
@@ -371,7 +356,7 @@ abstract class NotificationsPlugin {
     String? title,
     String? body,
     RepeatInterval repeatInterval,
-    NotificationDetails notificationDetails, {
+    NotificationDetails? notificationDetails, {
     String? payload,
     bool androidAllowWhileIdle = false,
   }) async {
