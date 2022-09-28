@@ -105,7 +105,17 @@ class LocalNotificationHelper {
     // 检查权限 没有权限使用系统内通知 web端也使用系统内通知
     bool hasPermission = await checkNotificationPermission();
     if (!hasPermission || DeviceInfoHelper.isWeb) {
-      await inApp.show(id, title, body, details, payload: payload?.encode());
+      await inApp.zonedSchedule(
+        id,
+        title,
+        body,
+        DateTime(dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute),
+        details,
+        androidAllowWhileIdle: true,
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        payload: payload?.encode(),
+        matchDateTimeComponents: matchDateTimeComponents,
+      );
       return true;
     }
     windowPlugin?.zonedSchedule(
@@ -149,7 +159,15 @@ class LocalNotificationHelper {
     // 检查权限 没有权限使用系统内通知 web端也使用系统内通知
     bool hasPermission = await checkNotificationPermission();
     if (!hasPermission || DeviceInfoHelper.isWeb) {
-      return await inApp.show(id, title, body, details, payload: payload?.encode());
+      return await inApp.periodicallyShow(
+        id,
+        title,
+        body,
+        repeatInterval,
+        details,
+        androidAllowWhileIdle: true,
+        payload: payload?.encode(),
+      );
     }
     windowPlugin?.periodicallyShow(
       id,
