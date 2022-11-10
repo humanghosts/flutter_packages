@@ -28,8 +28,8 @@ class LocalNotificationHelper {
 
   /// 初始化通知组件
   static Future<bool?> init() async {
-    if (DeviceInfoHelper.isWeb) return await _initInApp();
-    if (DeviceInfoHelper.isWindowsApp) {
+    if (DeviceInfoHelper().isWeb) return await _initInApp();
+    if (DeviceInfoHelper().isWindowsApp) {
       await initLocalNotifier();
     } else {
       await _initFlutterLocalNotifications();
@@ -59,7 +59,7 @@ class LocalNotificationHelper {
     timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(timeZoneName));
     // 是否通过通知启动应用 来判断应该进入哪个页面
-    launchDetails = DeviceInfoHelper.targetPlatform == TargetPlatform.linux ? null : await plugin!.getNotificationAppLaunchDetails();
+    launchDetails = DeviceInfoHelper().targetPlatform == TargetPlatform.linux ? null : await plugin!.getNotificationAppLaunchDetails();
     // app_icon是应用图标文件 放在android drawable下
     AndroidInitializationSettings android = const AndroidInitializationSettings('app_icon');
     // ios配置 [onDidReceiveLocalNotification]是ios10 之前的系统点击通知回调的方法
@@ -85,7 +85,7 @@ class LocalNotificationHelper {
   }) async {
     // 检查权限 没有权限使用系统内通知 web端也使用系统内通知
     bool hasPermission = await checkNotificationPermission();
-    if (!hasPermission || DeviceInfoHelper.isWeb) return await inApp.show(id, title, body, details, payload: payload?.encode());
+    if (!hasPermission || DeviceInfoHelper().isWeb) return await inApp.show(id, title, body, details, payload: payload?.encode());
     // 调用本地通知
     await windowPlugin?.show(id, title, body, details, payload: payload?.encode());
     await plugin?.show(id, title, body, details, payload: payload?.encode());
@@ -104,7 +104,7 @@ class LocalNotificationHelper {
   }) async {
     // 检查权限 没有权限使用系统内通知 web端也使用系统内通知
     bool hasPermission = await checkNotificationPermission();
-    if (!hasPermission || DeviceInfoHelper.isWeb) {
+    if (!hasPermission || DeviceInfoHelper().isWeb) {
       await inApp.zonedSchedule(
         id,
         title,
@@ -158,7 +158,7 @@ class LocalNotificationHelper {
   }) async {
     // 检查权限 没有权限使用系统内通知 web端也使用系统内通知
     bool hasPermission = await checkNotificationPermission();
-    if (!hasPermission || DeviceInfoHelper.isWeb) {
+    if (!hasPermission || DeviceInfoHelper().isWeb) {
       return await inApp.periodicallyShow(
         id,
         title,
@@ -193,7 +193,7 @@ class LocalNotificationHelper {
   static Future<List<PendingNotificationRequest>> checkPendingNotificationRequests() async {
     // 检查权限 没有权限使用系统内通知 web端也使用系统内通知
     bool hasPermission = await checkNotificationPermission();
-    if (!hasPermission || DeviceInfoHelper.isWeb) return inApp.pendingNotificationRequests();
+    if (!hasPermission || DeviceInfoHelper().isWeb) return inApp.pendingNotificationRequests();
     if (null != plugin) return plugin!.pendingNotificationRequests();
     return windowPlugin?.pendingNotificationRequests() ?? [];
   }
@@ -214,8 +214,8 @@ class LocalNotificationHelper {
 
   /// 检查是否有通知权限
   static Future<bool> checkNotificationPermission() async {
-    if (DeviceInfoHelper.isWeb) return false;
-    DevicePlatform platform = DeviceInfoHelper.devicePlatform;
+    if (DeviceInfoHelper().isWeb) return false;
+    DevicePlatform platform = DeviceInfoHelper().devicePlatform;
     if (platform == DevicePlatform.macOS) {
       bool? macResult = await plugin?.resolvePlatformSpecificImplementation<MacOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
             alert: true,

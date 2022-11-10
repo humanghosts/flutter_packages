@@ -1,15 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:hg_entity/hg_entity.dart';
+import 'package:hg_framework/ability/desktop/window.dart';
 import 'package:hg_framework/hg_framework.dart';
-import 'package:hg_orm/hg_orm.dart';
-import 'package:window_manager/window_manager.dart';
-
-/// 模型构造器
-typedef EntityConstructor = Object Function([Map<String, dynamic>? args]);
 
 /// 应用配置
 abstract class AppConfig {
@@ -19,97 +12,58 @@ abstract class AppConfig {
   /// 应用版本
   String get appVersion;
 
-  /// 应用支持的屏幕方向
-  List<DeviceOrientation> get orientations => const [DeviceOrientation.portraitUp];
+  /// 应用配置项
+  final Map<String, AppConfigItem> _configItem = {};
 
-  /// 桌面端 窗口配置
-  FutureOr<WindowOptions?> get windowOptions => null;
+  /// 应用配置项启动顺序 从小到达排序 同顺序按照插入顺序执行初始化
+  final Map<String, int> _configIndex = {};
+  final Map<int, Set<String>> _indexConfig = {};
 
-  /// 数据库配置
-  DatabaseConfig get databaseConfig;
+  /// 下一个配置顺序
+  int _nextConfigIndex = 0;
 
-  /// 数据库版本修改
-  Future<void> onDatabaseVersionChanged(int oldVersion, int newVersion) async {}
+  /// 添加配置，如果没有指定顺序的话，会排在上一个指定位置的后面。默认的初始指定位置为0
+  /// 同名配置会被覆盖
+  void addConfig(String key, AppConfigItem configItem, {int? index}) {
+    int itemIndex = index ?? _nextConfigIndex;
+    _nextConfigIndex = itemIndex + 1;
+    // 直接赋值，无论是否存在
+    _configItem[key] = configItem;
+    // 存在则移除
+    if (_configIndex.containsKey(key)) {
+      int oldItemIndex = _configIndex[key]!;
+      _indexConfig.putIfAbsent(oldItemIndex, () => {}).remove(key);
+    }
+    _configIndex[key] = itemIndex;
+    _indexConfig.putIfAbsent(itemIndex, () => {}).add(key);
+  }
 
-  /// 通知配置
-  NotificationConfig get notificationConfig => NotificationConfig.instance;
-
-  /// 预置数据
-  PresetData? get presetData => null;
-
-  /// 模型和Dao注册
-  EntityAndDao? get entityAndDao => null;
-
-  /// 云备份配置
-  Clouds? get clouds => null;
-
-  /// 动画配置
-  AnimationConfig get animationConfig => AnimationConfig.instance;
-
-  /// 资源配置
-  AssetsConfig get assetsConfig => AssetsConfig.instance;
-
-  /// 默认地域
-  Locale get locale => const Locale('zh', 'CN');
-
-  /// 支持地域
-  List<Locale> get supportedLocales => const <Locale>[Locale('zh', 'CN')];
-
-  /// 本地化代理类
-  List<LocalizationsDelegate<dynamic>> get localizationsDelegates => [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ];
-
-  /// 构造之前
-  Future<void> beforeInit() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    // prefs初始化
-    await PrefsHelper.init();
-    // 设备信息初始化
-    await DeviceInfoHelper.init();
-    // 设置设备可用方向
-    SystemChrome.setPreferredOrientations(orientations);
-    // 桌面端初始化设置
-    if (DeviceInfoHelper.isDesktopDeviceApp) {
-      await windowManager.ensureInitialized();
-      WindowOptions? options;
-      if (windowOptions is Future<WindowOptions?>) {
-        options = await windowOptions;
-      } else {
-        options = windowOptions as WindowOptions?;
-      }
-      options = options?.copyWithIfNull(
-        size: Size(
-          PrefsHelper.prefs.getDouble("window_width") ?? 800,
-          PrefsHelper.prefs.getDouble("window_height") ?? 600,
-        ),
-      );
-      await windowManager.waitUntilReadyToShow(options, () async {
-        await windowManager.show();
-        await windowManager.focus();
-        await windowManager.setTitle(appName);
-      });
+  /// 如果存在，替换配置
+  /// 如果不存在新增配置，可指定新增位置
+  /// 如果想要替换并指定位置，可直接使用[addConfig]
+  void replaceConfig(String key, AppConfigItem configItem, {int? index}) {
+    if (_configItem.containsKey(key)) {
+      _configItem[key] = configItem;
+    } else {
+      addConfig(key, configItem, index: index);
     }
   }
 
-  /// 初始化
-  /// 0. 调用beforeInit
-  /// 1. 注册framework下的构造器
-  /// 2. 注册传入的构造器
-  /// 3. 打开数据库
-  /// 4. 注册framework下的dao
-  /// 5. 注册传入的dao
-  /// 6. 检查数据库版本是否发生变更，决定是否回调appConfig
-  /// 7. 处理预置数据
-  /// 8. 处理业务初始化(回调appLogic.onAppInit)
-  /// 9. 初始化通知
-  /// 10. 初始化云服务 如果有的话
-  /// 11. 初始化就近同步服务
-  /// ∞. 调用afterInit
+  /// 设置配置
+  Future<void> setConfig() async {
+    addConfig('prefs', PrefsHelper()); // 本地存储配置
+    // 大部分功能都需要设备信息，这个是刚需，没有进行未配置校验 不优先初始化的话应该会报错
+    addConfig('deviceInfo', DeviceInfoHelper()); // 设备信息配置
+    addConfig("desktopWindow", WindowHelper()); // 桌面窗口配置
+    // TODO 数据库配置
+    // TODO 主题配置
+    // TODO 提示配置 这个和显示层还耦合
+    // TODO 通知配置
+    // TODO 动画时间配置
+  }
+
+  /// TODO 执行注册的配置
   Future<void> init() async {
-    await beforeInit();
     // 当前包下的模型和dao注册
     _getEntitiesMap().forEach(ConstructorCache.put);
     // 传入的模型和dao注册
@@ -135,211 +89,29 @@ abstract class AppConfig {
     await NotificationHelper.init();
     // 初始化云服务
     if (null != clouds) await CloudHelper.init(clouds!);
-    await afterInit();
   }
 
-  /// 初始化回调
-  Future<void> afterInit() async {}
-
-  /// 刷新回调
-  Future<void> afterRefresh() async {}
+  /// 所有设置执行之后的回调
+  FutureOr<void> afterInit() {}
 }
 
-/// 通知配置
-class NotificationConfig {
-  NotificationConfig._();
+/// 应用功能配置项
+abstract class AppConfigItem {
+  /// 配置项目是否初始化
+  bool _isInit = false;
 
-  static NotificationConfig? _instance;
+  bool get isInit => _isInit;
 
-  static NotificationConfig get instance => _instance ??= NotificationConfig._();
-
-  /// 最大通知数量
-  int get maxNotificationCount => 60;
-}
-
-/// 动画配置
-class AnimationConfig {
-  AnimationConfig._();
-
-  static AnimationConfig? _instance;
-
-  static AnimationConfig get instance => _instance ??= AnimationConfig._();
-
-  /// 快速动画持续时间
-  Duration get fastAnimationDuration => const Duration(milliseconds: 200);
-
-  /// 中速动画持续时间
-  Duration get middleAnimationDuration => const Duration(milliseconds: 500);
-
-  /// 慢速动画持续时间
-  Duration get slowAnimationDuration => const Duration(milliseconds: 800);
-}
-
-/// 资源配置
-class AssetsConfig {
-  AssetsConfig._();
-
-  static AssetsConfig? _instance;
-
-  static AssetsConfig get instance => _instance ??= AssetsConfig._();
-
-  /// 音频文件路径
-  String get soundAssetsPath => "assets/sounds/";
-
-  /// 图片文件路径
-  String get imageAssetsPath => "assets/images/";
-}
-
-/// 所有的模型构造方法和Dao注册
-/// Entity注册的时候需要注意依赖关系，被依赖的先注册
-/// 如果相互依赖，在先注册entity的构造方法中手动构建后注册的对象，默认对于Model类型的时候通过类型去构造器缓存中取
-class EntityAndDao {
-  late final Map<Type, EntityConstructor> Function()? getEntityMap;
-  late final Map<Type, Dao> Function()? getDaoMap;
-  late final Map<Type, List<String>> Function()? getEntityAlias;
-
-  EntityAndDao({this.getEntityMap, this.getDaoMap, this.getEntityAlias});
-}
-
-/// 预置数据
-class PresetData {
-  final Map<Type, List<DataModel> Function()>? Function()? dataModelMap;
-  final Map<Type, SimpleModel Function()>? Function()? simpleModelMap;
-
-  PresetData({this.dataModelMap, this.simpleModelMap});
-}
-
-/// 首次启动初始化预置数据
-Future<void> _presetDataInit(PresetData? presetData) async {
-  String key = "is_preset_data_init";
-  int version = DatabaseHelper.database.version;
-  LogHelper.info("[数据库预置数据]:数据库版本$version");
-  bool? isInitData;
-  bool? isPrefsInit = PrefsHelper.prefs.getBool(key);
-  if (isPrefsInit != null) {
-    isInitData = isPrefsInit;
-    await DatabaseHelper.database.kv.putSave(key, isPrefsInit);
-  } else {
-    isInitData = DatabaseHelper.database.kv.get(key);
-  }
-  LogHelper.info("[数据库预置数据]:数据库${isInitData == true ? "已" : "未"}初始化");
-  if (isInitData == true) return;
-  Map<Type, List<DataModel> Function()> dataModelMap = presetData?.dataModelMap?.call() ?? {};
-  Map<Type, SimpleModel Function()> simpleModelMap = presetData?.simpleModelMap?.call() ?? {};
-  dataModelMap.addAll(_getDataModelInitData());
-  simpleModelMap.addAll(_getSimpleModelInitData());
-  // 插入数据
-  await DatabaseHelper.transaction((tx) async {
-    for (Type key in dataModelMap.keys) {
-      LogHelper.info("[数据库预置数据]:初始化[${key.toString()}]");
-      DataDao dataDao = DaoCache.getByType(key) as DataDao;
-      List<DataModel> value = dataModelMap[key]!.call();
-      await dataDao.saveList(value, tx: tx);
+  /// 执行配置初始化
+  FutureOr<void> doInit(AppConfig config) async {
+    if (isInit == true) return;
+    FutureOr<void> initFunc = init(config);
+    if (initFunc is Future) {
+      await initFunc;
     }
-    for (Type key in simpleModelMap.keys) {
-      LogHelper.info("[数据库预置数据]:初始化[${key.toString()}]");
-      SimpleDao simpleDao = DaoCache.getByType(key) as SimpleDao;
-      SimpleModel value = simpleModelMap[key]!.call();
-      await simpleDao.save(value, tx: tx);
-    }
-  });
-  await DatabaseHelper.database.kv.putSave(key, true);
-}
-
-/// 注册entity
-Map<Type, EntityConstructor> _getEntitiesMap() {
-  return {
-    // custom value
-    ThemeModeValue: ([args]) => ThemeModeValue(),
-    FlexSchemeValue: ([args]) => FlexSchemeValue(),
-    FlexSurfaceModeValue: ([args]) => FlexSurfaceModeValue(),
-    SchemeColorValue: ([args]) => SchemeColorValue(),
-    FlexAppBarStyleValue: ([args]) => FlexAppBarStyleValue(),
-    FlexTabBarStyleValue: ([args]) => FlexTabBarStyleValue(),
-    FlexInputBorderTypeValue: ([args]) => FlexInputBorderTypeValue(),
-    FlexSystemNavBarStyleValue: ([args]) => FlexSystemNavBarStyleValue(),
-    NavigationDestinationLabelBehaviorValue: ([args]) => NavigationDestinationLabelBehaviorValue(),
-    NavigationRailLabelTypeValue: ([args]) => NavigationRailLabelTypeValue(),
-    ColorValue: ([args]) => ColorValue(),
-    // data model
-    ThemeTemplate: ([args]) => ThemeTemplate(),
-    // simple model
-    ThemeConfig: ([args]) => ThemeConfig(),
-  };
-}
-
-/// 注册dao
-Map<Type, Dao> _getDaoMap() {
-  return {
-    ThemeTemplate: SembastDataDao<ThemeTemplate>(),
-    ThemeConfig: SembastSimpleDao<ThemeConfig>(),
-  };
-}
-
-/// 数据模型的初始化数据
-Map<Type, List<DataModel> Function()> _getDataModelInitData() {
-  return {
-    ThemeTemplate: () => ThemeTemplate.initData,
-  };
-}
-
-/// 简单模型的初始化数据
-Map<Type, SimpleModel Function()> _getSimpleModelInitData() {
-  return {
-    ThemeConfig: () => ThemeConfig.initData,
-  };
-}
-
-extension WindowOpeionsEx on WindowOptions {
-  WindowOptions copyWith({
-    Size? size,
-    bool? center,
-    Size? minimumSize,
-    Size? maximumSize,
-    bool? alwaysOnTop,
-    bool? fullScreen,
-    Color? backgroundColor,
-    bool? skipTaskbar,
-    String? title,
-    TitleBarStyle? titleBarStyle,
-  }) {
-    return WindowOptions(
-      size: size ?? this.size,
-      center: center ?? this.center,
-      minimumSize: minimumSize ?? this.minimumSize,
-      maximumSize: maximumSize ?? this.maximumSize,
-      alwaysOnTop: alwaysOnTop ?? this.alwaysOnTop,
-      fullScreen: fullScreen ?? this.fullScreen,
-      backgroundColor: backgroundColor ?? this.backgroundColor,
-      skipTaskbar: skipTaskbar ?? this.skipTaskbar,
-      title: title ?? this.title,
-      titleBarStyle: titleBarStyle ?? this.titleBarStyle,
-    );
+    _isInit = true;
   }
 
-  WindowOptions copyWithIfNull({
-    Size? size,
-    bool? center,
-    Size? minimumSize,
-    Size? maximumSize,
-    bool? alwaysOnTop,
-    bool? fullScreen,
-    Color? backgroundColor,
-    bool? skipTaskbar,
-    String? title,
-    TitleBarStyle? titleBarStyle,
-  }) {
-    return WindowOptions(
-      size: this.size ?? size,
-      center: this.center ?? center,
-      minimumSize: this.minimumSize ?? minimumSize,
-      maximumSize: this.maximumSize ?? maximumSize,
-      alwaysOnTop: this.alwaysOnTop ?? alwaysOnTop,
-      fullScreen: this.fullScreen ?? fullScreen,
-      backgroundColor: this.backgroundColor ?? backgroundColor,
-      skipTaskbar: this.skipTaskbar ?? skipTaskbar,
-      title: this.title ?? title,
-      titleBarStyle: this.titleBarStyle ?? titleBarStyle,
-    );
-  }
+  /// 配置初始化
+  FutureOr<void> init(AppConfig config);
 }

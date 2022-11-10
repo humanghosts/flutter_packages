@@ -4,9 +4,8 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:hg_framework/ability/export.dart';
-import 'package:hg_framework/app/export.dart';
-import 'package:hg_orm/hg_orm.dart';
+import 'package:hg_framework/app/config.dart';
+import 'package:hg_framework/hg_framework.dart';
 import 'package:scheduled_timer/scheduled_timer.dart';
 
 import 'notification_local.dart';
@@ -266,29 +265,33 @@ class NotificationNode {
 enum NotificationAction { find, add, notify, cancel, remove, recover }
 
 /// 通知助手
-class NotificationHelper {
-  NotificationHelper._();
+/// 需要数据库持久化提醒数据，数据库未初始化提醒只在当前运行时间内生效
+class NotificationHelper with AppConfigItem {
+  NotificationHelper._({int? maxCount}) : _maxCount = maxCount ?? 64;
 
-  /// 日志
-  static void _log(String msg) => LogHelper.info("[通知助手]:$msg");
+  factory NotificationHelper({int? maxCount}) => SingletonCache.putIfAbsent(NotificationHelper._(maxCount: maxCount));
 
-  static void _logError(String msg) => LogHelper.error("[通知助手]:$msg");
+  /// 是否持久化数据
+  late bool _useDb;
+
+  /// 设备支持的最大提醒数量
+  /// ios为64
+  int _maxCount;
 
   /// 通知监听器
-  static final Map<String, void Function(NotificationAction action)> _listener = {};
+  final Map<String, void Function(NotificationAction action)> _listener = {};
 
-  /// 添加监听
-  static void addListener(String key, void Function(NotificationAction action) callback) => _listener[key] = callback;
-
-  /// 初始化 用于应用启动时调用
-  static Future<bool?> init() async {
+  @override
+  Future<bool?> init(AppConfig config) async {
     _log("初始化通知助手");
+    _useDb = DatabaseHelper.instance.isInit;
+    if (!_useDb) _log("数据库未初始化，提醒数据不会持久化");
     // 初始化本地通知插件
     await LocalNotificationHelper.init();
     // 查询数据库数据
     await _find(tx: null);
     // 检查通知
-    NotificationHelper.checkAutoNotification();
+    checkAutoNotification();
     // 检查是否是由通知启动应用
     appLogic.listenOnReady("notification", () {
       if (LocalNotificationHelper.launchDetails?.didNotificationLaunchApp != true) return _log("非通知启动应用");
@@ -299,8 +302,17 @@ class NotificationHelper {
     return true;
   }
 
+  /// 日志
+  void _log(String msg) => LogHelper.info("[通知助手]:$msg");
+
+  /// 错误日志
+  void _logError(String msg) => LogHelper.error("[通知助手]:$msg");
+
+  /// 添加提醒监听
+  void addListener(String key, void Function(NotificationAction action) callback) => _listener[key] = callback;
+
   /// 启动检查是否通知，用于AppInit
-  static Future<void> checkAutoNotification() async {
+  Future<void> checkAutoNotification() async {
     _log("启动检查定时任务");
     // 定时执行器
     late ScheduledTimer timer;
@@ -357,7 +369,7 @@ class NotificationHelper {
   }
 
   /// 刷新缓存数据
-  static Future<void> refresh({Transaction? tx}) async {
+  Future<void> refresh({Transaction? tx}) async {
     await LocalNotificationHelper.cancelAllNotifications();
     idCache.clear();
     dbCache.clear();
@@ -370,37 +382,39 @@ class NotificationHelper {
   }
 
   /// node缓存，防止多次decode
-  static final Map<String, NotificationNode> nodeCache = {};
+  final Map<String, NotificationNode> nodeCache = {};
 
   /// 通知id和通知负载的映射 缓存 value是[nodeCache]的key
-  static final Map<int, Set<String>> idCache = {};
+  final Map<int, Set<String>> idCache = {};
 
   /// 提醒 内存缓存
-  static final Set<String> dbCache = {};
+  final Set<String> dbCache = {};
 
   /// 过时的提醒 内存缓存
-  static final Set<String> oldDbCache = {};
+  final Set<String> oldDbCache = {};
 
   /// 通知时间和通知id的映射 缓存，由于同一时间可能多个提醒，value设置为Set类型
-  static final Map<DateTime, Set<String>> dateTimeCache = {};
+  final Map<DateTime, Set<String>> dateTimeCache = {};
 
   /// 过时的提醒缓存 缓存
-  static final Map<DateTime, Set<String>> oldDateTimeCache = {};
+  final Map<DateTime, Set<String>> oldDateTimeCache = {};
 
   /// 过期的通知数据的key
-  static const String oldNotificationCache = "notification_cache_old";
+  final String oldNotificationCache = "notification_cache_old";
 
   /// 所有存储的通知数据的key
-  static const String notificationCache = "notification_cache";
+  final String notificationCache = "notification_cache";
 
   /// 查询数据库数据并处理
   /// 将数据库的数据读到[oldDbCache]和[dbCache]变量中，如果变量有值则跳过
-  static Future<void> _find({Transaction? tx}) async {
+  Future<void> _find({Transaction? tx}) async {
     if (oldDbCache.isEmpty) {
       _log("通知历史 内存缓存 不存在，查询数据库 并 处理数据 到 内存缓存");
-      for (dynamic value in DatabaseHelper.kv.get(oldNotificationCache) ?? []) {
-        if (null == value) continue;
-        oldDbCache.add(value.toString());
+      if (_useDb) {
+        for (dynamic value in DatabaseHelper.instance.kv.get(oldNotificationCache) ?? []) {
+          if (null == value) continue;
+          oldDbCache.add(value.toString());
+        }
       }
       // 遍历数据处理
       for (String oneDbCache in oldDbCache) {
@@ -422,7 +436,12 @@ class NotificationHelper {
       // 此刻
       DateTime now = DateTime.now();
       // 存储的数据
-      List cloneDbCache = DatabaseHelper.kv.get(notificationCache) ?? [];
+      List cloneDbCache;
+      if (_useDb) {
+        cloneDbCache = DatabaseHelper.instance.kv.get(notificationCache) ?? [];
+      } else {
+        cloneDbCache = [];
+      }
       bool hasChange = false;
       for (int i = 0; i < cloneDbCache.length; i++) {
         String? oneDbCache = cloneDbCache[i] as String?;
@@ -457,7 +476,7 @@ class NotificationHelper {
 
   /// 添加提醒缓存节点
   /// 所有提醒方法均需要调用这个方法添加提醒 然后调用[_notify]检查并发送
-  static Future<void> _add(NotificationNode cacheNode, {Transaction? tx}) async {
+  Future<void> _add(NotificationNode cacheNode, {Transaction? tx}) async {
     String cacheNodeStr = cacheNode.encode();
     _log("[添加缓存]添加通知到通知缓存，通知数据$cacheNodeStr");
     // 缓存节点
@@ -494,19 +513,17 @@ class NotificationHelper {
 
   /// 检查并发送通知
   /// 用于实际上发送通知
-  static Future<DateTime?> _notify({Transaction? tx}) async {
+  Future<DateTime?> _notify({Transaction? tx}) async {
     _log("[发送通知]检查缓存");
     await _find(tx: tx);
-    // 最大通知数量
-    int maxCount = appConfig.notificationConfig.maxNotificationCount;
     // 这里取消所有提醒的原因是，有可能先加晚点的提醒，后加早点的提醒，不取消的话就会导致早点的提醒发不出去
     // 也可以一一比对，但是太复杂，容易出错
     _log("[发送通知]取消所有提醒");
     await LocalNotificationHelper.cancelAllNotifications();
     // 等待发送的id
     Set<String> noticed = {};
-    int count = maxCount;
-    _log("[发送通知]设备最大通知数量限制:$maxCount，可用数量:$count");
+    int count = _maxCount;
+    _log("[发送通知]设备最大通知数量限制:$_maxCount，可用数量:$count");
     // 最大数量小于等于0 或者 没有缓存 不处理
     if (count <= 0 || dateTimeCache.isEmpty) {
       _log("[发送通知]没有剩余空间，或缓存为空，不发送。发送通知完成");
@@ -643,7 +660,7 @@ class NotificationHelper {
   }
 
   /// 自动发送缓存的提醒
-  static Future<void> _autoNotify({DateTime? executeTime}) async {
+  Future<void> _autoNotify({DateTime? executeTime}) async {
     _log("[自动发送通知]更新或创建前台定时任务");
     // 没有传时间就立即执行
     DateTime scheduledTime = executeTime ?? DateTime.now().add(const Duration(seconds: 1));
@@ -714,7 +731,7 @@ class NotificationHelper {
   }
 
   /// 显示简单通知，立即通知，不占用缓存
-  static Future<void> showNotification(NotificationArgs args, {Transaction? tx}) async {
+  Future<void> showNotification(NotificationArgs args, {Transaction? tx}) async {
     _log("立即通知:${{"id": args.id, "时间": DateTime.now(), "标题": args.title, "内容": args.body}}");
     await LocalNotificationHelper.showNotification(id: args.id, payload: args.payload, title: args.title, body: args.body);
     _log("立即通知完成{id:${args.id}}");
@@ -722,7 +739,7 @@ class NotificationHelper {
 
   /// 延时通知
   /// 最好>200ms
-  static Future<void> delayNotification(DelayNotificationArgs args, {Transaction? tx}) async {
+  Future<void> delayNotification(DelayNotificationArgs args, {Transaction? tx}) async {
     DateTime dateTime = DateTime.now().add(args.duration);
     _log("延时通知:${{"id": args.id, "时间": dateTime, "标题": args.title, "内容": args.body}}");
     NotificationNode cacheNode = NotificationNode.normal(
@@ -738,7 +755,7 @@ class NotificationHelper {
   }
 
   /// 批量延时通知
-  static Future<void> batchDelayNotification(List<DelayNotificationArgs> argsList, {Transaction? tx}) async {
+  Future<void> batchDelayNotification(List<DelayNotificationArgs> argsList, {Transaction? tx}) async {
     _log("批量延时通知，数量${argsList.length}");
     for (DelayNotificationArgs args in argsList) {
       DateTime dateTime = DateTime.now().add(args.duration);
@@ -759,7 +776,7 @@ class NotificationHelper {
   /// 重复通知
   /// 重复通知记录的时间是调用此方法的时间
   /// 重复通知如果下载覆盖数据需要重新发送通知
-  static Future<void> repeatNotification(RepeatNotificationArgs args, {Transaction? tx}) async {
+  Future<void> repeatNotification(RepeatNotificationArgs args, {Transaction? tx}) async {
     DateTime dateTime = DateTime.now().add(const Duration(milliseconds: 200));
     _log("重复通知:${{"id": args.id, "发起时间": dateTime, "重复周期": args.repeatInterval, "标题": args.title, "内容": args.body}}");
     NotificationNode cacheNode = NotificationNode.repeat(
@@ -776,7 +793,7 @@ class NotificationHelper {
   }
 
   /// 批量重复通知
-  static Future<void> batchRepeatNotification(List<RepeatNotificationArgs> argsList, {Transaction? tx}) async {
+  Future<void> batchRepeatNotification(List<RepeatNotificationArgs> argsList, {Transaction? tx}) async {
     _log("批量重复通知，数量${argsList.length}");
     for (RepeatNotificationArgs args in argsList) {
       DateTime dateTime = DateTime.now().add(const Duration(milliseconds: 200));
@@ -796,7 +813,7 @@ class NotificationHelper {
   }
 
   /// 定时通知 精确到分钟 超过当前时间忽略
-  static Future<void> scheduleNotification(ScheduleNotificationArgs args, {Transaction? tx}) async {
+  Future<void> scheduleNotification(ScheduleNotificationArgs args, {Transaction? tx}) async {
     _log("定时通知:${{"id": args.id, "时间": args.dateTime, "标题": args.title, "内容": args.body}}");
     NotificationNode cacheNode = NotificationNode.normal(
       id: args.id,
@@ -811,7 +828,7 @@ class NotificationHelper {
   }
 
   /// 批量定时通知 精确到分钟 超过当前时间忽略
-  static Future<void> batchScheduleNotification(List<ScheduleNotificationArgs> argsList, {Transaction? tx}) async {
+  Future<void> batchScheduleNotification(List<ScheduleNotificationArgs> argsList, {Transaction? tx}) async {
     _log("批量定时通知，数量${argsList.length}");
     for (ScheduleNotificationArgs args in argsList) {
       _log("定时通知:${{"id": args.id, "时间": args.dateTime, "标题": args.title, "内容": args.body}}");
@@ -830,7 +847,7 @@ class NotificationHelper {
 
   /// 指定时间重复通知
   /// 下载覆盖数据需要重新发送通知，因为记录的数据是调用此方法的时间
-  static Future<void> scheduleRepeatNotification(ScheduleRepeatNotificationArgs args, {Transaction? tx}) async {
+  Future<void> scheduleRepeatNotification(ScheduleRepeatNotificationArgs args, {Transaction? tx}) async {
     _log("定时重复通知:${{"id": args.id, "时间": args.dateTime, "重复周期": args.matchDateTimeComponents, "标题": args.title, "内容": args.body}}");
     NotificationNode cacheNode = NotificationNode.scheduleRepeat(
       id: args.id,
@@ -846,7 +863,7 @@ class NotificationHelper {
   }
 
   /// 批量定时重复通知 精确到分钟 超过当前时间忽略
-  static Future<void> batchScheduleRepeatNotification(List<ScheduleRepeatNotificationArgs> argsList, {Transaction? tx}) async {
+  Future<void> batchScheduleRepeatNotification(List<ScheduleRepeatNotificationArgs> argsList, {Transaction? tx}) async {
     _log("批量定时重复通知，数量${argsList.length}");
     for (ScheduleRepeatNotificationArgs args in argsList) {
       _log("定时重复通知:${{"id": args.id, "时间": args.dateTime, "重复周期": args.matchDateTimeComponents, "标题": args.title, "内容": args.body}}");
@@ -865,14 +882,15 @@ class NotificationHelper {
   }
 
   /// 刷新缓存到数据库
-  static Future<void> flushCache({Transaction? tx}) async {
-    DatabaseHelper.kv.put(notificationCache, dbCache.toList());
-    DatabaseHelper.kv.put(oldNotificationCache, oldDbCache.toList());
-    await DatabaseHelper.kv.save(tx: tx);
+  Future<void> flushCache({Transaction? tx}) async {
+    if (!_useDb) return;
+    DatabaseHelper.instance.kv.put(notificationCache, dbCache.toList());
+    DatabaseHelper.instance.kv.put(oldNotificationCache, oldDbCache.toList());
+    await DatabaseHelper.instance.kv.save(tx: tx);
   }
 
   /// 恢复指定通知
-  static Future<void> recoverNotification(int id, {Transaction? tx}) async {
+  Future<void> recoverNotification(int id, {Transaction? tx}) async {
     _log("[恢复通知]检查缓存");
     await _find(tx: tx);
     Set<String>? encodeSet = idCache[id];
@@ -896,7 +914,7 @@ class NotificationHelper {
   }
 
   /// 取消指定通知 将通知移入历史通知
-  static Future<void> cancelNotification(int id, {Transaction? tx}) async {
+  Future<void> cancelNotification(int id, {Transaction? tx}) async {
     _log("[取消通知]取消通知");
     await LocalNotificationHelper.cancelNotification(id);
     _log("[取消通知]检查缓存");
@@ -921,7 +939,7 @@ class NotificationHelper {
   }
 
   /// 取消所有通知 将通知移入历史通知
-  static Future<void> cancelAllNotifications({Transaction? tx}) async {
+  Future<void> cancelAllNotifications({Transaction? tx}) async {
     _log("[取消所有通知]取消所有通知");
     await LocalNotificationHelper.cancelAllNotifications();
     _log("[取消所有通知]检查缓存");
@@ -940,7 +958,7 @@ class NotificationHelper {
   }
 
   /// 删除指定通知
-  static Future<void> removeNotification(int id, {Transaction? tx}) async {
+  Future<void> removeNotification(int id, {Transaction? tx}) async {
     _log("[删除通知]删除本地通知");
     await LocalNotificationHelper.cancelNotification(id);
     _log("[删除通知]检查缓存");
@@ -968,7 +986,7 @@ class NotificationHelper {
   }
 
   /// 删除所有通知
-  static Future<void> removeAllNotifications({Transaction? tx}) async {
+  Future<void> removeAllNotifications({Transaction? tx}) async {
     _log("[删除所有通知]删除本地所有通知");
     await LocalNotificationHelper.cancelAllNotifications();
     _log("[删除所有通知]检查缓存");
@@ -1003,7 +1021,7 @@ class NotificationCallback {
     NotificationPayload? notificationPayload = NotificationPayload.decode(payload);
     if (null == notificationPayload) {
       _log("负载解码为空，不执行，发送新的通知");
-      NotificationHelper._notify();
+      NotificationHelper()._notify();
       return;
     }
     NotificationType type = notificationPayload.type;
@@ -1011,7 +1029,7 @@ class NotificationCallback {
     _log("回调执行");
     type.callback(realPayload);
     _log("发送新通知");
-    NotificationHelper._notify();
+    NotificationHelper()._notify();
   }
 }
 

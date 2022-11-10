@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:hg_framework/hg_framework.dart';
 
 /// 路由管理配置类
+/// TODO 低成本封装 就是把Get包了一层，加了一个默认参数
+/// 后面还是改成监听路由变动比较好 路由直接用get就好了
 class RouteHelper {
   RouteHelper._();
 

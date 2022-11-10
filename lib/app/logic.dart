@@ -9,52 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/hg_framework.dart';
-import 'package:hg_framework/service/theme.dart';
-import 'package:hg_orm/hg_orm.dart';
 import 'package:window_manager/window_manager.dart';
-
-/// TODO 屏幕方向监听器 暂时没用
-abstract class OrientationHelper {
-  // --- 屏幕方向 ---
-  /// 当前屏幕方向 使用这个参数的原因是，当应用禁用左右旋转之后，mediaQuery的方向就不会变化了
-  /// 这个参数即使是锁定旋转也可以生效
-  DeviceOrientation? deviceOrientation;
-
-  /// 屏幕方向监听
-  final Map<String, ValueChanged<DeviceOrientation>> _orientationListener = {};
-
-  /// 监听屏幕方向更新
-  void listenOrientationUpdate(String key, ValueChanged<DeviceOrientation> callback) => _orientationListener[key] = callback;
-
-  /// 移除屏幕方法监听器
-  void removeOrientationUpdateListener(String key) => _orientationListener.remove(key);
-
-  /// 初始化
-  void _onWidgetBuildOrientation() {
-    if (DeviceInfoHelper.isDesktop || DeviceInfoHelper.isWeb) return;
-  }
-
-  /// 关闭
-  void _onCloseOrientation() {}
-
-  /// 监听屏幕方向
-  void _listenDeviceOrientation(DeviceOrientation deviceOrientation) {
-    if (this.deviceOrientation == deviceOrientation) return;
-    this.deviceOrientation = deviceOrientation;
-    _onDeviceOrientationChanged(deviceOrientation);
-  }
-
-  /// 屏幕方向改变回调
-  void _onDeviceOrientationChanged(DeviceOrientation deviceOrientation) {
-    for (var value in _orientationListener.values) {
-      try {
-        value(deviceOrientation);
-      } catch (e) {
-        LogHelper.error(e.toString());
-      }
-    }
-  }
-}
 
 /// 主题监听器
 abstract class ThemeHelper {

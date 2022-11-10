@@ -1,40 +1,52 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hg_framework/ability/export.dart';
+import 'package:hg_framework/app/config.dart';
+import 'package:hg_framework/hg_framework.dart';
 import 'package:user_agent_analyzer/user_agent_analyzer.dart';
 
 /// 设备信息助手
-class DeviceInfoHelper {
-  DeviceInfoHelper._();
+/// 支持包括web在内所有平台设备信息，基于device_info_plus插件
+class DeviceInfoHelper with AppConfigItem {
+  DeviceInfoHelper._({bool? storeDesktopConfig}) : _storeDesktopConfig = storeDesktopConfig ?? false;
 
-  /// 插件
-  static final DeviceInfoPlugin _plugin = DeviceInfoPlugin();
+  factory DeviceInfoHelper({bool? storeDesktopConfig}) => SingletonCache.putIfAbsent(DeviceInfoHelper._(storeDesktopConfig: storeDesktopConfig));
+
+  /// 第三方插件
+  final DeviceInfoPlugin _plugin = DeviceInfoPlugin();
 
   /// 设备信息
-  static late BaseDeviceInfo _baseDeviceInfo;
+  late BaseDeviceInfo _baseDeviceInfo;
 
   /// 设备平台 可以手动指定
-  static late DevicePlatform devicePlatform;
+  late DevicePlatform devicePlatform;
 
-  static const String _isDesktopKey = "_isDesktop";
+  /// 用于存储是否桌面平台
+  final String _isDesktopKey = "_isDesktop";
+
+  /// 是否存储指定桌面模式的设置
+  late bool _storeDesktopConfig = false;
 
   /// 初始化
-  static Future<void> init() async {
+  @override
+  Future<void> init(AppConfig config) async {
+    bool isPrefsInit = PrefsHelper().isInit;
+    if (_storeDesktopConfig && !isPrefsInit) {
+      throw Exception("存储桌面模式设置需要shared_preferences支持，请优先初始化。");
+    }
     _baseDeviceInfo = await _plugin.deviceInfo;
     devicePlatform = getDevicePlatform();
-    _isDesktop = PrefsHelper.prefs.getBool(_isDesktopKey);
+    if (_storeDesktopConfig) _isDesktop = PrefsHelper().prefs.getBool(_isDesktopKey);
   }
 
   /// 获取设备信息
-  static BaseDeviceInfo get deviceInfo => _baseDeviceInfo;
+  BaseDeviceInfo get deviceInfo => _baseDeviceInfo;
 
   /// 判断设备操作系统类型
-  static TargetPlatform get targetPlatform => devicePlatform.targetPlatform;
+  TargetPlatform get targetPlatform => devicePlatform.targetPlatform;
 
   /// 实际类型
-  static DevicePlatform getDevicePlatform() {
+  DevicePlatform getDevicePlatform() {
     // 非web处理 判断是否平板
     if (!kIsWeb) {
       switch (defaultTargetPlatform) {
@@ -72,86 +84,96 @@ class DeviceInfoHelper {
   }
 
   /// 是否是web平台
-  static bool get isWeb => devicePlatform.isWeb;
+  bool get isWeb => devicePlatform.isWeb;
 
-  static bool? _isDesktop;
+  /// 是否桌面端变量
+  bool? _isDesktop;
 
-  static Future<void> setIsDesktop(bool value) async {
+  /// 指定是否桌面端
+  Future<void> setIsDesktop(bool value) async {
     _isDesktop = value;
-    await PrefsHelper.prefs.setBool(_isDesktopKey, value);
+    if (_storeDesktopConfig) await PrefsHelper().prefs.setBool(_isDesktopKey, value);
   }
 
-  static Future<void> resetIsDesktop() async => await setIsDesktop(devicePlatform.isDesktop);
+  /// 根据设备类型重制是否桌面端
+  Future<void> resetIsDesktop() async => await setIsDesktop(devicePlatform.isDesktop);
 
   /// 忽略用户设置，直接返回是否桌面设备
-  static bool get isDesktopDevice => devicePlatform.isDesktop;
+  bool get isDesktopDevice => devicePlatform.isDesktop;
 
-  static bool get isDesktopDeviceApp => isDesktopDevice && !isWeb;
+  bool get isDesktopDeviceApp => isDesktopDevice && !isWeb;
 
-  static bool get isDesktopDeviceWeb => isDesktopDevice && isWeb;
+  bool get isDesktopDeviceWeb => isDesktopDevice && isWeb;
+
+  /// 忽略用户设置，直接返回是否移动设备
+  bool get isMobileDevice => !isDesktopDevice;
+
+  bool get isMobileDeviceApp => isMobileDevice && !isWeb;
+
+  bool get isMobileDeviceWeb => isMobileDevice && isWeb;
 
   /// 是否是桌面端 可由用户更改
-  static bool get isDesktop => _isDesktop ??= devicePlatform.isDesktop;
+  bool get isDesktop => _isDesktop ??= devicePlatform.isDesktop;
 
-  static bool get isDesktopApp => isDesktop && !isWeb;
+  bool get isDesktopApp => isDesktop && !isWeb;
 
-  static bool get isDesktopWeb => isDesktop && isWeb;
+  bool get isDesktopWeb => isDesktop && isWeb;
 
   /// 是否是移动
-  static bool get isMobile => !isDesktop;
+  bool get isMobile => !isDesktop;
 
-  static bool get isMobileApp => isMobile && !isWeb;
+  bool get isMobileApp => isMobile && !isWeb;
 
-  static bool get isMobileWeb => isMobile && isWeb;
+  bool get isMobileWeb => isMobile && isWeb;
 
   /// 是否是平板
-  static bool get isTablet => devicePlatform.isTablet;
+  bool get isTablet => devicePlatform.isTablet;
 
-  static bool get isTabletApp => isTablet && !isWeb;
+  bool get isTabletApp => isTablet && !isWeb;
 
-  static bool get isTabletWeb => isTablet && isWeb;
+  bool get isTabletWeb => isTablet && isWeb;
 
   /// 是否是ios
-  static bool get isIOS => targetPlatform == TargetPlatform.iOS;
+  bool get isIOS => targetPlatform == TargetPlatform.iOS;
 
-  static bool get isIOSApp => isIOS && !isWeb;
+  bool get isIOSApp => isIOS && !isWeb;
 
-  static bool get isIOSWeb => isIOS && isWeb;
+  bool get isIOSWeb => isIOS && isWeb;
 
   /// 是否是android
-  static bool get isAndroid => targetPlatform == TargetPlatform.android;
+  bool get isAndroid => targetPlatform == TargetPlatform.android;
 
-  static bool get isAndroidApp => isAndroid && !isWeb;
+  bool get isAndroidApp => isAndroid && !isWeb;
 
-  static bool get isAndroidWeb => isAndroid && isWeb;
+  bool get isAndroidWeb => isAndroid && isWeb;
 
   /// 是否是macos
-  static bool get isMacOS => targetPlatform == TargetPlatform.macOS;
+  bool get isMacOS => targetPlatform == TargetPlatform.macOS;
 
-  static bool get isMacOSApp => isMacOS && !isWeb;
+  bool get isMacOSApp => isMacOS && !isWeb;
 
-  static bool get isMacOSWeb => isMacOS && isWeb;
+  bool get isMacOSWeb => isMacOS && isWeb;
 
   /// 是否是windows
-  static bool get isWindows => targetPlatform == TargetPlatform.windows;
+  bool get isWindows => targetPlatform == TargetPlatform.windows;
 
-  static bool get isWindowsApp => isWindows && !isWeb;
+  bool get isWindowsApp => isWindows && !isWeb;
 
-  static bool get isWindowsWeb => isWindows && isWeb;
+  bool get isWindowsWeb => isWindows && isWeb;
 
   /// 是否是linux
-  static bool get isLinux => targetPlatform == TargetPlatform.linux;
+  bool get isLinux => targetPlatform == TargetPlatform.linux;
 
-  static bool get isLinuxApp => isLinux && !isWeb;
+  bool get isLinuxApp => isLinux && !isWeb;
 
-  static bool get isLinuxWeb => isLinux && isWeb;
+  bool get isLinuxWeb => isLinux && isWeb;
 
   /// 是否是fuchsia
-  static bool get isFuchsia => targetPlatform == TargetPlatform.fuchsia;
+  bool get isFuchsia => targetPlatform == TargetPlatform.fuchsia;
 
-  static bool get isFuchsiaApp => isFuchsia && !isWeb;
+  bool get isFuchsiaApp => isFuchsia && !isWeb;
 
-  static bool get isFuchsiaWeb => isFuchsia && isWeb;
+  bool get isFuchsiaWeb => isFuchsia && isWeb;
 }
 
 extension TargetPlatformEx on TargetPlatform {
@@ -174,7 +196,7 @@ extension TargetPlatformEx on TargetPlatform {
     }
   }
 
-  static TargetPlatform? fromValue(String? value) {
+  TargetPlatform? fromValue(String? value) {
     if (null == value) return null;
     return TargetPlatform.values.firstWhereOrNull((e) => e.value == value);
   }

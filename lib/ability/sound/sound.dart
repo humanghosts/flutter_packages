@@ -1,13 +1,19 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:hg_framework/app/logic.dart';
+import 'package:hg_framework/util/singleton_catch.dart';
 import 'package:soundpool/soundpool.dart';
 
 import '../device_info/device_info.dart';
 import '../log/log.dart';
 
 /// 音效助手
+/// TODO 暂时没用，代码可能有问题
 class SoundHelper {
+  SoundHelper._();
+
+  factory SoundHelper() => SingletonCache.putIfAbsent(SoundHelper._());
+
   /// ---- 音频操作 ----
   static final Map<String, int> _soundIdMap = {};
 
@@ -28,9 +34,8 @@ class SoundHelper {
 
   /// 播放音频
   static Future<void> playNotification(String soundPath, {String? prefix}) async {
-    BaseDeviceInfo deviceInfo = DeviceInfoHelper.deviceInfo;
-    if (DeviceInfoHelper.targetPlatform == TargetPlatform.iOS) {
-      IosDeviceInfo iosDeviceInfo = deviceInfo as IosDeviceInfo;
+    if (DeviceInfoHelper().targetPlatform == TargetPlatform.iOS) {
+      IosDeviceInfo iosDeviceInfo = DeviceInfoHelper().deviceInfo as IosDeviceInfo;
       String version = iosDeviceInfo.systemVersion ?? "12.0";
       double versionD = double.parse(version);
       if (versionD < 14.5) return;

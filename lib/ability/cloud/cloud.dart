@@ -9,6 +9,8 @@ import '../log/log.dart';
 import 'icloud.dart';
 
 /// 云存储工具
+/// TODO 还没修改 晚点再处理
+/// 考虑一下是否真的需要抽象
 class CloudHelper {
   CloudHelper._();
 

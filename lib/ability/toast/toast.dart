@@ -2,13 +2,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:hg_entity/hg_entity.dart';
 import 'package:hg_framework/hg_framework.dart';
 
+import '../entity/entity.dart';
+
+/// 提示信息帮助类
+/// TODO with AppConfigItem
 class ToastHelper {
   ToastHelper._();
 
-  /// 提示框
+  /// 普通提示框
   static Future<void> toast({String? msg, Duration? duration}) async {
     String key = "toast_${msg.hashCode}";
     appLogic.showOverlay(
@@ -36,7 +39,7 @@ class ToastHelper {
     appLogic.closeOverlay(key);
   }
 
-  /// 应用内提示
+  /// 应用内横幅提示
   static void inAppNotification({
     Widget? leading,
     String? title,
@@ -148,7 +151,7 @@ class ToastHelper {
     );
   }
 
-  /// 提示框
+  /// 请求提示框
   static Future<T?> showRequest<T>(
     BuildContext context, {
     Widget? message,

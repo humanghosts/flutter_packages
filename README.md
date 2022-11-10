@@ -13,7 +13,7 @@ and the Flutter guide for
 
 帮助快速构建应用，提供一些开箱即用的功能。
 - 通知
-  - 本地通知(基于flutter_local_notification)
+  - 本地通知(基于flutter_local_notification)，支持通知池，防止因为设备通知数量限制导致通知无法发出
   - 应用内通知(支持设置通知显示时间，可手动关闭通知)
 - toast
   - toast
@@ -41,9 +41,10 @@ and the Flutter guide for
   - 等
 - 高度自定义的App启动和App配置
 
-## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+
+##
+
 
 ## Getting started
 
@@ -87,17 +88,29 @@ class MyApp extends App {
 }
 ```
 
-## Usage
+## 应用启动配置扩展
+1. 创建新的配置类，继承或混入`AppConfigItem`。
+```Dart
+/// 继承AppConfigItem的新设置类
+class NewConfigItem extends AppConfigItem{}
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
-
-```dart
-const like = 'sample';
+/// 混入AppConfigItem的需要初始化的助手类
+class NewHelperNeedInit with AppConfigItem{}
 ```
+2. 为了方便操作，将其设置为单例模式。可以使用常规的单例模式代码，也可以使用`framework`提供的`SingletonCache`实现单例模式。(为了简化代码，不过只少写了一行，还行)。
+```Dart
+  /// 私有化构造方法
+  NewConfigItem._();
 
-## Additional information
+  /// 常规单例模式代码
+  static NewConfigItem? _instance;
+  factory NewConfigItem()=>_instance??=NewConfigItem._();
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+  /// 使用SingletonCache实现单例
+  factory NewConfigItem() => SingletonCache.putIfAbsent(NewConfigItem._());
+```
+3. 实现init方法
+```Dart
+  @override
+  FutureOr<void> init() {}
+```

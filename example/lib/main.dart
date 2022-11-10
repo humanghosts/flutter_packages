@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hg_framework/ability/orm/orm.dart';
 import 'package:hg_framework/hg_framework.dart';
-import 'package:hg_orm/hg_orm.dart';
 
 class MyAppConfig extends AppConfig {
   MyAppConfig._();
@@ -20,7 +20,7 @@ class MyAppConfig extends AppConfig {
 }
 
 void main() {
-  AppHelper.run(const MyApp(), MyAppConfig.instance);
+  AppRunner.run(const MyApp(), MyAppConfig.instance);
 }
 
 class MyApp extends App {
