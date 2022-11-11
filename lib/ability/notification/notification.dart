@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:hg_framework/app/config.dart';
 import 'package:hg_framework/hg_framework.dart';
 import 'package:scheduled_timer/scheduled_timer.dart';
 
@@ -266,7 +265,7 @@ enum NotificationAction { find, add, notify, cancel, remove, recover }
 
 /// 通知助手
 /// 需要数据库持久化提醒数据，数据库未初始化提醒只在当前运行时间内生效
-class NotificationHelper with AppConfigItem {
+class NotificationHelper with AppPlugin {
   NotificationHelper._({int? maxCount}) : _maxCount = maxCount ?? 64;
 
   factory NotificationHelper({int? maxCount}) => SingletonCache.putIfAbsent(NotificationHelper._(maxCount: maxCount));

@@ -6,7 +6,7 @@ import 'package:hg_framework/hg_framework.dart';
 
 /// 设备方向助手
 /// TODO 暂时用不上，代码可能有问题
-class OrientationHelper with AppConfigItem {
+class OrientationHelper with AppPlugin {
   OrientationHelper._({List<DeviceOrientation>? orientations}) : _orientations = orientations ?? const [DeviceOrientation.portraitUp];
 
   factory OrientationHelper({List<DeviceOrientation>? orientations}) => SingletonCache.putIfAbsent(OrientationHelper._(orientations: orientations));

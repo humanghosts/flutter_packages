@@ -1,15 +1,18 @@
+/// 模型构造器
+typedef EntityConstructor = Object Function([Map<String, dynamic>? args]);
+
 /// 构造器缓存
 class ConstructorCache {
   ConstructorCache._();
 
   /// 构造器缓存
-  static final Map<String, Object Function([Map<String, dynamic>? args])> _cache = {};
+  static final Map<String, EntityConstructor> _cache = {};
 
   /// 类型字符串与类型缓存
   static final Map<String, Type> _typeCache = {};
 
   /// 注册缓存,Type最好不要带？
-  static void put(Type type, Object Function([Map<String, dynamic>? args]) constructor, {List<String> alias = const []}) {
+  static void put(Type type, EntityConstructor constructor, {List<String> alias = const []}) {
     String typeStr = type.toString();
     String realTypeStr;
     if (type.toString().endsWith("?")) {

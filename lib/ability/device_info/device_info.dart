@@ -7,7 +7,7 @@ import 'package:user_agent_analyzer/user_agent_analyzer.dart';
 
 /// 设备信息助手
 /// 支持包括web在内所有平台设备信息，基于device_info_plus插件
-class DeviceInfoHelper with AppConfigItem {
+class DeviceInfoHelper with AppPlugin {
   DeviceInfoHelper._({bool? storeDesktopConfig}) : _storeDesktopConfig = storeDesktopConfig ?? false;
 
   factory DeviceInfoHelper({bool? storeDesktopConfig}) => SingletonCache.putIfAbsent(DeviceInfoHelper._(storeDesktopConfig: storeDesktopConfig));

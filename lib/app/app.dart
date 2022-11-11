@@ -15,7 +15,7 @@ class AppRunner {
     runZonedGuarded(
       () async {
         WidgetsFlutterBinding.ensureInitialized();
-        await config.setConfig();
+        await config.registerPlugin();
         await config.init();
         runApp(app);
       },

@@ -5,7 +5,7 @@ import 'package:hg_framework/util/singleton_catch.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 系统级别的kv存储库
-class PrefsHelper with AppConfigItem {
+class PrefsHelper with AppPlugin {
   PrefsHelper._();
 
   factory PrefsHelper() => SingletonCache.putIfAbsent(PrefsHelper._());

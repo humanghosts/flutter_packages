@@ -5,7 +5,7 @@ import 'package:hg_framework/hg_framework.dart';
 import '../entity/entity.dart';
 
 /// 数据库助手
-class DatabaseHelper with AppConfigItem {
+class DatabaseHelper with AppPlugin {
   DatabaseHelper._({required this.databaseConfig});
 
   factory DatabaseHelper({required DatabaseConfig databaseConfig}) => SingletonCache.putIfAbsent(DatabaseHelper._(databaseConfig: databaseConfig));

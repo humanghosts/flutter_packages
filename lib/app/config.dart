@@ -1,7 +1,8 @@
 import 'dart:async';
+import 'dart:developer';
 
-import 'package:flutter/material.dart';
 import 'package:hg_framework/ability/desktop/window.dart';
+import 'package:hg_framework/ability/entity/entity.dart';
 import 'package:hg_framework/hg_framework.dart';
 
 /// 应用配置
@@ -12,58 +13,88 @@ abstract class AppConfig {
   /// 应用版本
   String get appVersion;
 
-  /// 应用配置项
-  final Map<String, AppConfigItem> _configItem = {};
+  /// 应用插件
+  final Map<String, AppPlugin> _plugin = {};
 
-  /// 应用配置项启动顺序 从小到达排序 同顺序按照插入顺序执行初始化
-  final Map<String, int> _configIndex = {};
-  final Map<int, Set<String>> _indexConfig = {};
+  /// 插件初始化位置 用于插件替换位置
+  final Map<String, int> _pluginInitIndex = {};
+
+  /// 初始化插件顺序池 用于执行插件初始化
+  final Map<int, Set<String>> _indexPlugin = {};
 
   /// 下一个配置顺序
-  int _nextConfigIndex = 0;
+  int _nextPluginIndex = 0;
 
-  /// 添加配置，如果没有指定顺序的话，会排在上一个指定位置的后面。默认的初始指定位置为0
-  /// 同名配置会被覆盖
-  void addConfig(String key, AppConfigItem configItem, {int? index}) {
-    int itemIndex = index ?? _nextConfigIndex;
-    _nextConfigIndex = itemIndex + 1;
+  /// 添加插件，如果没有指定顺序的话，会排在上一个指定位置的后面。默认的初始指定位置为0
+  /// 同名插件会被覆盖
+  void addPlugin(String key, AppPlugin appPlugin, {int? index}) {
+    int itemIndex = index ?? _nextPluginIndex;
+    _nextPluginIndex = itemIndex + 1;
     // 直接赋值，无论是否存在
-    _configItem[key] = configItem;
+    _plugin[key] = appPlugin;
     // 存在则移除
-    if (_configIndex.containsKey(key)) {
-      int oldItemIndex = _configIndex[key]!;
-      _indexConfig.putIfAbsent(oldItemIndex, () => {}).remove(key);
+    if (_pluginInitIndex.containsKey(key)) {
+      int oldItemIndex = _pluginInitIndex[key]!;
+      _indexPlugin.putIfAbsent(oldItemIndex, () => {}).remove(key);
     }
-    _configIndex[key] = itemIndex;
-    _indexConfig.putIfAbsent(itemIndex, () => {}).add(key);
+    _pluginInitIndex[key] = itemIndex;
+    _indexPlugin.putIfAbsent(itemIndex, () => {}).add(key);
   }
 
-  /// 如果存在，替换配置
-  /// 如果不存在新增配置，可指定新增位置
-  /// 如果想要替换并指定位置，可直接使用[addConfig]
-  void replaceConfig(String key, AppConfigItem configItem, {int? index}) {
-    if (_configItem.containsKey(key)) {
-      _configItem[key] = configItem;
+  /// 如果存在，替换插件
+  /// 如果不存在新增插件，可指定新增位置
+  /// 如果想要替换并指定位置，可直接使用[addPlugin]
+  void replacePlugin(String key, AppPlugin configItem, {int? index}) {
+    if (_plugin.containsKey(key)) {
+      _plugin[key] = configItem;
     } else {
-      addConfig(key, configItem, index: index);
+      addPlugin(key, configItem, index: index);
     }
   }
 
-  /// 设置配置
-  Future<void> setConfig() async {
-    addConfig('prefs', PrefsHelper()); // 本地存储配置
+  /// 注册插件
+  FutureOr<void> registerPlugin() {
+    addPlugin('prefs', PrefsHelper()); // 本地存储配置
     // 大部分功能都需要设备信息，这个是刚需，没有进行未配置校验 不优先初始化的话应该会报错
-    addConfig('deviceInfo', DeviceInfoHelper()); // 设备信息配置
-    addConfig("desktopWindow", WindowHelper()); // 桌面窗口配置
+    addPlugin('deviceInfo', DeviceInfoHelper()); // 设备信息配置
+    addPlugin("desktopWindow", WindowHelper()); // 桌面窗口配置
     // TODO 数据库配置
+    addPlugin("entity", EntityHelper()); // 实体配置
     // TODO 主题配置
     // TODO 提示配置 这个和显示层还耦合
     // TODO 通知配置
     // TODO 动画时间配置
+    // TODO 资源配置
   }
 
-  /// TODO 执行注册的配置
+  /// 初始化插件
+  FutureOr<void> initPlugin() async {
+    if (_indexPlugin.isEmpty) return;
+    List<int> indexList = _indexPlugin.keys.toList();
+    indexList.sort(); // 顺序排序
+    // 按顺序执行插件初始化
+    for (int index in indexList) {
+      Set<String> indexPluginItemList = _indexPlugin[index] ?? {};
+      if (indexPluginItemList.isEmpty) continue;
+      for (String pluginKey in indexPluginItemList) {
+        AppPlugin? appPlugin = _plugin[pluginKey];
+        if (appPlugin == null) continue;
+        log("初始化插件:$pluginKey");
+        FutureOr doInit = appPlugin.doInit(this);
+        if (doInit is Future) await doInit;
+      }
+    }
+  }
+
+  /// 配置初始化
   Future<void> init() async {
+    // 注册插件
+    FutureOr<void> pluginRegister = registerPlugin();
+    if (pluginRegister is Future) await pluginRegister;
+    // 初始化插件
+    FutureOr<void> pluginInit = initPlugin();
+    if (pluginInit is Future) await pluginInit;
+
     // 当前包下的模型和dao注册
     _getEntitiesMap().forEach(ConstructorCache.put);
     // 传入的模型和dao注册
@@ -90,13 +121,10 @@ abstract class AppConfig {
     // 初始化云服务
     if (null != clouds) await CloudHelper.init(clouds!);
   }
-
-  /// 所有设置执行之后的回调
-  FutureOr<void> afterInit() {}
 }
 
-/// 应用功能配置项
-abstract class AppConfigItem {
+/// 应用插件
+abstract class AppPlugin {
   /// 配置项目是否初始化
   bool _isInit = false;
 

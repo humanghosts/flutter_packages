@@ -5,7 +5,7 @@ import 'package:hg_framework/hg_framework.dart';
 import 'package:window_manager/window_manager.dart';
 
 /// 桌面模式窗口助手
-class WindowHelper with AppConfigItem {
+class WindowHelper with AppPlugin {
   WindowHelper._();
 
   factory WindowHelper() => SingletonCache.putIfAbsent(WindowHelper._());
