@@ -96,7 +96,7 @@ class RouteHelper {
     return await Get.dialog(
       widget,
       barrierDismissible: barrierDismissible ?? false,
-      barrierColor: barrierColor ?? getOnColor(appLogic.themeData.dialogBackgroundColor).withOpacity(0.1),
+      barrierColor: barrierColor ?? getOnColor(ThemeHelper().themeData.dialogBackgroundColor).withOpacity(0.1),
       useSafeArea: useSafeArea ?? true,
       navigatorKey: navigatorKey,
       arguments: arguments,

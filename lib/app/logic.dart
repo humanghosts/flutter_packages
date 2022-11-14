@@ -2,164 +2,14 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:ui';
 
-import 'package:flex_color_scheme/flex_color_scheme.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:hg_framework/ability/toast/overlay.dart';
 import 'package:hg_framework/hg_framework.dart';
 import 'package:window_manager/window_manager.dart';
 
-/// 主题监听器
-abstract class ThemeHelper {
-  /// 主题服务
-  ThemeConfigService get themeConfigService => ThemeConfigService.instance;
-
-  /// 主题模板服务
-  ThemeTemplateService get themeTemplateService => ThemeTemplateService.instance;
-
-  /// 当前主题配置
-  ThemeConfig themeConfig = ThemeConfig();
-
-  /// 当前系统亮度
-  Brightness brightness = Brightness.light;
-
-  /// 当前主题模板
-  ThemeTemplate get themeTemplate => themeConfig.templateInUse.value;
-
-  /// 当前主题数据
-  late ThemeData themeData;
-
-  late ThemeData lightTheme;
-  late ThemeData darkTheme;
-  late ThemeMode themeMode;
-
-  /// 更新标识
-  RxInt themeUpdateFlag = 0.obs;
-
-  /// 主题更新监听器
-  final Map<String, VoidCallback> _themeListener = {};
-
-  /// 是否浅色模式
-  bool get isLightMode => brightness == Brightness.light;
-
-  /// 是否深色模式
-  bool get isDarkMode => brightness == Brightness.dark;
-
-  /// 监听主题更新
-  void listenThemeUpdate(String key, VoidCallback callback) => _themeListener[key] = callback;
-
-  /// 移除主题更新监听器
-  void removeThemeUpdateListener(String key) => _themeListener.remove(key);
-
-  /// 应用渲染时调用
-  void _onWidgetBuildTheme() {
-    brightness = window.platformBrightness;
-    _setArgs();
-  }
-
-  /// 设置主题参数
-  void _setArgs() {
-    lightTheme = themeTemplate.toFlexColorThemeLight().toTheme;
-    darkTheme = themeTemplate.toFlexColorThemeDark().toTheme;
-    themeMode = themeTemplate.themeMode.value.mode;
-    switch (themeMode) {
-      case ThemeMode.system:
-        themeData = isLightMode ? lightTheme : darkTheme;
-        break;
-      case ThemeMode.light:
-        themeData = lightTheme;
-        break;
-      case ThemeMode.dark:
-        themeData = darkTheme;
-        break;
-    }
-    SystemChrome.setSystemUIOverlayStyle(
-      FlexColorScheme.themedSystemNavigationBar(
-        Get.context,
-        systemNavBarStyle: themeTemplate.sysNavBarStyle.value.style,
-        useDivider: themeTemplate.useSysNavDivider.value,
-        opacity: themeTemplate.sysNavBarOpacity.value,
-      ),
-    );
-  }
-
-  /// 查询主题配置 在应用启动时候初始化完数据库调用
-  Future<void> _onAppInitTheme() async {
-    themeConfig = await themeConfigService.find();
-  }
-
-  /// 保存主题配置
-  Future<void> saveConfig() async {
-    await themeConfigService.save(themeConfig);
-  }
-
-  /// 更新主题
-  Future<void> updateThemeTemplate(ThemeTemplate template) async {
-    String id = template.id.value;
-    String inUseId = themeConfig.templateInUse.value.id.value;
-    await themeTemplateService.save(template);
-    if (id == inUseId) themeChangedReRender();
-  }
-
-  /// 删除主题
-  Future<bool> removeThemeTemplate(ThemeTemplate template) async {
-    String id = template.id.value;
-    String inUseId = themeConfig.templateInUse.value.id.value;
-    if (id == inUseId) {
-      ToastHelper.inAppNotification(
-        leading: Icon(Icons.sms_failed_outlined, color: appLogic.themeData.errorColor),
-        title: "无法删除",
-        message: "主题${template.name.value ?? "未命名"}正在使用中",
-      );
-      return false;
-    }
-    await ThemeConfigService.instance.transaction((tx) async {
-      await themeTemplateService.remove(template, tx: tx);
-      themeConfig.templateList.removeWhere((element) => element.id.value == template.id.value);
-      themeConfigService.save(themeConfig);
-    });
-    return true;
-  }
-
-  /// 使用主题
-  Future<void> useThemeTemplate(ThemeTemplate template) async {
-    themeConfig.templateInUse.value = template;
-    await themeConfigService.save(themeConfig);
-    themeChangedReRender();
-  }
-
-  /// 添加一个主题
-  /// [addToUse] 表示是否同时使用这个主题
-  Future<void> addThemeTemplate(ThemeTemplate template, {bool addToUse = false}) async {
-    Set<String> templateIdMap = themeConfig.templateList.value.map((e) => e.id.value).toSet();
-    String id = template.id.value;
-    if (templateIdMap.contains(id)) return;
-    themeConfig.templateList.add(template);
-    if (addToUse) {
-      await useThemeTemplate(template);
-    } else {
-      await themeConfigService.save(themeConfig);
-    }
-  }
-
-  /// 重新根据主题渲染
-  void themeChangedReRender() {
-    themeUpdateFlag++;
-    _setArgs();
-    for (var value in _themeListener.values) {
-      try {
-        value();
-      } catch (e) {
-        LogHelper.error(e.toString());
-      }
-    }
-  }
-}
-
-/// 应用生命周期监听器
-abstract class AppLifecycleHelper {
+/// 应用生命周期监听器 adder
+class _AppLifecycleHelper {
   /// 当前app状态
   AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
 
@@ -173,60 +23,8 @@ abstract class AppLifecycleHelper {
   void removeAppLifecycleListener(String key) => _appLifecycleListener.remove(key);
 }
 
-/// 蒙版助手
-abstract class OverlayHelper {
-  /// 蒙版关闭缓存
-  Map<String, VoidCallback> closeFuncMap = {};
-
-  /// 显示加载
-  void showLoading(String key, {Widget? message, bool onlyDebug = false}) {
-    if (onlyDebug && kDebugMode) return;
-    showOverlay(
-      key: key,
-      widget: Material(
-        color: Colors.transparent,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SpinKitCircle(color: appLogic.themeData.iconTheme.color),
-            if (null != message) message,
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// 关闭加载
-  void closeLoading(String key) => closeOverlay(key);
-
-  /// 显示蒙版 index越高越靠上
-  void showOverlay({required String key, required Widget widget, Widget? background}) {
-    if (closeFuncMap.containsKey(key)) return;
-    ToastHelper.overlayBuilder(
-      (context) {
-        return widget;
-      },
-      backgroundBuilder: (context) {
-        return background ??
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaY: 2, sigmaX: 2),
-              child: const SizedBox.shrink(),
-            );
-      },
-      close: (action) => closeFuncMap[key] = action,
-    );
-  }
-
-  /// 关闭蒙版
-  void closeOverlay(String key) {
-    closeFuncMap[key]?.call();
-    closeFuncMap.remove(key);
-  }
-}
-
 /// 应用内通知助手
-abstract class InAppNotificationHelper {
+class _NotificationHelper {
   /// 通知更新标识
   RxInt inAppNotificationUpdateFlag = 0.obs;
 
@@ -249,7 +47,7 @@ abstract class InAppNotificationHelper {
     notificationKeyIndex[key] = order;
     indexNotificationKeys.putIfAbsent(order, () => {}).add(key);
     if (indexNotificationWidget.length == 1) {
-      appLogic.showOverlay(
+      OverlayHelper().showOverlay(
         key: "in_app_notification",
         widget: Obx(() {
           inAppNotificationUpdateFlag.value;
@@ -276,7 +74,7 @@ abstract class InAppNotificationHelper {
                 ),
               );
 
-              Animation<double> animation = Tween<double>(begin: (DeviceInfoHelper.isDesktop ? 400 : Get.width), end: 0).animate(CurvedAnimation(
+              Animation<double> animation = Tween<double>(begin: (DeviceInfoHelper().isDesktop ? 400 : Get.width), end: 0).animate(CurvedAnimation(
                 parent: controller,
                 curve: Curves.easeOut,
               ));
@@ -309,7 +107,7 @@ abstract class InAppNotificationHelper {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: DeviceInfoHelper.isDesktop ? 400 : Get.width,
+                width: DeviceInfoHelper().isDesktop ? 400 : Get.width,
                 padding: EdgeInsets.only(top: Get.mediaQuery.padding.top),
                 child: SingleChildScrollView(
                   child: Column(children: children),
@@ -333,32 +131,19 @@ abstract class InAppNotificationHelper {
     indexNotificationKeys[order]?.remove(key);
     await notificationController[key]?.reverse();
     if (indexNotificationWidget.isEmpty) {
-      appLogic.closeOverlay("in_app_notification");
+      OverlayHelper().closeOverlay("in_app_notification");
     }
     inAppNotificationUpdateFlag++;
   }
 }
 
-/// 快捷获取控制器
-AppLogic get appLogic => AppLogic();
-
-/// 快捷获取配置
-AppConfig get appConfig => appLogic.config;
-
-/// 快捷获取模版数据
-ThemeTemplate get currentThemeTemplate => appLogic.themeTemplate;
-
 /// 主页控制器
-class AppLogic extends GetxController with OrientationHelper, ThemeHelper, AppLifecycleHelper, OverlayHelper, InAppNotificationHelper, WindowListener {
+class AppLogic extends GetxController with AppInitPlugin, AppRebuildPlugin, _AppLifecycleHelper, _NotificationHelper, WindowListener {
   AppLogic._();
-
-  AppLogic.forExtends();
 
   static AppLogic? _instance;
 
-  factory AppLogic() {
-    return _instance ??= Get.put<AppLogic>(AppLogic._());
-  }
+  factory AppLogic() => _instance ??= Get.put<AppLogic>(AppLogic._());
 
   /// 应用配置
   late final AppConfig config;
@@ -414,36 +199,25 @@ class AppLogic extends GetxController with OrientationHelper, ThemeHelper, AppLi
     super.onWindowResize();
     windowHeight.value = Get.height;
     windowWidth.value = Get.width;
-    await PrefsHelper.prefs.setDouble("window_height", windowHeight.value);
-    await PrefsHelper.prefs.setDouble("window_width", windowWidth.value);
+    await PrefsHelper().prefs.setDouble("window_height", windowHeight.value);
+    await PrefsHelper().prefs.setDouble("window_width", windowWidth.value);
   }
 
-  /// 应用初始化时调用
-  /// 调用点为[InitializeHelper.init]
-  Future<void> onAppInit(AppConfig appConfig) async {
+  @override
+  Future<void> init(AppConfig config) async {
     LogHelper.info("[AppLogic]:初始化");
     windowManager.addListener(this);
-    config = appConfig;
+    this.config = config;
     windowHeight.value = Get.height;
     windowWidth.value = Get.width;
-    await _onAppInitTheme();
     for (var value in _onAppInitCallback.values) {
       try {
         FutureOr res = value();
-        if (res is Future) {
-          await res;
-        }
+        if (res is Future) await res;
       } catch (e) {
         LogHelper.error(e.toString());
       }
     }
-  }
-
-  /// 应用构建时调用
-  /// 调用点为[App.build]
-  void onWidgetBuild(BuildContext context) {
-    _onWidgetBuildTheme();
-    _onWidgetBuildOrientation();
   }
 
   @override
@@ -451,9 +225,7 @@ class AppLogic extends GetxController with OrientationHelper, ThemeHelper, AppLi
     for (var value in _onReadyCallback.values) {
       try {
         FutureOr res = value();
-        if (res is Future) {
-          await res;
-        }
+        if (res is Future) await res;
       } catch (e) {
         LogHelper.error(e.toString());
       }
@@ -462,24 +234,14 @@ class AppLogic extends GetxController with OrientationHelper, ThemeHelper, AppLi
 
   @override
   onClose() async {
-    _onCloseOrientation();
     for (var value in _onCloseCallback.values) {
       try {
         FutureOr res = value();
-        if (res is Future) {
-          await res;
-        }
+        if (res is Future) await res;
       } catch (e) {
         LogHelper.error(e.toString());
       }
     }
-  }
-
-  /// 重新根据主题渲染
-  @override
-  void themeChangedReRender() {
-    super.themeChangedReRender();
-    update();
   }
 
   /// 系统亮度调整 用于WidgetsBindingObserver的方法调用
@@ -487,10 +249,10 @@ class AppLogic extends GetxController with OrientationHelper, ThemeHelper, AppLi
   void didChangePlatformBrightness() {
     Brightness brightness = window.platformBrightness;
     if (appLifecycleState != AppLifecycleState.resumed) return;
-    if (this.brightness == brightness) return;
-    this.brightness = brightness;
+    if (ThemeHelper().brightness == brightness) return;
+    ThemeHelper().brightness = brightness;
     log("brightness changed $brightness");
-    themeChangedReRender();
+    ThemeHelper().reRender();
   }
 
   /// 生命周期改变回调
@@ -509,20 +271,8 @@ class AppLogic extends GetxController with OrientationHelper, ThemeHelper, AppLi
     didChangePlatformBrightness();
   }
 
-  /// 重新构建应用
-  Future<void> rebuild() async {
-    // 数据库刷新
-    await DatabaseHelper.refresh();
-    // 数据库版本变更
-    int oldVersion = DatabaseHelper.database.oldVersion;
-    int newVersion = DatabaseHelper.database.version;
-    if (oldVersion != newVersion) await config.onDatabaseVersionChanged(oldVersion, newVersion);
-    // 通知刷新
-    await NotificationHelper.refresh();
-    // 配置回调刷新
-    appConfig.afterRefresh();
-    // 主题刷新
-    await _onAppInitTheme();
+  @override
+  FutureOr<void> rebuild(AppConfig config) async {
     update();
     for (var callback in _onRefreshCallback.values) {
       try {

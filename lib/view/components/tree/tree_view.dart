@@ -155,7 +155,7 @@ class TreeView extends View<TreeViewLogic> {
         key: ValueKey(logic.key),
         crossAxisAlignment: CrossAxisAlignment.start,
         onReorder: logic.onReorder,
-        needsLongPressDraggable: DeviceInfoHelper.isMobile,
+        needsLongPressDraggable: DeviceInfoHelper().isMobile,
         scrollController: ScrollController(),
         children: children,
       );

@@ -2,19 +2,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:hg_framework/ability/toast/overlay.dart';
 import 'package:hg_framework/hg_framework.dart';
 
-import '../entity/entity.dart';
-
 /// 提示信息帮助类
-/// TODO with AppConfigItem
 class ToastHelper {
   ToastHelper._();
 
+  factory ToastHelper() => SingletonCache.putIfAbsent(ToastHelper._());
+
   /// 普通提示框
-  static Future<void> toast({String? msg, Duration? duration}) async {
+  Future<void> toast({String? msg, Duration? duration}) async {
     String key = "toast_${msg.hashCode}";
-    appLogic.showOverlay(
+    OverlayHelper().showOverlay(
       key: key,
       widget: GestureDetector(
         child: Material(
@@ -29,18 +29,19 @@ class ToastHelper {
           ),
         ),
         onTap: () {
-          appLogic.closeOverlay(key);
+          OverlayHelper().closeOverlay(key);
         },
       ),
       background: const SizedBox.shrink(),
     );
     Duration delay = duration ?? const Duration(seconds: 3);
     await Future.delayed(delay);
-    appLogic.closeOverlay(key);
+    OverlayHelper().closeOverlay(key);
   }
 
   /// 应用内横幅提示
-  static void inAppNotification({
+  /// 因为和界面耦合，所以使用[AppLogic]提供的方法 这里只是方便调用
+  void inAppNotification({
     Widget? leading,
     String? title,
     Widget? titleWidget,
@@ -73,13 +74,13 @@ class ToastHelper {
                       titleWidget ??
                           Text(
                             title ?? "",
-                            style: appLogic.themeData.textTheme.bodyText1,
+                            style: ThemeHelper().themeData.textTheme.bodyText1,
                           ),
                       if (message != null || messageWidget != null)
                         messageWidget ??
                             Text(
                               message ?? "",
-                              style: appLogic.themeData.textTheme.bodyText2,
+                              style: ThemeHelper().themeData.textTheme.bodyText2,
                             ),
                     ],
                   ),
@@ -105,12 +106,13 @@ class ToastHelper {
   }
 
   /// 关闭应用内提示
-  static void closeInAppNotification(String key) {
+  /// 因为和界面耦合，所以使用[AppLogic]提供的方法 这里只是方便调用
+  void closeInAppNotification(String key) {
     appLogic.closeNotification(key);
   }
 
   /// 单选提示框
-  static Future<bool?> showOneChoiceRequest({
+  Future<bool?> showOneChoiceRequest({
     String? title,
     String msg = "确定删除吗?",
     String doneText = "删除",
@@ -130,7 +132,7 @@ class ToastHelper {
   }
 
   /// 双选提示框
-  static Future<bool?> showTwoChoiceRequest({
+  Future<bool?> showTwoChoiceRequest({
     String? title,
     String msg = "确定删除吗?",
     String doneText = "删除",
@@ -152,7 +154,7 @@ class ToastHelper {
   }
 
   /// 请求提示框
-  static Future<T?> showRequest<T>(
+  Future<T?> showRequest<T>(
     BuildContext context, {
     Widget? message,
     Widget? title,
@@ -162,7 +164,7 @@ class ToastHelper {
     List<T> destructiveValue = const [],
     String cancelText = "取消",
   }) async {
-    if (DeviceInfoHelper.isDesktop) {
+    if (DeviceInfoHelper().isDesktop) {
       return await showCupertinoAlertDialog<T>(
         context,
         valueList: valueList,
@@ -187,43 +189,9 @@ class ToastHelper {
     }
   }
 
-  /// 蒙版构建器
-  static void overlayBuilder(
-    Widget Function(BuildContext context) builder, {
-    Widget Function(BuildContext context)? backgroundBuilder,
-    // 关闭弹框方法
-    void Function(VoidCallback action)? close,
-  }) {
-    ThemeData themeData = appLogic.themeData;
-    BuildContext context = Get.overlayContext!;
-    NavigatorState navigatorState = Navigator.of(context, rootNavigator: true);
-    OverlayState overlayState = navigatorState.overlay!;
-
-    OverlayEntry overlayEntryOpacity = OverlayEntry(builder: (context) {
-      return backgroundBuilder?.call(context) ??
-          Opacity(
-            opacity: 0.9,
-            child: Container(
-              color: themeData.primaryColor.withOpacity(0.9),
-            ),
-          );
-    });
-    OverlayEntry? overlayEntryLoader;
-    overlayEntryLoader = OverlayEntry(builder: (context) {
-      return builder(context);
-    });
-    overlayState.insert(overlayEntryOpacity);
-    overlayState.insert(overlayEntryLoader);
-    // 关闭方法
-    close?.call(() {
-      overlayEntryLoader?.remove();
-      overlayEntryOpacity.remove();
-    });
-  }
-
   /// 显示漂浮菜单
   /// ios和android使用modalPopup
-  static Future<T?> showContextMenu<T>(
+  Future<T?> showContextMenu<T>(
     BuildContext context, {
     Widget? title,
     Widget? message,
@@ -234,7 +202,7 @@ class ToastHelper {
     List<T> destructiveValue = const [],
     String cancelText = "取消",
   }) async {
-    if (DeviceInfoHelper.isDesktop) {
+    if (DeviceInfoHelper().isDesktop) {
       return await showPopupContextMenu(
         context,
         valueList: valueList,
@@ -256,7 +224,7 @@ class ToastHelper {
   }
 
   /// 桌面端菜单按钮
-  static Future<T?> showPopupContextMenu<T>(
+  Future<T?> showPopupContextMenu<T>(
     BuildContext context, {
     required List<T> valueList,
     required Widget Function(T value) childBuilder,
@@ -294,7 +262,7 @@ class ToastHelper {
   }
 
   /// dialog形式的弹出请求
-  static Future<T?> showCupertinoAlertDialog<T>(
+  Future<T?> showCupertinoAlertDialog<T>(
     BuildContext context, {
     Widget? message,
     Widget? title,
@@ -338,7 +306,7 @@ class ToastHelper {
   }
 
   /// ios平台的弹出菜单(actionSheet)
-  static Future<T?> showCupertinoActionSheet<T>(
+  Future<T?> showCupertinoActionSheet<T>(
     BuildContext context, {
     Widget? title,
     Widget? message,

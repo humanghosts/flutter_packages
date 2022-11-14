@@ -66,8 +66,6 @@ class MyApp extends App {
 ## 配置应用
 新建应用配置类继承`AppConfig`，需要提供应用名称和应用版本。
 ```Dart
-/// 快速获取应用配置
-MyAppCofnig get appConfig => MyAppConfig();
 /// 应用配置
 class MyAppConfig extends AppConfig {
   /// 单例模式代码
@@ -88,7 +86,7 @@ class MyAppConfig extends AppConfig {
 ```Dart
 void main() {
   /// 传入应用和应用配置来运行应用
-  AppHelper.run(const MyApp(), appConfig);
+  AppHelper().run(const MyApp(), appConfig);
 }
 ```
 # 应用`App`

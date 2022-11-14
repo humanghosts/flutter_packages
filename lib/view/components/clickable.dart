@@ -243,7 +243,7 @@ class Clickable extends StatelessWidget {
     Widget widget;
     if (null == tooltip) {
       widget = child;
-    } else if (DeviceInfoHelper.isDesktop) {
+    } else if (DeviceInfoHelper().isDesktop) {
       widget = Tooltip(
         message: tooltip,
         preferBelow: tooltipBelow,

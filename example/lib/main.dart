@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hg_framework/ability/orm/orm.dart';
 import 'package:hg_framework/hg_framework.dart';
 
 class MyAppConfig extends AppConfig {
@@ -14,13 +13,10 @@ class MyAppConfig extends AppConfig {
 
   @override
   String get appVersion => "1";
-
-  @override
-  DatabaseConfig get databaseConfig => SembastConfig(path: 'example_hg_framework.db');
 }
 
 void main() {
-  AppRunner.run(const MyApp(), MyAppConfig.instance);
+  AppRunner().run(const MyApp(), MyAppConfig.instance);
 }
 
 class MyApp extends App {

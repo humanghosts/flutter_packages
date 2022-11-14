@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../../app/logic.dart';
+import 'package:hg_framework/ability/ability.dart';
 
 Color getOnColor(
   Color bgColor, [
@@ -14,7 +13,7 @@ Color getOnColor(
 }
 
 Color getOnAppBarColor() {
-  ThemeData theme = appLogic.themeData;
+  ThemeData theme = ThemeHelper().themeData;
   Color? foreColor = theme.appBarTheme.foregroundColor;
   Color? backColor = theme.appBarTheme.backgroundColor;
   if (backColor != null && backColor.opacity > 0.3 && foreColor != null) {

@@ -266,7 +266,7 @@ class TreeNodeView extends View<TreeNodeLogic> {
   Widget buildExpandIcon(BuildContext context, bool isLeaf, bool isExpanded) {
     // 按钮模式
     TreeNodeIconMode iconMode = logic.args.iconMode;
-    ThemeData theme = appLogic.themeData;
+    ThemeData theme = ThemeHelper().themeData;
     // 按钮色彩
     Color? color = iconMode == TreeNodeIconMode.disable && isLeaf ? theme.disabledColor : theme.textButtonTheme.style?.foregroundColor?.resolve({});
     // 按钮组件
@@ -377,7 +377,7 @@ class TreeNodeView extends View<TreeNodeLogic> {
                   onReorder: logic.onReorder,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
-                  needsLongPressDraggable: DeviceInfoHelper.isMobile,
+                  needsLongPressDraggable: DeviceInfoHelper().isMobile,
                   scrollController: ScrollController(),
                   children: childrenWidget,
                 ),

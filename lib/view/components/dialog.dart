@@ -70,7 +70,7 @@ class DialogView<L extends DialogViewLogic> extends View<L> {
     );
     if (!logic.args.max) widget = IntrinsicHeight(child: IntrinsicWidth(child: widget));
 
-    if (DeviceInfoHelper.isMobile) {
+    if (DeviceInfoHelper().isMobile) {
       return Scaffold(
         backgroundColor: Colors.transparent,
         body: BackdropFilter(
@@ -127,9 +127,9 @@ class DialogView<L extends DialogViewLogic> extends View<L> {
     Widget child = Container(
       clipBehavior: Clip.hardEdge,
       constraints: BoxConstraints(
-        maxHeight: DeviceInfoHelper.isDesktop ? Get.height * 0.8 : Get.height * 0.9,
-        maxWidth: DeviceInfoHelper.isDesktop ? Get.width * 0.8 : Get.width * 0.9,
-        minWidth: DeviceInfoHelper.isDesktop ? Get.width * 0.3 : Get.width * 0.9,
+        maxHeight: DeviceInfoHelper().isDesktop ? Get.height * 0.8 : Get.height * 0.9,
+        maxWidth: DeviceInfoHelper().isDesktop ? Get.width * 0.8 : Get.width * 0.9,
+        minWidth: DeviceInfoHelper().isDesktop ? Get.width * 0.3 : Get.width * 0.9,
         minHeight: 0,
       ),
       decoration: const BoxDecoration(),
@@ -148,7 +148,7 @@ class DialogView<L extends DialogViewLogic> extends View<L> {
                 const SizedBox(height: 16),
                 Expanded(
                   // 控制只能通过上下左右来拖动窗口
-                  child: DeviceInfoHelper.isDesktop ? Draggable(feedback: const SizedBox.shrink(), child: content) : content,
+                  child: DeviceInfoHelper().isDesktop ? Draggable(feedback: const SizedBox.shrink(), child: content) : content,
                 ),
                 const SizedBox(height: 16),
                 buildButtonBar(context),

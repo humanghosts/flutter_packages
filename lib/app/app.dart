@@ -5,19 +5,36 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/hg_framework.dart';
 
-import 'config/app.dart';
+export 'app.dart';
+export 'config.dart';
+export 'logic.dart';
+export 'plugin.dart';
 
 /// 应用助手
 class AppRunner {
+  AppRunner._();
+
+  factory AppRunner() => SingletonCache.putIfAbsent(AppRunner._());
+
+  late final App _app;
+  late final AppConfig _config;
+  bool _hasRun = false;
+
   /// 运行应用
-  static run(App app, AppConfig config) {
+  run(App app, AppConfig config) {
+    if (_hasRun) return;
+    _app = app;
+    _config = config;
     // 监控应用
     runZonedGuarded(
       () async {
         WidgetsFlutterBinding.ensureInitialized();
-        await config.registerPlugin();
-        await config.init();
+        // 初始化
+        FutureOr<void> initRun = config.appInit.run();
+        if (initRun is Future) await initRun;
+        // 运行应用
         runApp(app);
+        _hasRun = true;
       },
       (error, stackTrace) {
         LogHelper.wtf(error.toString(), error: error, stackTrace: stackTrace);
@@ -25,11 +42,24 @@ class AppRunner {
       zoneSpecification: const ZoneSpecification(),
     );
   }
+
+  /// 应用控制器
+  AppLogic get appLogic => _app.logic;
+
+  /// 应用个配置
+  AppConfig get appConfig => _config;
 }
+
+/// 快捷获取控制器
+AppLogic get appLogic => AppRunner().appLogic;
+
+/// 快捷获取配置
+AppConfig get appConfig => AppRunner().appConfig;
 
 /// 主程序
 abstract class App extends StatelessWidget with WidgetsBindingObserver {
-  AppLogic get logic => appLogic;
+  /// 应用控制器
+  AppLogic get logic => AppLogic();
 
   const App({Key? key}) : super(key: key);
 
@@ -63,20 +93,24 @@ abstract class App extends StatelessWidget with WidgetsBindingObserver {
         WidgetsBinding.instance.removeObserver(this);
       },
       builder: (logic) {
-        logic.onWidgetBuild(context);
-        return buildApp(context);
+        logic.config.appBuild.run();
+        return Obx(() {
+          ThemeHelper().themeUpdateFlag.value;
+          return buildApp(context);
+        });
       },
     );
   }
 
+  /// 构建应用
   Widget buildApp(BuildContext context) {
     return GetMaterialApp(
       scrollBehavior: const AppScrollBehavior(),
       debugShowCheckedModeBanner: false,
       title: logic.config.appName,
-      theme: logic.lightTheme,
-      darkTheme: logic.darkTheme,
-      themeMode: logic.themeMode,
+      theme: ThemeHelper().lightTheme,
+      darkTheme: ThemeHelper().darkTheme,
+      themeMode: ThemeHelper().themeMode,
       navigatorObservers: [
         Observer(RouteHelper.observer, ObserverRouting()),
       ],
@@ -87,5 +121,6 @@ abstract class App extends StatelessWidget with WidgetsBindingObserver {
     );
   }
 
+  /// 构建主页
   Widget buildHome(BuildContext context);
 }

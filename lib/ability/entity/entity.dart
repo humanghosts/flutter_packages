@@ -13,7 +13,7 @@ export 'model/export.dart';
 export 'util/export.dart';
 
 /// 实体助手，用于注册实体构造方法
-class EntityHelper extends AppPlugin {
+class EntityHelper extends AppInitPlugin {
   EntityHelper._({this.entityRegister});
 
   factory EntityHelper({EntityRegister? entityRegister}) => SingletonCache.putIfAbsent(EntityHelper._(entityRegister: entityRegister));

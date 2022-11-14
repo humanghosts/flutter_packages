@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hg_framework/ability/toast/overlay.dart';
 import 'package:hg_framework/hg_framework.dart';
-import 'package:hg_framework/hg_framework.dart' as f;
+import 'package:hg_framework/hg_framework.dart' as framework;
 
 /// 页面外部参数
 @immutable
@@ -81,9 +82,9 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
     // 防止不同类型的组件key重复导致回调不正确
     String key = "${this.key}_$runtimeType";
     appLogic.listenRefresh(key, () => update());
-    appLogic.listenThemeUpdate(key, () => update());
+    ThemeHelper().listenThemeUpdate(key, () => update());
     // appLogic.listenAppLifecycleUpdate(key, (lifecycle) => update());
-    appLogic.listenOrientationUpdate(key, (orientation) => update());
+    OrientationHelper().listenOrientationUpdate(key, (orientation) => update());
   }
 
   @mustCallSuper
@@ -93,9 +94,9 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
     // 防止不同类型的组件key重复导致回调不正确
     String key = "${this.key}_$runtimeType";
     appLogic.removeRefreshListener(key);
-    appLogic.removeThemeUpdateListener(key);
+    ThemeHelper().removeThemeUpdateListener(key);
     // appLogic.removeAppLifecycleListener(key);
-    appLogic.removeOrientationUpdateListener(key);
+    OrientationHelper().removeOrientationUpdateListener(key);
   }
 
   /// 组件构建回调
@@ -117,13 +118,13 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
   void onWidgetDispose(BuildContext context, GetBuilderState state) {}
 
   /// 当前应用数据
-  ThemeData get theme => appLogic.themeData;
+  ThemeData get theme => ThemeHelper().themeData;
 
   /// 当前应用模板
-  ThemeTemplate get themeTemplate => appLogic.themeTemplate;
+  ThemeTemplate get themeTemplate => ThemeHelper().themeTemplate;
 
   /// 应用配置
-  AppConfig get appConfig => f.appConfig;
+  AppConfig get appConfig => framework.appConfig;
 
   /// 动画配置
   AnimationConfig get animationConfig => appConfig.animationConfig;
@@ -143,7 +144,7 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
   /// 显示加载框
   void showLoading({String? message, Widget? messageWidget, bool onlyDebug = false}) {
     isBusy.value = true;
-    appLogic.showLoading(
+    OverlayHelper().showLoading(
       runtimeType.toString(),
       message: messageWidget ?? (message == null ? null : Text(message)),
       onlyDebug: onlyDebug,
@@ -153,7 +154,7 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
   /// 关闭加载框
   void closeLoading() {
     isBusy.value = false;
-    appLogic.closeLoading(runtimeType.toString());
+    OverlayHelper().closeLoading(runtimeType.toString());
   }
 }
 

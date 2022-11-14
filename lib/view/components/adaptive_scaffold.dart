@@ -117,7 +117,7 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
   /// 打开菜单
   void openMenu() {
     isMenuOpen.value = true;
-    if (DeviceInfoHelper.isMobile) {
+    if (DeviceInfoHelper().isMobile) {
       Scaffold.of(mobileContext).openDrawer();
     }
   }
@@ -125,7 +125,7 @@ class AdaptiveScaffoldLogic extends ViewLogicOnlyArgs<AdaptiveScaffoldArgs> {
   /// 关闭菜单
   void closeMenu() {
     isMenuOpen.value = false;
-    if (DeviceInfoHelper.isMobile) {
+    if (DeviceInfoHelper().isMobile) {
       Scaffold.of(mobileContext).closeDrawer();
     }
   }
@@ -172,7 +172,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
           child: Scaffold(
             resizeToAvoidBottomInset: false,
             backgroundColor: Colors.transparent,
-            body: DeviceInfoHelper.isMobile ? buildMobile(context) : buildDesktop(context),
+            body: DeviceInfoHelper().isMobile ? buildMobile(context) : buildDesktop(context),
           ),
         ),
       );
@@ -190,7 +190,7 @@ class AdaptiveScaffold extends View<AdaptiveScaffoldLogic> {
       },
       body: Builder(builder: (context) {
         logic.mobileContext = context;
-        if (DeviceInfoHelper.isWeb) {
+        if (DeviceInfoHelper().isWeb) {
           return SimpleGestureDetector(
             onHorizontalSwipe: (direction) => doWhen(direction == SwipeDirection.right, logic.openMenu),
             child: logic.args.body,

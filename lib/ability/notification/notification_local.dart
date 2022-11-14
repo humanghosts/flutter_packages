@@ -231,11 +231,11 @@ class LocalNotificationHelper {
     // 权限永久拒绝 设置里面没开
     if (status == PermissionStatus.permanentlyDenied) {
       //  询问用户是否打开设置
-      bool? isOpen = await ToastHelper.showOneChoiceRequest(title: "没有通知权限", msg: "是否打开系统设置");
+      bool? isOpen = await ToastHelper().showOneChoiceRequest(title: "没有通知权限", msg: "是否打开系统设置");
       if (isOpen == true) {
         isOpen = await openAppSettings();
         if (isOpen == false) {
-          ToastHelper.inAppNotification(leading: Icon(Icons.sms_failed_outlined, color: appLogic.themeData.errorColor), title: "打开系统设置失败,请手动打开");
+          ToastHelper().inAppNotification(leading: Icon(Icons.sms_failed_outlined, color: ThemeHelper().themeData.errorColor), title: "打开系统设置失败,请手动打开");
         }
       }
       return false;
@@ -451,7 +451,7 @@ class InAppNotificationsPlugin extends NotificationsPlugin {
 
   @override
   void _show({required int id, String? title, String? body, String? payload}) {
-    ToastHelper.inAppNotification(
+    ToastHelper().inAppNotification(
       key: id.toString(),
       message: body,
       title: title,

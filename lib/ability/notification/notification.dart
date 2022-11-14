@@ -265,7 +265,7 @@ enum NotificationAction { find, add, notify, cancel, remove, recover }
 
 /// 通知助手
 /// 需要数据库持久化提醒数据，数据库未初始化提醒只在当前运行时间内生效
-class NotificationHelper with AppPlugin {
+class NotificationHelper with AppInitPlugin, AppRebuildPlugin {
   NotificationHelper._({int? maxCount}) : _maxCount = maxCount ?? 64;
 
   factory NotificationHelper({int? maxCount}) => SingletonCache.putIfAbsent(NotificationHelper._(maxCount: maxCount));
@@ -283,7 +283,7 @@ class NotificationHelper with AppPlugin {
   @override
   Future<bool?> init(AppConfig config) async {
     _log("初始化通知助手");
-    _useDb = DatabaseHelper.instance.isInit;
+    _useDb = DatabaseHelper().isInit;
     if (!_useDb) _log("数据库未初始化，提醒数据不会持久化");
     // 初始化本地通知插件
     await LocalNotificationHelper.init();
@@ -368,7 +368,8 @@ class NotificationHelper with AppPlugin {
   }
 
   /// 刷新缓存数据
-  Future<void> refresh({Transaction? tx}) async {
+  @override
+  Future<void> rebuild(AppConfig config, {Transaction? tx}) async {
     await LocalNotificationHelper.cancelAllNotifications();
     idCache.clear();
     dbCache.clear();
@@ -410,7 +411,7 @@ class NotificationHelper with AppPlugin {
     if (oldDbCache.isEmpty) {
       _log("通知历史 内存缓存 不存在，查询数据库 并 处理数据 到 内存缓存");
       if (_useDb) {
-        for (dynamic value in DatabaseHelper.instance.kv.get(oldNotificationCache) ?? []) {
+        for (dynamic value in DatabaseHelper().kv.get(oldNotificationCache) ?? []) {
           if (null == value) continue;
           oldDbCache.add(value.toString());
         }
@@ -437,7 +438,7 @@ class NotificationHelper with AppPlugin {
       // 存储的数据
       List cloneDbCache;
       if (_useDb) {
-        cloneDbCache = DatabaseHelper.instance.kv.get(notificationCache) ?? [];
+        cloneDbCache = DatabaseHelper().kv.get(notificationCache) ?? [];
       } else {
         cloneDbCache = [];
       }
@@ -883,9 +884,9 @@ class NotificationHelper with AppPlugin {
   /// 刷新缓存到数据库
   Future<void> flushCache({Transaction? tx}) async {
     if (!_useDb) return;
-    DatabaseHelper.instance.kv.put(notificationCache, dbCache.toList());
-    DatabaseHelper.instance.kv.put(oldNotificationCache, oldDbCache.toList());
-    await DatabaseHelper.instance.kv.save(tx: tx);
+    DatabaseHelper().kv.put(notificationCache, dbCache.toList());
+    DatabaseHelper().kv.put(oldNotificationCache, oldDbCache.toList());
+    await DatabaseHelper().kv.save(tx: tx);
   }
 
   /// 恢复指定通知

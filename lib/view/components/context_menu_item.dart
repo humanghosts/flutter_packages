@@ -113,13 +113,13 @@ Widget buildContextMenuItem({
     color: Colors.transparent,
     child: Row(
       children: [
-        if (DeviceInfoHelper.isDesktop && null != icon) ...[
+        if (DeviceInfoHelper().isDesktop && null != icon) ...[
           realIcon,
           const SizedBox(width: 12),
         ],
-        if (DeviceInfoHelper.isMobile) const SizedBox(width: 12),
+        if (DeviceInfoHelper().isMobile) const SizedBox(width: 12),
         realText,
-        if (DeviceInfoHelper.isMobile && null != icon) ...[
+        if (DeviceInfoHelper().isMobile && null != icon) ...[
           const Spacer(),
           realIcon,
           const SizedBox(width: 12),
