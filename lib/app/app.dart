@@ -21,7 +21,7 @@ class AppRunner {
   bool _hasRun = false;
 
   /// 运行应用
-  run(App app, AppConfig config) {
+  void run(App app, AppConfig config) {
     if (_hasRun) return;
     _app = app;
     _config = config;
@@ -41,6 +41,12 @@ class AppRunner {
       },
       zoneSpecification: const ZoneSpecification(),
     );
+  }
+
+  /// 重新构建应用
+  Future<void> rebuild() async {
+    FutureOr<void> reBuild = _config.appRebuild.run();
+    if (reBuild is Future) await reBuild;
   }
 
   /// 应用控制器

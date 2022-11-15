@@ -4,8 +4,6 @@ import 'dart:async';
 
 import 'package:hg_framework/hg_framework.dart';
 
-import 'cache/export.dart';
-
 export 'attribute/export.dart';
 export 'cache/export.dart';
 export 'enum/export.dart';
@@ -22,13 +20,14 @@ class EntityHelper extends AppInitPlugin {
   EntityRegister? entityRegister;
 
   @override
-  FutureOr<void> init(AppConfig config) {
+  FutureOr<bool> init(AppConfig config) {
     Map<Type, EntityConstructor>? entityMap = entityRegister?.entityMap;
     Map<Type, List<String>>? entityAlias = entityRegister?.entityAlias;
     entityMap?.forEach((key, value) {
       List<String>? alias = entityAlias?[key];
       ConstructorCache.put(key, value, alias: alias ?? []);
     });
+    return true;
   }
 }
 

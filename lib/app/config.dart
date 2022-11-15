@@ -36,7 +36,7 @@ abstract class AppConfig {
   AppBuild get appBuild => AppBuild();
 
   /// 应用刷新 自定义构建插件时需要覆写
-  AppRebuild get appReBuild => AppRebuild();
+  AppRebuild get appRebuild => AppRebuild();
 }
 
 /// 动画配置

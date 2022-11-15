@@ -14,8 +14,9 @@ class PrefsHelper with AppInitPlugin {
   SharedPreferences? _prefs;
 
   @override
-  FutureOr<void> init(AppConfig config) async {
+  FutureOr<bool> init(AppConfig config) async {
     _prefs ??= await SharedPreferences.getInstance();
+    return true;
   }
 
   /// 获取本地存储

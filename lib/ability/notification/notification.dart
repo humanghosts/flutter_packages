@@ -281,7 +281,7 @@ class NotificationHelper with AppInitPlugin, AppRebuildPlugin {
   final Map<String, void Function(NotificationAction action)> _listener = {};
 
   @override
-  Future<bool?> init(AppConfig config) async {
+  Future<bool> init(AppConfig config) async {
     _log("初始化通知助手");
     _useDb = DatabaseHelper().isInit;
     if (!_useDb) _log("数据库未初始化，提醒数据不会持久化");
@@ -369,7 +369,7 @@ class NotificationHelper with AppInitPlugin, AppRebuildPlugin {
 
   /// 刷新缓存数据
   @override
-  Future<void> rebuild(AppConfig config, {Transaction? tx}) async {
+  Future<bool> rebuild(AppConfig config, {Transaction? tx}) async {
     await LocalNotificationHelper.cancelAllNotifications();
     idCache.clear();
     dbCache.clear();
@@ -379,6 +379,7 @@ class NotificationHelper with AppInitPlugin, AppRebuildPlugin {
     nodeCache.clear();
     await _find(tx: tx);
     _notify(tx: tx);
+    return true;
   }
 
   /// node缓存，防止多次decode

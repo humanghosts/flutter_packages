@@ -48,6 +48,8 @@ abstract class AppWithPlugin<T> {
 
   /// 执行插件
   FutureOr<void> run() async {
+    FutureOr pluginRegister = registerPlugin();
+    if (pluginRegister is Future) await pluginRegister;
     if (_indexedPlugin.isEmpty) return;
     List<int> indexList = _indexedPlugin.keys.toList();
     indexList.sort(); // 顺序排序
@@ -78,22 +80,24 @@ abstract class AppInitPlugin {
   /// 执行插件初始化
   FutureOr<void> doInit(AppConfig config) async {
     if (isInit == true) return;
-    FutureOr<void> initFunc = init(config);
+    FutureOr<bool> initFunc = init(config);
     if (initFunc is Future) {
-      await initFunc;
+      _isInit = await initFunc;
+    } else {
+      _isInit = initFunc;
     }
-    _isInit = true;
   }
 
   /// 插件初始化
-  FutureOr<void> init(AppConfig config);
+  FutureOr<bool> init(AppConfig config);
 }
 
 /// 应用初始化
 class AppInit extends AppWithPlugin<AppInitPlugin> {
-  AppInit._();
+  /// 不私有化的原因是为了继承
+  AppInit.create();
 
-  factory AppInit() => SingletonCache.putIfAbsent(AppInit._());
+  factory AppInit() => SingletonCache.putIfAbsent(AppInit.create());
 
   /// 注册插件
   @override
@@ -127,22 +131,24 @@ abstract class AppBuildPlugin {
   /// 执行构建
   FutureOr<void> doBuild(AppConfig config) async {
     if (isBuild == true) return;
-    FutureOr<void> buildFunc = build(config);
+    FutureOr<bool> buildFunc = build(config);
     if (buildFunc is Future) {
-      await buildFunc;
+      _isBuild = await buildFunc;
+    } else {
+      _isBuild = buildFunc;
     }
-    _isBuild = true;
   }
 
   /// 插件构建
-  FutureOr<void> build(AppConfig config);
+  FutureOr<bool> build(AppConfig config);
 }
 
 /// 应用构建
 class AppBuild extends AppWithPlugin<AppBuildPlugin> {
-  AppBuild._();
+  /// 不私有化的原因是为了继承
+  AppBuild.create();
 
-  factory AppBuild() => SingletonCache.putIfAbsent(AppBuild._());
+  factory AppBuild() => SingletonCache.putIfAbsent(AppBuild.create());
 
   @override
   FutureOr<void> doPlugin(String key, AppBuildPlugin plugin) async {
@@ -167,17 +173,25 @@ abstract class AppRebuildPlugin {
   /// 执行构建
   FutureOr<void> doRebuild(AppConfig config) async {
     if (isRebuild == true) return;
-    FutureOr<void> rebuildFunc = rebuild(config);
-    if (rebuildFunc is Future) await rebuildFunc;
-    _isRebuild = true;
+    FutureOr<bool> rebuildFunc = rebuild(config);
+    if (rebuildFunc is Future) {
+      _isRebuild = await rebuildFunc;
+    } else {
+      _isRebuild = rebuildFunc;
+    }
   }
 
   /// 插件构建
-  FutureOr<void> rebuild(AppConfig config);
+  FutureOr<bool> rebuild(AppConfig config);
 }
 
 /// 应用刷新
 class AppRebuild extends AppWithPlugin<AppRebuildPlugin> {
+  /// 不私有化的原因是为了继承
+  AppRebuild.create();
+
+  factory AppRebuild() => SingletonCache.putIfAbsent(AppRebuild.create());
+
   @override
   FutureOr<void> doPlugin(String key, AppRebuildPlugin plugin) async {
     log("刷新插件:$key");

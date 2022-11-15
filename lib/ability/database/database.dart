@@ -32,10 +32,10 @@ class DatabaseHelper with AppInitPlugin, AppRebuildPlugin {
   }
 
   @override
-  FutureOr<void> init(AppConfig config) async {
+  FutureOr<bool> init(AppConfig config) async {
     if (_database == null) {
       log("数据库未提供，数据库助手未初始化");
-      return;
+      return false;
     }
     // 注册api下的构造器
     ormEntitiesMap.forEach(ConstructorCache.put);
@@ -49,11 +49,12 @@ class DatabaseHelper with AppInitPlugin, AppRebuildPlugin {
     int? oldVersion = database.oldVersion;
     int newVersion = database.version;
     if (oldVersion != newVersion) await database.onDatabaseVersionChanged(oldVersion, newVersion);
+    return true;
   }
 
   /// 刷新数据库
   @override
-  Future<void> rebuild(AppConfig config) async {
+  Future<bool> rebuild(AppConfig config) async {
     // 刷新数据库
     await database.refresh();
     // 清空缓存
@@ -62,6 +63,7 @@ class DatabaseHelper with AppInitPlugin, AppRebuildPlugin {
     int? oldVersion = database.oldVersion;
     int newVersion = database.version;
     if (oldVersion != newVersion) await database.onDatabaseVersionChanged(oldVersion, newVersion);
+    return true;
   }
 
   /// 获取键值对数据库

@@ -105,6 +105,6 @@ extension HgStyledList<E> on List<Widget> {
         textDirection: textDirection,
         verticalDirection: verticalDirection,
         textBaseline: textBaseline,
-        children: separator != null && this.length > 0 ? (this.expand((child) => [child, separator]).toList()..removeLast()) : this,
+        children: separator != null && length > 0 ? (expand((child) => [child, separator]).toList()..removeLast()) : this,
       );
 }

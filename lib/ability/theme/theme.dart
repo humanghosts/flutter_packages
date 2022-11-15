@@ -22,18 +22,21 @@ class ThemeHelper with AppInitPlugin, AppBuildPlugin, AppRebuildPlugin {
 
   /// 初始化的时候需要注册实体
   @override
-  FutureOr<void> init(AppConfig config) async {
+  FutureOr<bool> init(AppConfig config) async {
     // 注册主题相关构造器
     _themeEntitiesMap().forEach(ConstructorCache.put);
+    if (!DatabaseHelper().isInit) {
+      themeConfig = ThemeConfig();
+      return true;
+    }
     // 注册Dao
     _daoGetter().forEach(DaoCache.put);
-    if (_presetTheme) return;
-    if (!DatabaseHelper().isInit) return;
     int? oldVersion = DatabaseHelper().database.oldVersion;
     if (oldVersion != null) {
       themeConfig = await themeConfigService.find();
-      return;
+      return true;
     }
+    if (_presetTheme) return true;
     // 插入预置数据
     log("开始预置主题数据");
     Map<Type, List<DataModel> Function()> dataModelMap = _dataModelPresetData();
@@ -55,21 +58,24 @@ class ThemeHelper with AppInitPlugin, AppBuildPlugin, AppRebuildPlugin {
     });
     log("预置主题数据结束");
     themeConfig = await themeConfigService.find();
+    return true;
   }
 
   @override
-  FutureOr<void> build(AppConfig config) {
+  FutureOr<bool> build(AppConfig config) {
     brightness = window.platformBrightness;
     _setThemeArgs();
+    return true;
   }
 
   @override
-  FutureOr<void> rebuild(AppConfig config) async {
+  FutureOr<bool> rebuild(AppConfig config) async {
     if (DatabaseHelper().isInit && DatabaseHelper().isRebuild) {
       themeConfig = await themeConfigService.find();
     }
     brightness = window.platformBrightness;
     _setThemeArgs();
+    return true;
   }
 
   /// 主题服务
@@ -79,7 +85,7 @@ class ThemeHelper with AppInitPlugin, AppBuildPlugin, AppRebuildPlugin {
   ThemeTemplateService get themeTemplateService => ThemeTemplateService();
 
   /// 当前主题配置
-  ThemeConfig themeConfig = ThemeConfig();
+  late ThemeConfig themeConfig;
 
   /// 当前系统亮度
   Brightness brightness = Brightness.light;

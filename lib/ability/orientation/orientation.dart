@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
-import 'package:hg_framework/app/config.dart';
 import 'package:hg_framework/hg_framework.dart';
 
 /// 设备方向助手
@@ -22,10 +21,11 @@ class OrientationHelper with AppInitPlugin {
   final Map<String, ValueChanged<DeviceOrientation>> _orientationListener = {};
 
   @override
-  FutureOr<void> init(AppConfig config) async {
+  FutureOr<bool> init(AppConfig config) async {
     // 设置设备可用方向
-    if (null == _orientations) return;
+    if (null == _orientations) return true;
     await SystemChrome.setPreferredOrientations(_orientations!);
+    return true;
   }
 
   /// 监听屏幕方向更新

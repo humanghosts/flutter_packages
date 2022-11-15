@@ -229,8 +229,9 @@ class Clickable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
+    Widget child = this.child;
     if (null != color) {
-      Widget child = IconTheme.merge(
+      child = IconTheme.merge(
         data: IconThemeData(
           color: color ?? theme.primaryColor,
         ),
@@ -269,7 +270,7 @@ class Clickable extends StatelessWidget {
       onTap = () {
         if (feedback) HapticFeedback.lightImpact();
         (this.onTap ?? onPressed)?.call();
-      }!;
+      };
     } else if (onTapUp != null || onTapDown != null || onTapCancel != null) {
       onTap = () {
         if (feedback) HapticFeedback.lightImpact();

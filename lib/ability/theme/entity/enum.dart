@@ -2,9 +2,6 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:hg_framework/hg_framework.dart';
 
-import 'theme_custom_value.dart';
-import 'theme_template.dart';
-
 extension FlexSchemeEx on FlexScheme {
   String get title {
     switch (this) {

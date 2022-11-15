@@ -146,7 +146,7 @@ class AppLogic extends GetxController with AppInitPlugin, AppRebuildPlugin, _App
   factory AppLogic() => _instance ??= Get.put<AppLogic>(AppLogic._());
 
   /// 应用配置
-  late final AppConfig config;
+  AppConfig get config => AppRunner().appConfig;
 
   /// 应用初始化回调函数
   /// 调用点为[InitializeHelper.init]
@@ -204,10 +204,9 @@ class AppLogic extends GetxController with AppInitPlugin, AppRebuildPlugin, _App
   }
 
   @override
-  Future<void> init(AppConfig config) async {
+  Future<bool> init(AppConfig config) async {
     LogHelper.info("[AppLogic]:初始化");
     windowManager.addListener(this);
-    this.config = config;
     windowHeight.value = Get.height;
     windowWidth.value = Get.width;
     for (var value in _onAppInitCallback.values) {
@@ -218,6 +217,7 @@ class AppLogic extends GetxController with AppInitPlugin, AppRebuildPlugin, _App
         LogHelper.error(e.toString());
       }
     }
+    return true;
   }
 
   @override
@@ -272,7 +272,7 @@ class AppLogic extends GetxController with AppInitPlugin, AppRebuildPlugin, _App
   }
 
   @override
-  FutureOr<void> rebuild(AppConfig config) async {
+  FutureOr<bool> rebuild(AppConfig config) async {
     update();
     for (var callback in _onRefreshCallback.values) {
       try {
@@ -281,5 +281,6 @@ class AppLogic extends GetxController with AppInitPlugin, AppRebuildPlugin, _App
         LogHelper.error(e.toString());
       }
     }
+    return true;
   }
 }

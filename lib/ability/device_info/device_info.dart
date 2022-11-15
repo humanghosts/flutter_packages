@@ -28,14 +28,15 @@ class DeviceInfoHelper with AppInitPlugin {
 
   /// 初始化
   @override
-  Future<void> init(AppConfig config) async {
+  Future<bool> init(AppConfig config) async {
     bool isPrefsInit = PrefsHelper().isInit;
     if (_storeDesktopConfig && !isPrefsInit) {
-      throw Exception("存储桌面模式设置需要shared_preferences支持，请优先初始化。");
+      throw Exception("存储桌面模式设置需要shared_preferences支持，请优先初始化PrefsHelper。");
     }
     _baseDeviceInfo = await _plugin.deviceInfo;
     devicePlatform = getDevicePlatform();
     if (_storeDesktopConfig) _isDesktop = PrefsHelper().prefs.getBool(_isDesktopKey);
+    return true;
   }
 
   /// 获取设备信息

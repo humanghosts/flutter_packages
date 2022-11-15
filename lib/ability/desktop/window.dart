@@ -14,15 +14,16 @@ class WindowHelper with AppInitPlugin {
   WindowManager get windowManager => WindowManager.instance;
 
   @override
-  FutureOr<void> init(AppConfig config, {WindowOptions? options}) async {
+  FutureOr<bool> init(AppConfig config, {WindowOptions? options}) async {
     bool isDesktop = DeviceInfoHelper().isDesktopDeviceApp;
-    if (!isDesktop) return;
+    if (!isDesktop) return false;
     await windowManager.ensureInitialized();
     await windowManager.waitUntilReadyToShow(options, () async {
       await windowManager.show();
       await windowManager.focus();
       await windowManager.setTitle(config.appName);
     });
+    return true;
   }
 }
 
