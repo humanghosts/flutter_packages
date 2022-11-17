@@ -13,8 +13,6 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  scheduled_timer:
-    path: ../scheduled_timer
   icloud_storage:
     path: ../icloud_storage
 

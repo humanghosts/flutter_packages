@@ -196,7 +196,7 @@ extension TargetPlatformEx on TargetPlatform {
     }
   }
 
-  TargetPlatform? fromValue(String? value) {
+  static TargetPlatform? fromValue(String? value) {
     if (null == value) return null;
     return TargetPlatform.values.firstWhereOrNull((e) => e.value == value);
   }

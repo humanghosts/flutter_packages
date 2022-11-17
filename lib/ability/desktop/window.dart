@@ -6,15 +6,17 @@ import 'package:window_manager/window_manager.dart';
 
 /// 桌面模式窗口助手
 class WindowHelper with AppInitPlugin {
-  WindowHelper._();
+  WindowHelper._({this.options});
 
-  factory WindowHelper() => SingletonCache.putIfAbsent(WindowHelper._());
+  factory WindowHelper({WindowOptions? options}) => SingletonCache.putIfAbsent(WindowHelper._(options: options));
 
   /// 第三方插件
   WindowManager get windowManager => WindowManager.instance;
 
+  final WindowOptions? options;
+
   @override
-  FutureOr<bool> init(AppConfig config, {WindowOptions? options}) async {
+  FutureOr<bool> init(AppConfig config) async {
     bool isDesktop = DeviceInfoHelper().isDesktopDeviceApp;
     if (!isDesktop) return false;
     await windowManager.ensureInitialized();

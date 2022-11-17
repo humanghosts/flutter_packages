@@ -8,7 +8,7 @@ abstract class Database {
   final bool isLogicDelete;
 
   /// 版本回调
-  final Future<void> Function(int? oldVersion, int newVersion)? onVersionChanged;
+  final Future<void> Function(int oldVersion, int newVersion)? onVersionChanged;
 
   Database({bool? isLogicDelete, this.onVersionChanged}) : isLogicDelete = isLogicDelete ?? true;
 
@@ -19,7 +19,7 @@ abstract class Database {
   int get version;
 
   /// 上一个数据库版本
-  int? get oldVersion;
+  int get oldVersion;
 
   /// 获取kv数据库
   KV get kv;
@@ -49,7 +49,7 @@ abstract class Database {
   Future<void> import(Map data);
 
   /// 版本变更调用
-  Future<void> onDatabaseVersionChanged(int? oldVersion, int newVersion) async {
+  Future<void> onDatabaseVersionChanged(int oldVersion, int newVersion) async {
     await onVersionChanged?.call(oldVersion, newVersion);
   }
 }

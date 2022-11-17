@@ -11,19 +11,16 @@ export 'service.dart';
 
 /// 数据库助手
 class DatabaseHelper with AppInitPlugin, AppRebuildPlugin {
-  DatabaseHelper._({Database? database, this.daoGetter}) : _database = database;
+  DatabaseHelper._({Database? database, this.daoRegister}) : _database = database;
 
-  factory DatabaseHelper({
-    Database? database,
-    Map<Type, Dao> Function()? daoGetter,
-  }) =>
-      SingletonCache.putIfAbsent(DatabaseHelper._(database: database, daoGetter: daoGetter));
+  factory DatabaseHelper({Database? database, DaoRegister? daoRegister}) =>
+      SingletonCache.putIfAbsent(DatabaseHelper._(database: database, daoRegister: daoRegister));
 
   /// 数据库
   Database? _database;
 
   /// 数据库访问类提供方法
-  final Map<Type, Dao> Function()? daoGetter;
+  final DaoRegister? daoRegister;
 
   /// 对外获取数据库的方法
   Database get database {
@@ -44,9 +41,9 @@ class DatabaseHelper with AppInitPlugin, AppRebuildPlugin {
     // 打开KV数据库
     await database.openKV();
     // 注册Dao
-    daoGetter?.call().forEach(DaoCache.put);
+    daoRegister?.daoMap.forEach(DaoCache.put);
     // 数据库版本变更回调
-    int? oldVersion = database.oldVersion;
+    int oldVersion = database.oldVersion;
     int newVersion = database.version;
     if (oldVersion != newVersion) await database.onDatabaseVersionChanged(oldVersion, newVersion);
     return true;
@@ -60,7 +57,7 @@ class DatabaseHelper with AppInitPlugin, AppRebuildPlugin {
     // 清空缓存
     DataModelCache.clear();
     // 数据库版本变更回调
-    int? oldVersion = database.oldVersion;
+    int oldVersion = database.oldVersion;
     int newVersion = database.version;
     if (oldVersion != newVersion) await database.onDatabaseVersionChanged(oldVersion, newVersion);
     return true;
@@ -84,4 +81,9 @@ class DatabaseHelper with AppInitPlugin, AppRebuildPlugin {
       await action(tx);
     }
   }
+}
+
+/// Dao注册器
+abstract class DaoRegister {
+  Map<Type, Dao> get daoMap;
 }

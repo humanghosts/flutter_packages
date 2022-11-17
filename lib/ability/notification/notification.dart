@@ -4,8 +4,8 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:hg_framework/ability/work/scheduled_timer.dart';
 import 'package:hg_framework/hg_framework.dart';
-import 'package:scheduled_timer/scheduled_timer.dart';
 
 import 'notification_local.dart';
 

@@ -32,16 +32,12 @@ class EntityHelper extends AppInitPlugin {
 }
 
 /// 实体注册器
-class EntityRegister {
+abstract class EntityRegister {
   /// 获取实体类型及其构造方法
   /// 需要注意依赖关系，被依赖的先注册
   /// 如果相互依赖，在先注册entity的构造方法中手动构建后注册的对象，默认对于Model类型的时候通过类型去构造器缓存中取
-  Map<Type, EntityConstructor> get entityMap {
-    return {};
-  }
+  Map<Type, EntityConstructor> get entityMap;
 
   /// 获取实体别名
-  Map<Type, List<String>> get entityAlias {
-    return {};
-  }
+  Map<Type, List<String>> get entityAlias;
 }

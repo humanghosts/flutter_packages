@@ -28,7 +28,7 @@ class SembastDatabase extends api.Database {
   final int _version;
 
   /// 上一个数据库版本
-  int? _oldVersion;
+  int _oldVersion = 0;
 
   SembastDatabase({
     required this.path,
@@ -44,7 +44,7 @@ class SembastDatabase extends api.Database {
   int get version => database.version;
 
   @override
-  int? get oldVersion => _oldVersion;
+  int get oldVersion => _oldVersion;
 
   /// 获取Sembast数据库
   Database get database {
@@ -55,15 +55,18 @@ class SembastDatabase extends api.Database {
   /// 初始化数据库
   @override
   Future<void> open() async {
+    bool setOldVersion = false;
     if (kIsWeb) {
       _database = await databaseFactoryWeb.openDatabase(
         path,
         version: _version,
         onVersionChanged: (Database db, int oldVersion, int newVersion) async {
+          setOldVersion = true;
           _oldVersion = oldVersion;
         },
       );
-      log("sembast_web数据库打开成功,数据库位置$path");
+      if (!setOldVersion) _oldVersion = database.version;
+      log("sembast_web数据库打开成功,数据库位置$path，旧版本$_oldVersion，当前版本$_version");
       return;
     }
     // 获取app的路径 path_provider包下
@@ -77,9 +80,11 @@ class SembastDatabase extends api.Database {
       version: _version,
       onVersionChanged: (Database db, int oldVersion, int newVersion) async {
         _oldVersion = oldVersion;
+        setOldVersion = true;
       },
     );
-    log("sembast数据库打开成功,数据库位置$fullPath");
+    if (!setOldVersion) _oldVersion = database.version;
+    log("sembast数据库打开成功,数据库位置$path，旧版本$_oldVersion，当前版本$_version");
   }
 
   @override
