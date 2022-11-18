@@ -16,7 +16,7 @@ and the Flutter guide for
 整个框架都是建立在GetX之上的。  
 以下是这个框架支持的功能，基本上是全平台支持：
 - 通知。
-  - 本地通知，支持通知池，防止因为设备通知数量限制导致通知无法发出。(功能基于flutter_local_notification)，
+  - 本地通知，支持通知池，防止因为设备通知数量限制导致通知无法发出。(功能基于flutter_local_notification、local_notifier)，
   - 应用内横幅通知，支持设置通知显示时间，可手动关闭通知。
 - toast。
   - 普通toast
@@ -231,3 +231,9 @@ TODO
 ## shared_preferences
 ## 音频
 ## toast
+
+# TODO
+文档完善
+cloud功能移除
+插件功能独立性完善和测试，插件之间做到互相不依赖依然可以使用。
+通用性组件完善
