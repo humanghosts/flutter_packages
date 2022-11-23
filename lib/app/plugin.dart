@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:hg_framework/hg_framework.dart';
+import 'package:theme/theme.dart';
 
 abstract class AppWithPlugin<T> {
   /// 应用插件

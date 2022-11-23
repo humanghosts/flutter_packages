@@ -13,11 +13,11 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  icloud_storage:
-    path: ../icloud_storage
+  theme:
+    path: packages/theme
 
   # uuid
-  uuid: ^3.0.6
+  uuid: ^3.0.7
 
   # 框架类的库
   ## 依赖、状态管理、路由框架
@@ -36,7 +36,7 @@ dependencies:
   ## 路径 except web
   path_provider: ^2.0.11
   ## 打开链接
-  url_launcher: ^6.1.6
+  url_launcher: ^6.1.7
   ## 权限请求 android ios windows
   permission_handler: ^10.2.0
   ## todo 提示音播放 android ios macos web
@@ -75,8 +75,6 @@ dependencies:
   dart_date: ^1.1.1
 
   # 布局的库
-  ## 主题
-  flex_color_scheme: ^6.0.0
   ## 拖拽排序
   reorderables: ^0.5.1
   ## 组件扩展

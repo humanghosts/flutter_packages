@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/ability/toast/overlay.dart';
 import 'package:hg_framework/hg_framework.dart';
+import 'package:theme/theme.dart';
 import 'package:window_manager/window_manager.dart';
 
 /// 应用生命周期监听器 adder

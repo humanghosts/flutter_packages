@@ -9,7 +9,6 @@ export 'orientation/orientation.dart';
 export 'prefs/prefs.dart';
 export 'route/export.dart';
 export 'sound/sound.dart';
-export 'theme/theme.dart';
 export 'toast/toast.dart';
 export 'work/background.dart';
 export 'work/scheduled_timer.dart';

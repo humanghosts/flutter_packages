@@ -31,10 +31,8 @@ dependencies:
     sdk: flutter
   hg_framework:
     path: ../../hg_framework
-#  hg_entity:
-#    path: ../../hg_entity
-#  hg_orm:
-#    path: ../../hg_orm
+
+  get:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

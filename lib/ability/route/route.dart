@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hg_framework/hg_framework.dart';
+import 'package:theme/theme.dart';
 
 /// 路由管理配置类
 /// TODO 低成本封装 就是把Get包了一层，加了一个默认参数

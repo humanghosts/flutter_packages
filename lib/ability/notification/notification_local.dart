@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
-import 'package:hg_framework/ability/work/scheduled_timer.dart';
 import 'package:hg_framework/hg_framework.dart';
 import 'package:local_notifier/local_notifier.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:theme/theme.dart';
 import 'package:timezone/data/latest_all.dart' as tzd;
 import 'package:timezone/timezone.dart' as tz;
 
