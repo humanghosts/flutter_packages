@@ -10,7 +10,13 @@ icons文件夹代码使用官方仓库中/packages/svg/src/icons/下的图标文
 
 iconparks.dart使用source/icons-config.json生成
 
-# 引用
+# 添加依赖
+```yaml
+iconpark_svg:
+  git:
+    url: https://github.com/humanghosts/hg_framework.git
+    path: packages/icon/iconpark_svg
+```
 
 # 使用
 
