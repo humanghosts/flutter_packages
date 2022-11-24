@@ -1,0 +1,63 @@
+name: iconpark_svg
+description: iconpark以svg形式呈现，整个svg资源包大概10M，谨慎使用
+version: 0.0.1
+homepage:
+
+
+environment:
+  sdk: '>=2.18.4 <3.0.0'
+  flutter: ">=2.5.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  icon:
+    path: ../icon
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+
+flutter:
+  assets:
+    - source/Abstract/
+    - source/Animals/
+    - source/Arrows/
+    - source/Baby/
+    - source/Base/
+    - source/Brand/
+    - source/Build/
+    - source/Character/
+    - source/Charts/
+    - source/Clothes/
+    - source/Communicate/
+    - source/Components/
+    - source/Connect/
+    - source/Constellation/
+    - source/Datas/
+    - source/Edit/
+    - source/Emoji/
+    - source/Energy/
+    - source/Foods/
+    - source/Game/
+    - source/Graphics/
+    - source/Hands/
+    - source/Hardware/
+    - source/Health/
+    - source/Industry/
+    - source/Life/
+    - source/Makeups/
+    - source/Measurement/
+    - source/Money/
+    - source/Music/
+    - source/Office/
+    - source/Operate/
+    - source/Others/
+    - source/Peoples/
+    - source/Safe/
+    - source/Sports/
+    - source/Time/
+    - source/Travel/
+    - source/Weather/

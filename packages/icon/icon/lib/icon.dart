@@ -44,7 +44,7 @@ abstract class SvgIconEnum<T extends SvgIcon> extends IconEnum<T> {
   IconValue get iconValue => IconValue.svg(path: path);
 
   /// 构建图标
-  Widget buildIcon({double? size, Color? color}) => iconValue.buildPreset(size: size, color: color);
+  Widget build({double? size, Color? color}) => iconValue.buildPreset(size: size, color: color);
 
   IconValue getIconValue({Color? iconColor, Color? backgroundColor}) => IconValue.svg(
         path: path,
