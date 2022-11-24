@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 export 'font_icon.dart';
 export 'svg_icon.dart';
 export 'text_icon.dart';
@@ -49,4 +51,7 @@ abstract class TypeIcon {
 
   /// 转换为map
   Map<String, Object?> toMap();
+
+  /// 构建图标
+  Widget build();
 }

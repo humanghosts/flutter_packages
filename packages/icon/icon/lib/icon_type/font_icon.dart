@@ -50,4 +50,9 @@ class FontIcon extends TypeIcon {
       "matchTextDirection": matchTextDirection,
     };
   }
+
+  @override
+  Widget build() {
+    return Icon(toIconData());
+  }
 }

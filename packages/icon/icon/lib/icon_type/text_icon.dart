@@ -19,4 +19,9 @@ class TextIcon extends TypeIcon {
 
   @override
   IconType get type => iconType;
+
+  @override
+  Widget build() {
+    return Text(text, maxLines: 1, textScaleFactor: 1);
+  }
 }

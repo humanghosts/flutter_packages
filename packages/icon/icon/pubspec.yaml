@@ -10,10 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  hg_framework:
-    path: ../../../../hg_framework
-  theme:
-    path: ../../theme
   ## svg图标
   flutter_svg: ^1.1.6
 
