@@ -1,4 +1,4 @@
-# iconpark
+# iconpark_svg
 
 来自于字节跳动的开源图标库。使用SVG图片形式呈现。
 
@@ -14,7 +14,7 @@ iconparks.dart使用source/icons-config.json生成
 ```yaml
 iconpark_svg:
   git:
-    url: https://github.com/humanghosts/hg_framework.git
+    url: https://github.com/humanghosts/flutter_packages.git
     path: packages/icon/iconpark_svg
 ```
 

@@ -673,7 +673,7 @@ packages:
   theme:
     dependency: transitive
     description:
-      path: "../packages/theme"
+      path: "../../theme"
       relative: true
     source: path
     version: "0.0.1"

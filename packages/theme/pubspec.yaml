@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   hg_framework:
-    path: ../../../hg_framework
+    path: ../framework
 
   get: ^4.6.5
 
