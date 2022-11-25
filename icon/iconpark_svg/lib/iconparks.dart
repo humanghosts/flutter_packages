@@ -3,6 +3,7 @@ import 'icons.dart' as icons;
 
 /// IconPark的枚举
 class IconParks{
+  IconParks._();
   /// 拐杖
   static IconPark aCane = IconPark(
     id: 0,

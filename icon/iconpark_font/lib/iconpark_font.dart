@@ -1,5 +1,7 @@
 import 'package:icon/icon.dart';
 
+export 'iconparks.dart';
+
 /// 字节跳动IconPark图标 svg类型，官网：https://iconpark.oceanengine.com/official
 class IconPark extends FontIcon {
   /// id
@@ -37,6 +39,6 @@ class IconPark extends FontIcon {
     super.fontFamily,
     super.fontPackage,
     super.matchTextDirection = false,
-    required codePoint,
+    required int codePoint,
   }) : super(codePoint);
 }
