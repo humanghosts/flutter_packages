@@ -116,14 +116,14 @@ packages:
   database_api:
     dependency: transitive
     description:
-      path: "../../database/database_api"
+      path: "../database/database_api"
       relative: true
     source: path
     version: "0.0.1"
   database_sembast:
     dependency: transitive
     description:
-      path: "../../database/database_sembast"
+      path: "../database/database_sembast"
       relative: true
     source: path
     version: "0.0.1"
@@ -186,7 +186,7 @@ packages:
   entity:
     dependency: transitive
     description:
-      path: "../../entity"
+      path: "../entity"
       relative: true
     source: path
     version: "0.0.1"
@@ -269,7 +269,7 @@ packages:
   hg_framework:
     dependency: "direct main"
     description:
-      path: ".."
+      path: "../framework"
       relative: true
     source: path
     version: "1.2.0"
@@ -624,7 +624,7 @@ packages:
   theme:
     dependency: transitive
     description:
-      path: "../../theme"
+      path: "../theme"
       relative: true
     source: path
     version: "0.0.1"
