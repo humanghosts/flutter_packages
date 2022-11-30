@@ -1,6 +1,7 @@
 name: theme
 description: A new Flutter project.
 version: 0.0.1
+publish_to: none
 
 environment:
   sdk: '>=2.18.4 <3.0.0'
@@ -11,6 +12,12 @@ dependencies:
     sdk: flutter
   hg_framework:
     path: ../framework
+  entity:
+    path: ../entity
+
+  # TODO 剥离这个依赖
+  database_sembast:
+    path: ../database/database_sembast
 
   get: ^4.6.5
 

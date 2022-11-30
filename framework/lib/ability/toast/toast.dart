@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:hg_framework/ability/toast/overlay.dart';
 import 'package:hg_framework/hg_framework.dart';
 import 'package:theme/theme.dart';
+import 'package:uuid/uuid.dart';
 
 /// 提示信息帮助类
 class ToastHelper {
@@ -53,7 +54,7 @@ class ToastHelper {
     VoidCallback? onTap,
     VoidCallback? onClose,
   }) {
-    String noticeKey = key ?? UUIDGenerator.instance.id;
+    String noticeKey = key ?? const Uuid().v1();
     appLogic.showNotification(
       noticeKey,
       Clickable(

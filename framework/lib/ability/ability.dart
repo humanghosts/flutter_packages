@@ -1,10 +1,7 @@
-export 'database/database.dart';
 export 'desktop/window.dart';
 export 'device_info/device_info.dart';
-export 'entity/entity.dart';
 export 'event/event.dart';
 export 'log/log.dart';
-export 'notification/notification.dart';
 export 'orientation/orientation.dart';
 export 'prefs/prefs.dart';
 export 'route/export.dart';

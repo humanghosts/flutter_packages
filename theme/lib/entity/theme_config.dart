@@ -1,4 +1,4 @@
-import 'package:hg_framework/hg_framework.dart';
+import 'package:entity/entity.dart';
 
 import 'theme_template.dart';
 

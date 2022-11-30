@@ -1,9 +1,9 @@
+import 'package:entity/entity.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:hg_framework/hg_framework.dart';
 
 import '../theme.dart';
-import 'export.dart';
 
 class ThemeTemplate extends DataModel {
   // 基础设置

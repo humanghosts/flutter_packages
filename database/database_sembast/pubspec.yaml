@@ -1,0 +1,32 @@
+name: database_sembast
+description: A new Flutter project.
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: '>=2.18.4 <3.0.0'
+  flutter: ">=2.5.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  database_api:
+    path: ../database_api
+  entity:
+    path: ../../entity
+
+  get: ^4.6.5
+
+  # 数据库支持
+  path: ^1.8.2
+  sembast: ^3.3.1
+  sembast_web: ^2.0.1+1
+  ## 路径 except web
+  path_provider: ^2.0.11
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:

@@ -103,15 +103,15 @@ class AppInit extends AppWithPlugin<AppInitPlugin> {
   /// 注册插件
   @override
   FutureOr<void> registerPlugin() {
-    addPlugin('prefs', PrefsHelper()); // 本地存储配置
-    // 大部分功能都需要设备信息，这个是刚需，没有进行未配置校验 不优先初始化的话应该会报错
-    addPlugin('deviceInfo', DeviceInfoHelper()); // 设备信息配置
-    addPlugin("desktopWindow", WindowHelper()); // 桌面窗口配置
-    addPlugin("entity", EntityHelper()); // 实体配置
-    addPlugin("database", DatabaseHelper()); // 数据库配置
-    addPlugin("theme", ThemeHelper()); // 主题配置
-    addPlugin("notification", NotificationHelper()); // 通知配置
-    addPlugin("app", AppLogic()); // 应用初始化 这个必须初始化
+    // addPlugin('prefs', PrefsHelper()); // 本地存储配置
+    // // 大部分功能都需要设备信息，这个是刚需，没有进行未配置校验 不优先初始化的话应该会报错
+    // addPlugin('deviceInfo', DeviceInfoHelper()); // 设备信息配置
+    // addPlugin("desktopWindow", WindowHelper()); // 桌面窗口配置
+    // addPlugin("entity", EntityHelper()); // 实体配置
+    // addPlugin("database", DatabaseHelper()); // 数据库配置
+    // addPlugin("theme", ThemeHelper()); // 主题配置
+    // addPlugin("notification", NotificationHelper()); // 通知配置
+    // addPlugin("app", AppLogic()); // 应用初始化 这个必须初始化
   }
 
   @override
@@ -202,9 +202,9 @@ class AppRebuild extends AppWithPlugin<AppRebuildPlugin> {
 
   @override
   FutureOr<void> registerPlugin() {
-    addPlugin("database", DatabaseHelper());
-    addPlugin("theme", ThemeHelper());
-    addPlugin("notification", NotificationHelper());
-    addPlugin("appLogic", AppLogic());
+    // addPlugin("database", DatabaseHelper());
+    // addPlugin("theme", ThemeHelper());
+    // addPlugin("notification", NotificationHelper());
+    // addPlugin("appLogic", AppLogic());
   }
 }

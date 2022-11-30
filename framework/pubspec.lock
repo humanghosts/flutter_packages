@@ -106,6 +106,20 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.1"
+  database_api:
+    dependency: transitive
+    description:
+      path: "../database/database_api"
+      relative: true
+    source: path
+    version: "0.0.1"
+  database_sembast:
+    dependency: transitive
+    description:
+      path: "../database/database_sembast"
+      relative: true
+    source: path
+    version: "0.0.1"
   date_format:
     dependency: "direct main"
     description:
@@ -162,6 +176,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.1.0"
+  entity:
+    dependency: transitive
+    description:
+      path: "../entity"
+      relative: true
+    source: path
+    version: "0.0.1"
   fake_async:
     dependency: transitive
     description:
@@ -209,39 +230,11 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.1"
-  flutter_local_notifications:
-    dependency: "direct main"
-    description:
-      name: flutter_local_notifications
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "9.9.1"
-  flutter_local_notifications_linux:
-    dependency: transitive
-    description:
-      name: flutter_local_notifications_linux
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.5.1"
-  flutter_local_notifications_platform_interface:
-    dependency: transitive
-    description:
-      name: flutter_local_notifications_platform_interface
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "5.0.0"
   flutter_localizations:
     dependency: "direct main"
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_native_timezone:
-    dependency: "direct main"
-    description:
-      name: flutter_native_timezone
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.0.0"
   flutter_spinkit:
     dependency: "direct main"
     description:
@@ -315,13 +308,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.1"
-  local_notifier:
-    dependency: "direct main"
-    description:
-      name: local_notifier
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.1.5"
   logger:
     dependency: "direct main"
     description:
@@ -358,14 +344,14 @@ packages:
     source: hosted
     version: "0.5.0"
   path:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: path
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.8.2"
   path_provider:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: path_provider
       url: "https://pub.flutter-io.cn"
@@ -413,41 +399,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.3"
-  permission_handler:
-    dependency: "direct main"
-    description:
-      name: permission_handler
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "10.2.0"
-  permission_handler_android:
-    dependency: transitive
-    description:
-      name: permission_handler_android
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "10.2.0"
-  permission_handler_apple:
-    dependency: transitive
-    description:
-      name: permission_handler_apple
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "9.0.7"
-  permission_handler_platform_interface:
-    dependency: transitive
-    description:
-      name: permission_handler_platform_interface
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "3.9.0"
-  permission_handler_windows:
-    dependency: transitive
-    description:
-      name: permission_handler_windows
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.1.2"
   petitparser:
     dependency: transitive
     description:
@@ -491,14 +442,14 @@ packages:
     source: hosted
     version: "0.1.4"
   sembast:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: sembast
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.3.1"
   sembast_web:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: sembast_web
       url: "https://pub.flutter-io.cn"
@@ -670,13 +621,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.3.0"
-  timezone:
-    dependency: "direct main"
-    description:
-      name: timezone
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.8.0"
   typed_data:
     dependency: transitive
     description:

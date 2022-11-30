@@ -16,8 +16,8 @@ dependencies:
   theme:
     path: ../theme
 
-  # uuid
   uuid: ^3.0.7
+
 
   # 框架类的库
   ## 依赖、状态管理、路由框架
@@ -25,20 +25,12 @@ dependencies:
   ## 异常处理 暂时不需要，是上报服务器的异常
   # sentry_flutter: ^6.2.2
 
-  # 数据库支持
-  path: ^1.8.2
-  sembast: ^3.3.1
-  sembast_web: ^2.0.1+1
-
   # 设备功能的库
   ## 本地存储
   shared_preferences: ^2.0.15
-  ## 路径 except web
-  path_provider: ^2.0.11
   ## 打开链接
   url_launcher: ^6.1.7
-  ## 权限请求 android ios windows
-  permission_handler: ^10.2.0
+
   ## todo 提示音播放 android ios macos web
   soundpool: ^2.3.0
   ## 设备信息 all
@@ -46,20 +38,10 @@ dependencies:
   ## 网络链接检查 all
   connectivity_plus: ^2.3.9
 
-
-
-  # 移动端专用库
-  ## 本地通知 android ios macos linux
-  flutter_local_notifications: ^9.9.1
-  ## 本地时区 本地通知用 android ios web
-  flutter_native_timezone: ^2.0.0
-  timezone: ^0.8.0
-
   # 桌面端专用库
   ## 窗口设置
   window_manager: ^0.2.7
-  ## 本地通知
-  local_notifier: ^0.1.5
+
 
   # web端专用库
   ## 解析浏览器userAgent

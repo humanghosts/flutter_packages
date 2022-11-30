@@ -1,7 +1,7 @@
 import 'dart:convert';
 
+import 'package:entity/entity.dart';
 import 'package:flutter/material.dart';
-import 'package:hg_framework/hg_framework.dart';
 import 'package:icon/icon.dart';
 
 /// 图标值
