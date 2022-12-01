@@ -1,13 +1,11 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:hg_framework/hg_framework.dart';
+import 'package:hgs_framework/framework.dart';
 
 void main() {
   /// 传入应用和应用配置来运行应用
-  AppRunner().run(const Marde(), MardeConfig());
+  AppHelper().run(const MyApp(), MardeConfig());
 }
 
 /// 应用配置
@@ -20,18 +18,18 @@ class MardeConfig extends AppConfig {
   factory MardeConfig() => _instance ??= MardeConfig._();
 
   @override
-  String get appName => "码得";
+  String get appName => "";
 
   @override
-  String get appVersion => "0.0.1";
+  String get appVersion => "";
 }
 
-class Marde extends App {
-  const Marde({Key? key}) : super(key: key);
+class MyApp extends App {
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget buildHome(BuildContext context) {
-    return MyHomeView(key: "marde_home");
+    return MyHomeView(key: "");
   }
 }
 
@@ -49,9 +47,6 @@ class MyHomeView extends View<MyHomeLogic> {
     return Scaffold(
       appBar: AppBar(
         title: Text("${appConfig.appName}_${appConfig.appVersion}"),
-      ),
-      body: Center(
-        child: Icon(IconParks.addWeb.toIconData(), size: 200, color: Colors.blue),
       ),
     );
   }

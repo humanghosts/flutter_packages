@@ -1,4 +1,4 @@
 # hgs_toast
 
-桌面端助手。
+toast助手
 

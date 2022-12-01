@@ -11,15 +11,25 @@ dependencies:
   flutter:
     sdk: flutter
   hgs_framework:
-    path: ../../framework
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: framework
   hgs_entity:
-    path: ../../entity
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: entity
   hgs_database_sembast:
-    path: ../../database/database_sembast
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: database/database_sembast
   hgs_device_info:
-    path: ../../device_info
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: device_info
   hgs_toast:
-    path: ../../toast
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: toast
 
   ## 主题
   flex_color_scheme: ^6.1.0

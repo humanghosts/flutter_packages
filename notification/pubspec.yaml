@@ -12,15 +12,25 @@ dependencies:
     sdk: flutter
 
   hgs_framework:
-    path: ../framework
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: framework
   hgs_device_info:
-    path: ../device_info
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: device_info
   hgs_database_api:
-    path: ../database/database_api
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: database/database_api
   hgs_toast:
-    path: ../toast
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: toast
   hgs_work:
-    path: ../work
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: work
 
   ## 权限请求 android ios windows
   permission_handler: ^10.2.0

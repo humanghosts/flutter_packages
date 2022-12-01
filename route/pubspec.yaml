@@ -11,7 +11,9 @@ dependencies:
   flutter:
     sdk: flutter
   hgs_framework:
-    path: ../framework
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: framework
   get: ^4.6.5
 
 dev_dependencies:

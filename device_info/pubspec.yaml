@@ -11,9 +11,13 @@ dependencies:
   flutter:
     sdk: flutter
   hgs_framework:
-    path: ../framework
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: framework
   hgs_prefs:
-    path: ../prefs
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: prefs
 
   ## 设备信息
   device_info_plus: ^4.1.3

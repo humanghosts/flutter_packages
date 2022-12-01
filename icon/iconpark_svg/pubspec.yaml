@@ -12,7 +12,9 @@ dependencies:
   flutter:
     sdk: flutter
   hgs_icon:
-    path: ../icon
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: icon/icon
 
   ## svg图标
   flutter_svg: ^1.1.6

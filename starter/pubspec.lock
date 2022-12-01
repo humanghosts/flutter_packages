@@ -43,6 +43,20 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.5"
+  dart_date:
+    dependency: transitive
+    description:
+      name: dart_date
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.1.1"
+  date_format:
+    dependency: transitive
+    description:
+      name: date_format
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.0.7"
   fake_async:
     dependency: transitive
     description:
@@ -62,11 +76,39 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.1"
+  flutter_localizations:
+    dependency: transitive
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
     source: sdk
     version: "0.0.0"
+  get:
+    dependency: transitive
+    description:
+      name: get
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "4.6.5"
+  hgs_framework:
+    dependency: "direct main"
+    description:
+      path: framework
+      ref: HEAD
+      resolved-ref: "987d83578926d50a4f5aeb991c612be8333645c3"
+      url: "https://github.com/humanghosts/flutter_packages.git"
+    source: git
+    version: "1.2.0"
+  intl:
+    dependency: transitive
+    description:
+      name: intl
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.17.0"
   lints:
     dependency: transitive
     description:
@@ -149,6 +191,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.4.12"
+  timeago:
+    dependency: transitive
+    description:
+      name: timeago
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.3.0"
   vector_math:
     dependency: transitive
     description:
@@ -158,3 +207,4 @@ packages:
     version: "2.1.2"
 sdks:
   dart: ">=2.18.4 <3.0.0"
+  flutter: ">=1.17.0"

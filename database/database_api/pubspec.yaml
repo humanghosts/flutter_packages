@@ -11,9 +11,13 @@ dependencies:
   flutter:
     sdk: flutter
   hgs_framework:
-    path: ../../framework
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: framework
   hgs_entity:
-    path: ../../entity
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: entity
 
 
 dev_dependencies:

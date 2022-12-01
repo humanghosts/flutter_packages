@@ -11,9 +11,13 @@ dependencies:
   flutter:
     sdk: flutter
   hgs_framework:
-    path: ../framework
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: framework
   hgs_device_info:
-    path: ../device_info
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: device_info
 
 dev_dependencies:
   flutter_test:

@@ -11,9 +11,13 @@ dependencies:
   flutter:
     sdk: flutter
   hgs_database_api:
-    path: ../database_api
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: database/database_api
   hgs_entity:
-    path: ../../entity
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: entity
 
   # 数据库支持
   path: ^1.8.2

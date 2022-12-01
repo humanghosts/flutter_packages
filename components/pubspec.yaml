@@ -11,11 +11,17 @@ dependencies:
   flutter:
     sdk: flutter
   hgs_framework:
-    path: ../framework
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: framework
   hgs_route:
-    path: ../route
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: route
   hgs_device_info:
-    path: ../device_info
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: device_info
   ## 打开链接
   url_launcher: ^6.1.7
   ## 因为手势后退的原因，打不开drawer所以加这个手势监听

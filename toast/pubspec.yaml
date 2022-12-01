@@ -11,13 +11,21 @@ dependencies:
   flutter:
     sdk: flutter
   hgs_framework:
-    path: ../framework
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: framework
   hgs_device_info:
-    path: ../device_info
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: device_info
   hgs_components:
-    path: ../components
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: components
   hgs_route:
-    path: ../route
+    git:
+      url: https://github.com/humanghosts/flutter_packages.git
+      path: route
 
   flutter_spinkit: ^5.1.0
   uuid: ^3.0.7
