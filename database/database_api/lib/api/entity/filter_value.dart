@@ -1,5 +1,5 @@
-import 'package:database_api/database_api.dart';
-import 'package:entity/entity.dart';
+import 'package:hgs_database_api/database_api.dart';
+import 'package:hgs_entity/entity.dart';
 
 /// 过滤条件的custom_value类型，用于model的attribute的value
 abstract class FilterValue implements CustomValue {

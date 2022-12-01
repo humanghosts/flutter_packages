@@ -1,4 +1,4 @@
-name: database_api
+name: hgs_database_api
 description: A new Flutter project.
 version: 0.0.1
 publish_to: none
@@ -10,12 +10,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  hg_framework:
+  hgs_framework:
     path: ../../framework
-  entity:
+  hgs_entity:
     path: ../../entity
 
-  get: ^4.6.5
 
 dev_dependencies:
   flutter_test:

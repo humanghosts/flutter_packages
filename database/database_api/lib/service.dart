@@ -1,5 +1,4 @@
-import 'package:entity/entity.dart';
-import 'package:get/get.dart';
+import 'package:hgs_entity/entity.dart';
 
 import 'database_api.dart';
 

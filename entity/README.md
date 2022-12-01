@@ -1,4 +1,4 @@
-# entity
+# hgs_entity
 
 实体支持，拒绝代码生成。
 支持和GetX一起使用，简化代码。

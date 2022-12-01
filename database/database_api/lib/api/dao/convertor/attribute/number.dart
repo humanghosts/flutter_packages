@@ -1,5 +1,5 @@
-import 'package:database_api/database_api.dart';
-import 'package:entity/entity.dart';
+import 'package:hgs_database_api/database_api.dart';
+import 'package:hgs_entity/entity.dart';
 
 /// 数值类型
 class NumberAttributeConvertor<T extends num> extends AttributeConvertor<NumberAttribute, T> {

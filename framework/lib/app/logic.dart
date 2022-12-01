@@ -3,11 +3,7 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:hg_framework/ability/toast/overlay.dart';
-import 'package:hg_framework/hg_framework.dart';
-import 'package:theme/theme.dart';
-import 'package:window_manager/window_manager.dart';
+import 'package:hgs_framework/framework.dart';
 
 /// 应用生命周期监听器 adder
 class _AppLifecycleHelper {
@@ -24,130 +20,18 @@ class _AppLifecycleHelper {
   void removeAppLifecycleListener(String key) => _appLifecycleListener.remove(key);
 }
 
-/// 应用内通知助手
-class _NotificationHelper {
-  /// 通知更新标识
-  RxInt inAppNotificationUpdateFlag = 0.obs;
-
-  /// ID:组件
-  Map<String, Widget> indexNotificationWidget = {};
-
-  /// 顺序:ID_SET
-  Map<int, Set<String>> indexNotificationKeys = {};
-
-  /// ID:顺序
-  Map<String, int> notificationKeyIndex = {};
-
-  /// 动画控制器
-  Map<String, AnimationController> notificationController = {};
-
-  /// 通知
-  void showNotification(String key, Widget widget, [int? index]) {
-    int order = index ?? indexNotificationKeys.length;
-    indexNotificationWidget[key] = widget;
-    notificationKeyIndex[key] = order;
-    indexNotificationKeys.putIfAbsent(order, () => {}).add(key);
-    if (indexNotificationWidget.length == 1) {
-      OverlayHelper().showOverlay(
-        key: "in_app_notification",
-        widget: Obx(() {
-          inAppNotificationUpdateFlag.value;
-          Map<int, Set<String>> indexKeys = indexNotificationKeys;
-          if (indexKeys.isEmpty) return const SizedBox.shrink();
-          // 子通知
-          List<Widget> children = [];
-          // 通知
-          List<int> indexList = indexKeys.keys.toList();
-          indexList.sort();
-          for (int index in indexList) {
-            Set<String>? overlayKeySet = indexKeys[index];
-            if (null == overlayKeySet || overlayKeySet.isEmpty) continue;
-            for (String overlayKey in overlayKeySet) {
-              Widget? overlayWidget = indexNotificationWidget[overlayKey];
-              if (null == overlayWidget) continue;
-
-              // 动画控制器
-              AnimationController controller = notificationController.putIfAbsent(
-                overlayKey,
-                () => AnimationController(
-                  duration: appConfig.animationConfig.middleAnimationDuration,
-                  vsync: SimpleTickerProvider(),
-                ),
-              );
-
-              Animation<double> animation = Tween<double>(begin: (DeviceInfoHelper().isDesktop ? 400 : Get.width), end: 0).animate(CurvedAnimation(
-                parent: controller,
-                curve: Curves.easeOut,
-              ));
-              // 立即播放动画
-              Future.delayed(Duration.zero, () => controller.forward());
-
-              children.add(AnimatedBuilder(
-                key: ValueKey(overlayKey),
-                animation: controller,
-                builder: (BuildContext context, Widget? child) {
-                  return Transform.translate(
-                    offset: Offset(animation.value, 0),
-                    child: child,
-                  );
-                },
-                child: Dismissible(
-                  key: ValueKey(overlayKey),
-                  child: overlayWidget,
-                  onDismissed: (direction) {
-                    closeNotification(overlayKey);
-                  },
-                ),
-              ));
-            }
-          }
-          if (children.isEmpty) return const SizedBox.shrink();
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: DeviceInfoHelper().isDesktop ? 400 : Get.width,
-                padding: EdgeInsets.only(top: Get.mediaQuery.padding.top),
-                child: SingleChildScrollView(
-                  child: Column(children: children),
-                ),
-              ),
-            ],
-          );
-        }),
-        background: const SizedBox.shrink(),
-      );
-    }
-    inAppNotificationUpdateFlag++;
-  }
-
-  /// 关闭通知
-  void closeNotification(String key) async {
-    if (!indexNotificationWidget.containsKey(key)) return;
-    int order = notificationKeyIndex[key]!;
-    indexNotificationWidget.remove(key);
-    notificationKeyIndex.remove(key);
-    indexNotificationKeys[order]?.remove(key);
-    await notificationController[key]?.reverse();
-    if (indexNotificationWidget.isEmpty) {
-      OverlayHelper().closeOverlay("in_app_notification");
-    }
-    inAppNotificationUpdateFlag++;
-  }
-}
-
 /// 主页控制器
-class AppLogic extends GetxController with AppInitPlugin, AppRebuildPlugin, _AppLifecycleHelper, _NotificationHelper, WindowListener {
+class AppLogic extends GetxController with AppInitPlugin, AppRebuildPlugin, _AppLifecycleHelper {
   AppLogic._();
+
+  AppLogic.create();
 
   static AppLogic? _instance;
 
   factory AppLogic() => _instance ??= Get.put<AppLogic>(AppLogic._());
 
   /// 应用配置
-  AppConfig get config => AppRunner().appConfig;
+  AppConfig get config => AppHelper().appConfig;
 
   /// 应用初始化回调函数
   /// 调用点为[InitializeHelper.init]
@@ -189,33 +73,15 @@ class AppLogic extends GetxController with AppInitPlugin, AppRebuildPlugin, _App
   /// 移除销毁监听器
   void removeOnCloseListener(String key) => _onCloseCallback.remove(key);
 
-  /// 窗口高度
-  final RxDouble windowHeight = 1024.0.obs;
-
-  /// 窗口宽度
-  final RxDouble windowWidth = 1024.0.obs;
-
-  @override
-  void onWindowResize() async {
-    super.onWindowResize();
-    windowHeight.value = Get.height;
-    windowWidth.value = Get.width;
-    await PrefsHelper().prefs.setDouble("window_height", windowHeight.value);
-    await PrefsHelper().prefs.setDouble("window_width", windowWidth.value);
-  }
-
   @override
   Future<bool> init(AppConfig config) async {
-    LogHelper.info("[AppLogic]:初始化");
-    windowManager.addListener(this);
-    windowHeight.value = Get.height;
-    windowWidth.value = Get.width;
+    log("[AppLogic]:初始化");
     for (var value in _onAppInitCallback.values) {
       try {
         FutureOr res = value();
         if (res is Future) await res;
       } catch (e) {
-        LogHelper.error(e.toString());
+        log(e.toString());
       }
     }
     return true;
@@ -228,7 +94,7 @@ class AppLogic extends GetxController with AppInitPlugin, AppRebuildPlugin, _App
         FutureOr res = value();
         if (res is Future) await res;
       } catch (e) {
-        LogHelper.error(e.toString());
+        log(e.toString());
       }
     }
   }
@@ -240,7 +106,7 @@ class AppLogic extends GetxController with AppInitPlugin, AppRebuildPlugin, _App
         FutureOr res = value();
         if (res is Future) await res;
       } catch (e) {
-        LogHelper.error(e.toString());
+        log(e.toString());
       }
     }
   }
@@ -250,10 +116,10 @@ class AppLogic extends GetxController with AppInitPlugin, AppRebuildPlugin, _App
   void didChangePlatformBrightness() {
     Brightness brightness = window.platformBrightness;
     if (appLifecycleState != AppLifecycleState.resumed) return;
-    if (ThemeHelper().brightness == brightness) return;
-    ThemeHelper().brightness = brightness;
+    if (config.themeConfig.brightness == brightness) return;
+    config.themeConfig.brightness = brightness;
     log("brightness changed $brightness");
-    ThemeHelper().reRender();
+    config.themeConfig.reRender();
   }
 
   /// 生命周期改变回调
@@ -266,7 +132,7 @@ class AppLogic extends GetxController with AppInitPlugin, AppRebuildPlugin, _App
       try {
         value(appLifecycleState);
       } catch (e) {
-        LogHelper.error(e.toString());
+        log(e.toString());
       }
     }
     didChangePlatformBrightness();
@@ -279,7 +145,7 @@ class AppLogic extends GetxController with AppInitPlugin, AppRebuildPlugin, _App
       try {
         callback.call();
       } catch (e) {
-        LogHelper.error(e.toString());
+        log(e.toString());
       }
     }
     return true;

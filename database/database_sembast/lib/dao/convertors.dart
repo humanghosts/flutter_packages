@@ -1,4 +1,4 @@
-import 'package:database_api/database_api.dart' as api;
+import 'package:hgs_database_api/database_api.dart' as api;
 import 'package:sembast/sembast.dart';
 
 /// sembast转换器

@@ -1,4 +1,4 @@
-import 'package:entity/entity.dart';
+import 'package:hgs_entity/entity.dart';
 
 /// 字符串类型属性
 class StringAttribute<T extends String?> extends Attribute<T> {

@@ -1,5 +1,5 @@
-import 'package:database_api/database_api.dart';
-import 'package:entity/entity.dart';
+import 'package:hgs_database_api/database_api.dart';
+import 'package:hgs_entity/entity.dart';
 
 class SortValue implements CustomValue {
   Sort? sort;

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:entity/entity.dart';
+import 'package:hgs_entity/entity.dart';
 import 'package:get/get.dart';
 
 class Attribute<T> extends Rx<T> {

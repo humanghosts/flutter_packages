@@ -1,4 +1,4 @@
-name: iconpark_svg
+name: hgs_iconpark_svg
 description: iconpark以svg形式呈现
 version: 0.0.1
 publish_to: none
@@ -11,10 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  icon:
-    git:
-      url: https://github.com/humanghosts/flutter_packages.git
-      path: icon/icon
+  hgs_icon:
+    path: ../icon
 
   ## svg图标
   flutter_svg: ^1.1.6

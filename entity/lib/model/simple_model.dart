@@ -1,4 +1,4 @@
-import 'package:entity/entity.dart';
+import 'package:hgs_entity/entity.dart';
 
 abstract class SimpleModel extends Model {
   SimpleModel();

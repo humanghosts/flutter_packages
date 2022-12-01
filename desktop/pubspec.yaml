@@ -1,0 +1,28 @@
+name: hgs_desktop
+description: A new Flutter project.
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: '>=2.18.4 <3.0.0'
+  flutter: ">=2.5.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  hgs_framework:
+    path: ../framework
+  hgs_device_info:
+    path: ../device_info
+  hgs_prefs:
+    path: ../prefs
+  ## 窗口设置
+  window_manager: ^0.2.7
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+

@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:hg_framework/hg_framework.dart';
-import 'package:theme/theme.dart';
+import 'package:hgs_framework/framework.dart';
 
 abstract class AppWithPlugin<T> {
   /// 应用插件
@@ -160,7 +159,7 @@ class AppBuild extends AppWithPlugin<AppBuildPlugin> {
 
   @override
   FutureOr<void> registerPlugin() {
-    addPlugin("theme", ThemeHelper());
+    // addPlugin("theme", ThemeHelper());
   }
 }
 

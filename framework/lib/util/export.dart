@@ -1,3 +1,4 @@
+export 'color_util.dart';
 export 'datetime_util.dart';
 export 'function_util.dart';
 export 'same_types.dart';

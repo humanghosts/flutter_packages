@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
-import 'package:entity/entity.dart';
+import 'package:flutter/material.dart';
+import 'package:hgs_entity/entity.dart';
 
 /// 数据模型的缓存节点，不可修改
 /// 包括缓存类型和缓存值

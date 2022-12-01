@@ -1,4 +1,4 @@
-import 'package:entity/entity.dart';
+import 'package:hgs_entity/entity.dart';
 
 /// T must is a DataTreeModel
 abstract class DataTreeModel<T extends DataModel> extends DataModel {

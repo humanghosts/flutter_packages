@@ -11,10 +11,16 @@ dependencies:
   flutter:
     sdk: flutter
 
-  hg_framework:
+  hgs_framework:
     path: ../framework
-  database_api:
+  hgs_device_info:
+    path: ../device_info
+  hgs_database_api:
     path: ../database/database_api
+  hgs_toast:
+    path: ../toast
+  hgs_work:
+    path: ../work
 
   ## 权限请求 android ios windows
   permission_handler: ^10.2.0

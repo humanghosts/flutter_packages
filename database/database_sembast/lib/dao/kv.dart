@@ -1,5 +1,5 @@
-import 'package:database_api/database_api.dart' as api;
-import 'package:database_sembast/database_sembast.dart';
+import 'package:hgs_database_sembast/database_sembast.dart';
+import 'package:hgs_database_api/database_api.dart' as api;
 import 'package:sembast/sembast.dart';
 import 'package:sembast/sembast.dart' as sembast;
 

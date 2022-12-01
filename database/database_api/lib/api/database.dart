@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:database_api/database_api.dart';
+import 'package:hgs_database_api/database_api.dart';
 
 /// 数据库处理类
 abstract class Database {

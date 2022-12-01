@@ -1,11 +1,15 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
-import 'package:hg_framework/hg_framework.dart';
+import 'package:hgs_device_info/device_info.dart';
+import 'package:hgs_framework/framework.dart';
+import 'package:hgs_toast/toast.dart';
+import 'package:hgs_work/scheduled_timer.dart';
 import 'package:local_notifier/local_notifier.dart';
 import 'package:notification/notification.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:theme/theme.dart';
 import 'package:timezone/data/latest_all.dart' as tzd;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -236,7 +240,7 @@ class LocalNotificationHelper {
       if (isOpen == true) {
         isOpen = await openAppSettings();
         if (isOpen == false) {
-          ToastHelper().inAppNotification(leading: Icon(Icons.sms_failed_outlined, color: ThemeHelper().themeData.errorColor), title: "打开系统设置失败,请手动打开");
+          ToastHelper().showNotification(leading: Icon(Icons.sms_failed_outlined, color: themeConfig.themeData.errorColor), title: "打开系统设置失败,请手动打开");
         }
       }
       return false;
@@ -430,17 +434,17 @@ class DesktopNotificationsPlugin extends NotificationsPlugin {
       body: title == null ? null : body,
     );
     notification.onShow = () {
-      LogHelper.info('onShow ${notification.identifier}');
+      log('onShow ${notification.identifier}');
     };
     notification.onClose = (closeReason) {
-      LogHelper.info('onClose ${notification.identifier} - $closeReason');
+      log('onClose ${notification.identifier} - $closeReason');
     };
     notification.onClick = () {
-      LogHelper.info('onClick ${notification.identifier}');
+      log('onClick ${notification.identifier}');
       onSelectNotification.call(payload);
     };
     notification.onClickAction = (actionIndex) {
-      LogHelper.info('onClickAction ${notification.identifier} - $actionIndex');
+      log('onClickAction ${notification.identifier} - $actionIndex');
     };
     notification.show();
   }
@@ -452,7 +456,7 @@ class InAppNotificationsPlugin extends NotificationsPlugin {
 
   @override
   void _show({required int id, String? title, String? body, String? payload}) {
-    ToastHelper().inAppNotification(
+    ToastHelper().showNotification(
       key: id.toString(),
       message: body,
       title: title,

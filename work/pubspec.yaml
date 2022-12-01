@@ -1,0 +1,22 @@
+name: hgs_work
+description: A new Flutter project.
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: '>=2.18.4 <3.0.0'
+  flutter: ">=2.5.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  hgs_prefs:
+    path: ../prefs
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+

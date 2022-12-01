@@ -1,5 +1,4 @@
-import 'package:get/get.dart';
-import 'package:entity/entity.dart';
+import 'package:hgs_entity/entity.dart';
 
 typedef AttributeCloneHandler = void Function(Attribute attribute, Attribute newAttribute);
 

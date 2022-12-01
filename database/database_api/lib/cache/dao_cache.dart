@@ -1,4 +1,4 @@
-import 'package:database_api/database_api.dart';
+import 'package:hgs_database_api/database_api.dart';
 
 /// dao的缓存，相当于一个dao的单例池
 class DaoCache {

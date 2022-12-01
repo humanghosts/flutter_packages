@@ -1,4 +1,4 @@
-import 'package:entity/entity.dart';
+import 'package:hgs_entity/entity.dart';
 
 /// 自定义attribute的value
 abstract class CustomValue {

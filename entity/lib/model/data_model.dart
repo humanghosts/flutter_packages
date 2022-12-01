@@ -1,4 +1,4 @@
-import 'package:entity/entity.dart';
+import 'package:hgs_entity/entity.dart';
 
 /// 基本模型
 /// 规定了了基本的字段以及要实现的接口

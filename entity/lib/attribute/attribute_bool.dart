@@ -1,4 +1,4 @@
-import 'package:entity/entity.dart';
+import 'package:hgs_entity/entity.dart';
 
 /// 布尔类型的值
 class BooleanAttribute<T extends bool?> extends Attribute<T> {

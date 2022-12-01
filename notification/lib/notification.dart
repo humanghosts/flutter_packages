@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:developer';
 
-import 'package:database_api/database_api.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:hg_framework/hg_framework.dart';
+import 'package:hgs_database_api/database_api.dart';
+import 'package:hgs_framework/framework.dart';
+import 'package:hgs_work/scheduled_timer.dart';
 
 import 'action.dart';
 import 'args.dart';
@@ -55,10 +57,10 @@ class NotificationHelper with AppInitPlugin, AppRebuildPlugin {
   }
 
   /// 日志
-  void _log(String msg) => LogHelper.info("[通知助手]:$msg");
+  void _log(String msg) => log("[通知助手]:$msg");
 
   /// 错误日志
-  void _logError(String msg) => LogHelper.error("[通知助手]:$msg");
+  void _logError(String msg) => log("[通知助手错误]:$msg");
 
   /// 添加提醒监听
   void addListener(String key, void Function(NotificationAction action) callback) => _listener[key] = callback;

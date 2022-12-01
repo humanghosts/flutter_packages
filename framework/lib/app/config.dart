@@ -1,6 +1,8 @@
-import 'package:flutter/widgets.dart';
+import 'dart:developer';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:hg_framework/hg_framework.dart';
+import 'package:hgs_framework/framework.dart';
 
 /// 应用配置
 abstract class AppConfig {
@@ -10,11 +12,11 @@ abstract class AppConfig {
   /// 应用版本
   String get appVersion;
 
+  /// 主题配置
+  ThemeConfig get themeConfig => ThemeConfig();
+
   /// 动画配置 自定义配置的时候需要覆写
   AnimationConfig get animationConfig => AnimationConfig();
-
-  /// 资源配置 自定义配置的时候需要覆写
-  AssetsConfig get assetsConfig => AssetsConfig();
 
   /// 默认地域 自定义配置的时候需要覆写
   Locale get locale => const Locale('zh', 'CN');
@@ -55,15 +57,70 @@ class AnimationConfig {
   Duration get slowAnimationDuration => const Duration(milliseconds: 800);
 }
 
-/// 资源配置
-class AssetsConfig {
-  AssetsConfig._();
+/// 主题配置
+class ThemeConfig {
+  ThemeConfig._();
 
-  factory AssetsConfig() => SingletonCache.putIfAbsent(AssetsConfig._());
+  factory ThemeConfig() => SingletonCache.putIfAbsent(ThemeConfig._());
 
-  /// 音频文件路径
-  String get soundAssetsPath => "assets/sounds/";
+  /// 当前主题数据
+  ThemeData themeData = ThemeData();
 
-  /// 图片文件路径
-  String get imageAssetsPath => "assets/images/";
+  /// 浅色模式主题
+  ThemeData lightTheme = ThemeData();
+
+  /// 深色模式主题
+  ThemeData darkTheme = ThemeData();
+
+  /// 主题模式
+  ThemeMode themeMode = ThemeMode.system;
+
+  /// 当前系统亮度
+  Brightness brightness = Brightness.light;
+
+  /// 是否浅色模式
+  bool get isLightMode => brightness == Brightness.light;
+
+  /// 是否深色模式
+  bool get isDarkMode => brightness == Brightness.dark;
+
+  /// 主题更新标识
+  RxInt themeUpdateFlag = 0.obs;
+
+  /// 主题更新监听器
+  final Map<String, VoidCallback> _themeListener = {};
+
+  /// 监听主题更新
+  void listenThemeUpdate(String key, VoidCallback callback) => _themeListener[key] = callback;
+
+  /// 移除主题更新监听器
+  void removeThemeUpdateListener(String key) => _themeListener.remove(key);
+
+  /// 设置主题
+  void setTheme() {
+    switch (themeMode) {
+      case ThemeMode.system:
+        themeData = isLightMode ? lightTheme : darkTheme;
+        break;
+      case ThemeMode.light:
+        themeData = lightTheme;
+        break;
+      case ThemeMode.dark:
+        themeData = darkTheme;
+        break;
+    }
+  }
+
+  /// 重新根据主题渲染
+  void reRender() {
+    themeUpdateFlag++;
+    setTheme();
+    for (var value in _themeListener.values) {
+      try {
+        value();
+      } catch (e) {
+        log("主题更新出错：$e");
+      }
+    }
+  }
 }

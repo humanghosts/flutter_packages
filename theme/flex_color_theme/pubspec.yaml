@@ -1,0 +1,33 @@
+name: hgs_flex_color_theme
+description: A new Flutter project.
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: '>=2.18.4 <3.0.0'
+  flutter: ">=2.5.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  hgs_framework:
+    path: ../../framework
+  hgs_entity:
+    path: ../../entity
+  hgs_database_sembast:
+    path: ../../database/database_sembast
+  hgs_device_info:
+    path: ../../device_info
+  hgs_toast:
+    path: ../../toast
+
+  ## 主题
+  flex_color_scheme: ^6.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+

@@ -1,4 +1,4 @@
-import 'package:entity/entity.dart';
+import 'package:hgs_entity/entity.dart';
 
 /// 时间类型
 class DateTimeAttribute<T extends DateTime?> extends Attribute<T> {

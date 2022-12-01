@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:entity/entity.dart';
 import 'package:flutter/material.dart';
-import 'package:icon/icon.dart';
+import 'package:hgs_entity/entity.dart';
+import 'package:hgs_icon/icon.dart';
 
 /// 图标值
 class IconValue extends CustomValue {

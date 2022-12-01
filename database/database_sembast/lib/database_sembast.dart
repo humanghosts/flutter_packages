@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:database_api/database_api.dart' as api;
+import 'package:hgs_database_api/database_api.dart' as api;
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -11,7 +11,7 @@ import 'package:sembast_web/sembast_web.dart';
 
 import 'dao/kv.dart';
 
-export 'package:database_api/database_api.dart';
+export 'package:hgs_database_api/database_api.dart';
 
 export 'dao/export.dart';
 

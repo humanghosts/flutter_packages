@@ -1,4 +1,4 @@
-# iconpark_svg
+# hgs_iconpark_svg
 
 来自于字节跳动的开源图标库。使用SVG图片形式呈现。
 

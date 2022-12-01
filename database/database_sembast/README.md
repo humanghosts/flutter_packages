@@ -1,4 +1,4 @@
-# database_sembast
+# hgs_database_sembast
 
-database_api的sembast实现
+hgs_database_api的sembast实现
 

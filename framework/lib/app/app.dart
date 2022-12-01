@@ -2,9 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:hg_framework/hg_framework.dart';
-import 'package:theme/theme.dart';
+import 'package:hgs_framework/framework.dart';
 
 export 'app.dart';
 export 'config.dart';
@@ -12,14 +10,25 @@ export 'logic.dart';
 export 'plugin.dart';
 
 /// 应用助手
-class AppRunner {
-  AppRunner._();
+class AppHelper {
+  AppHelper._();
 
-  factory AppRunner() => SingletonCache.putIfAbsent(AppRunner._());
+  AppHelper.create();
+
+  factory AppHelper() => SingletonCache.putIfAbsent(AppHelper._());
 
   late final App _app;
   late final AppConfig _config;
   bool _hasRun = false;
+
+  /// 应用
+  App get app => _app;
+
+  /// 应用控制器
+  AppLogic get appLogic => AppLogic();
+
+  /// 应用个配置
+  AppConfig get appConfig => _config;
 
   /// 运行应用
   void run(App app, AppConfig config) {
@@ -38,7 +47,7 @@ class AppRunner {
         _hasRun = true;
       },
       (error, stackTrace) {
-        LogHelper.wtf(error.toString(), error: error, stackTrace: stackTrace);
+        log(error.toString(), error: error, stackTrace: stackTrace);
       },
       zoneSpecification: const ZoneSpecification(),
     );
@@ -49,19 +58,19 @@ class AppRunner {
     FutureOr<void> reBuild = _config.appRebuild.run();
     if (reBuild is Future) await reBuild;
   }
-
-  /// 应用控制器
-  AppLogic get appLogic => _app.logic;
-
-  /// 应用个配置
-  AppConfig get appConfig => _config;
 }
 
 /// 快捷获取控制器
-AppLogic get appLogic => AppRunner().appLogic;
+AppLogic get appLogic => AppHelper().appLogic;
 
 /// 快捷获取配置
-AppConfig get appConfig => AppRunner().appConfig;
+AppConfig get appConfig => AppHelper().appConfig;
+
+/// 快捷获取主题配置
+ThemeConfig get themeConfig => appConfig.themeConfig;
+
+/// 快捷获取动画配置
+AnimationConfig get animationConfig => appConfig.animationConfig;
 
 /// 主程序
 abstract class App extends StatelessWidget with WidgetsBindingObserver {
@@ -102,7 +111,7 @@ abstract class App extends StatelessWidget with WidgetsBindingObserver {
       builder: (logic) {
         logic.config.appBuild.run();
         return Obx(() {
-          ThemeHelper().themeUpdateFlag.value;
+          logic.config.themeConfig.themeUpdateFlag.value;
           return buildApp(context);
         });
       },
@@ -115,12 +124,12 @@ abstract class App extends StatelessWidget with WidgetsBindingObserver {
       scrollBehavior: const AppScrollBehavior(),
       debugShowCheckedModeBanner: false,
       title: logic.config.appName,
-      theme: ThemeHelper().lightTheme,
-      darkTheme: ThemeHelper().darkTheme,
-      themeMode: ThemeHelper().themeMode,
-      navigatorObservers: [
-        Observer(RouteHelper.observer, ObserverRouting()),
-      ],
+      theme: logic.config.themeConfig.lightTheme,
+      darkTheme: logic.config.themeConfig.darkTheme,
+      themeMode: logic.config.themeConfig.themeMode,
+      // navigatorObservers: [
+      //   Observer(RouteHelper.observer, ObserverRouting()),
+      // ],
       home: buildHome(context),
       locale: logic.config.locale,
       supportedLocales: logic.config.supportedLocales,

@@ -1,4 +1,4 @@
-import 'package:entity/entity.dart';
+import 'package:hgs_entity/entity.dart';
 
 /// 模型
 class ModelAttribute<T extends Model?> extends Attribute<T> {

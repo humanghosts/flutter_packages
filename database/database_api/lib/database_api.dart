@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:entity/entity.dart';
-import 'package:hg_framework/hg_framework.dart';
+import 'package:hgs_entity/entity.dart';
+import 'package:hgs_framework/framework.dart';
 
 import 'api/api.dart';
 import 'cache/cache.dart';

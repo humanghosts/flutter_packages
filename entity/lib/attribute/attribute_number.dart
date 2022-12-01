@@ -1,4 +1,4 @@
-import 'package:entity/entity.dart';
+import 'package:hgs_entity/entity.dart';
 
 /// 数字类型属性
 class NumberAttribute<T extends num?> extends Attribute<T> {

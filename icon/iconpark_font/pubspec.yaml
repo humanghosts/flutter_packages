@@ -1,4 +1,4 @@
-name: iconpark_font
+name: hgs_iconpark_font
 description: iconpark图标以font图标呈现。
 version: 0.0.1
 publish_to: none
@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  icon:
+  hgs_icon:
     path: ../icon
 
 dev_dependencies:

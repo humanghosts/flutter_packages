@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:hg_framework/ability/toast/overlay.dart';
-import 'package:hg_framework/hg_framework.dart';
-import 'package:hg_framework/hg_framework.dart' as framework;
-import 'package:theme/theme.dart';
+import 'package:hgs_framework/framework.dart';
+import 'package:hgs_framework/framework.dart' as framework;
 
 /// 页面外部参数
 @immutable
@@ -83,9 +80,8 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
     // 防止不同类型的组件key重复导致回调不正确
     String key = "${this.key}_$runtimeType";
     appLogic.listenRefresh(key, () => update());
-    ThemeHelper().listenThemeUpdate(key, () => update());
-    // appLogic.listenAppLifecycleUpdate(key, (lifecycle) => update());
-    OrientationHelper().listenOrientationUpdate(key, (orientation) => update());
+    themeConfig.listenThemeUpdate(key, () => update());
+    appLogic.listenAppLifecycleUpdate(key, (lifecycle) => update());
   }
 
   @mustCallSuper
@@ -95,9 +91,8 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
     // 防止不同类型的组件key重复导致回调不正确
     String key = "${this.key}_$runtimeType";
     appLogic.removeRefreshListener(key);
-    ThemeHelper().removeThemeUpdateListener(key);
-    // appLogic.removeAppLifecycleListener(key);
-    OrientationHelper().removeOrientationUpdateListener(key);
+    themeConfig.removeThemeUpdateListener(key);
+    appLogic.removeAppLifecycleListener(key);
   }
 
   /// 组件构建回调
@@ -117,46 +112,6 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
   /// GetStatefulWidget组件Stated的dispose回调
   /// 需要注意的是该方法是绑定组件，[onDelete]或[onClose]是绑定控制器，两者的生命周期不一样
   void onWidgetDispose(BuildContext context, GetBuilderState state) {}
-
-  /// 当前应用数据
-  ThemeData get theme => ThemeHelper().themeData;
-
-  /// 当前应用模板
-  ThemeTemplate get themeTemplate => ThemeHelper().themeTemplate;
-
-  /// 应用配置
-  AppConfig get appConfig => framework.appConfig;
-
-  /// 动画配置
-  AnimationConfig get animationConfig => appConfig.animationConfig;
-
-  /// 中速动画时间
-  Duration get middleAnimationDuration => animationConfig.middleAnimationDuration;
-
-  /// 快速动画时间
-  Duration get fastAnimationDuration => animationConfig.fastAnimationDuration;
-
-  /// 慢速动画时间
-  Duration get slowAnimationDuration => animationConfig.slowAnimationDuration;
-
-  /// 是否正忙
-  RxBool isBusy = false.obs;
-
-  /// 显示加载框
-  void showLoading({String? message, Widget? messageWidget, bool onlyDebug = false}) {
-    isBusy.value = true;
-    OverlayHelper().showLoading(
-      runtimeType.toString(),
-      message: messageWidget ?? (message == null ? null : Text(message)),
-      onlyDebug: onlyDebug,
-    );
-  }
-
-  /// 关闭加载框
-  void closeLoading() {
-    isBusy.value = false;
-    OverlayHelper().closeLoading(runtimeType.toString());
-  }
 }
 
 /// 页面组件
@@ -196,7 +151,7 @@ abstract class View<L extends ViewLogic> extends StatelessWidget {
   }
 
   Widget buildViewWithTheme(BuildContext context) {
-    return Theme(data: logic.theme, child: buildView(context));
+    return Theme(data: themeConfig.themeData, child: buildView(context));
   }
 
   /// 构建页面

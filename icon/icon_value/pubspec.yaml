@@ -1,4 +1,4 @@
-name: icon_value
+name: hgs_icon_value
 description: IconValue 继承 CustomValue用于数据库存储图标
 version: 0.0.1
 publish_to: none
@@ -10,9 +10,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  entity:
+  hgs_entity:
     path: ../../entity
-  icon:
+  hgs_icon:
     path: ../icon
 
 dev_dependencies:

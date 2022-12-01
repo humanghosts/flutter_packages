@@ -1,4 +1,4 @@
-import 'package:icon/icon.dart';
+import 'package:hgs_icon/icon.dart';
 
 export 'iconparks.dart';
 

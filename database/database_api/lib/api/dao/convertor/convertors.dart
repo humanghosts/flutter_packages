@@ -1,4 +1,4 @@
-import 'package:database_api/database_api.dart';
+import 'package:hgs_database_api/database_api.dart';
 
 /// 值转换器
 class ValueConvertors {
