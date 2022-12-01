@@ -31,7 +31,7 @@ IconPark add = IconParks.add;
 Widget widget = IconParks.add.build();
 
 /// 使用指定属性构建图标
-Widget widget =  IconParks.add.buildWithProps(props: const IIconProps());
+Widget widget =  IconParks.add.buildWithProps(props: const IIconProps(fill:[Colors.blue.icolor]));
 ```
 
 # 转换代码java

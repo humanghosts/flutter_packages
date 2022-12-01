@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 
 /// 包裹后的图标非扩展属性
 typedef IIcon = IIconBase;
@@ -111,6 +112,10 @@ extension _ListEx<E> on List<E> {
     if (null == e) return ifNull();
     return e;
   }
+}
+
+extension IColor on Color {
+  String get icolor => "#${value.toRadixString(16)}";
 }
 
 /// 包裹前的图标属性
