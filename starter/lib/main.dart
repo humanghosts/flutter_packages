@@ -1,45 +1,26 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:hgs_framework/framework.dart';
+import 'package:hgs_toast/toast.dart';
+
+import 'config.dart';
 
 void main() {
-  /// 传入应用和应用配置来运行应用
-  AppHelper().run(const MyApp(), MardeConfig());
+  AppHelper().run(const DefaultApp(), DefaultAppConfig());
 }
 
-/// 应用配置
-class MardeConfig extends AppConfig {
-  /// 单例模式代码
-  MardeConfig._();
-
-  static MardeConfig? _instance;
-
-  factory MardeConfig() => _instance ??= MardeConfig._();
-
-  @override
-  String get appName => "";
-
-  @override
-  String get appVersion => "";
-}
-
-class MyApp extends App {
-  const MyApp({Key? key}) : super(key: key);
+class DefaultApp extends App {
+  const DefaultApp({Key? key}) : super(key: key);
 
   @override
   Widget buildHome(BuildContext context) {
-    return MyHomeView(key: "");
+    return DefaultHomeView(key: "default_home_view");
   }
 }
 
-class MyHomeLogic extends ViewLogicOnly {
-  Timer? timer;
-  RxDouble countdown = 3.0.obs;
-}
+class DefaultHomeLogic extends ViewLogicOnly {}
 
-class MyHomeView extends View<MyHomeLogic> {
-  MyHomeView({required String key}) : super(key: key, logic: MyHomeLogic());
+class DefaultHomeView extends View<DefaultHomeLogic> {
+  DefaultHomeView({required String key}) : super(key: key, logic: DefaultHomeLogic());
 
   @override
   Widget buildView(BuildContext context) {
@@ -47,6 +28,14 @@ class MyHomeView extends View<MyHomeLogic> {
     return Scaffold(
       appBar: AppBar(
         title: Text("${appConfig.appName}_${appConfig.appVersion}"),
+      ),
+      body: Center(
+        child: TextButton(
+          onPressed: () {
+            ToastHelper().toast(msg: "oho");
+          },
+          child: const Text("humanghosts"),
+        ),
       ),
     );
   }
