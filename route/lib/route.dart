@@ -3,6 +3,8 @@ import 'package:hgs_framework/framework.dart';
 
 import 'observer.dart';
 
+export 'package:hgs_framework/framework.dart';
+
 export 'observer.dart';
 
 /// 路由管理配置类

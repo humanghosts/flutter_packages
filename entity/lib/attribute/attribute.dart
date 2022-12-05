@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:hgs_entity/entity.dart';
-import 'package:get/get.dart';
 
 class Attribute<T> extends Rx<T> {
   /// 字段默认值

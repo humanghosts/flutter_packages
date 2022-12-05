@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:notification/notification.dart';
+import 'package:hgs_notification/notification.dart';
 
 /// 通知的负载
 @immutable

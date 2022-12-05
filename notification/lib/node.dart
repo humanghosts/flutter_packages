@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:notification/notification.dart';
+import 'package:hgs_notification/notification.dart';
 
 /// 提醒类型
 enum NotificationCacheNodeType {

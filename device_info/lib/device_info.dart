@@ -5,6 +5,7 @@ import 'package:hgs_prefs/prefs.dart';
 import 'package:user_agent_analyzer/user_agent_analyzer.dart';
 
 export 'package:device_info_plus/device_info_plus.dart';
+export 'package:hgs_framework/framework.dart';
 
 /// 设备信息助手
 /// 支持包括web在内所有平台设备信息，基于device_info_plus插件

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:hgs_framework/framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+export 'package:hgs_framework/framework.dart';
 export 'package:shared_preferences/shared_preferences.dart';
 
 /// 系统级别的kv存储库

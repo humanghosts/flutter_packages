@@ -15,7 +15,7 @@ class DefaultAppConfig extends AppConfig {
   factory DefaultAppConfig() => _instance ??= DefaultAppConfig._();
 
   @override
-  String get appName => "示例";
+  String get appName => "快速开始";
 
   @override
   String get appVersion => "0.0.1";

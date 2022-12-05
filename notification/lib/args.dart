@@ -1,5 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:notification/notification.dart';
+import 'package:hgs_notification/notification.dart';
 
 /// 通知方法参数
 class NotificationArgs {

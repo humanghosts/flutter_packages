@@ -7,6 +7,7 @@ import 'package:hgs_framework/framework.dart';
 import '../cache/export.dart';
 
 export 'package:get/get.dart';
+export 'package:hgs_framework/framework.dart';
 
 export '../attribute/export.dart';
 export '../cache/export.dart';

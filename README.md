@@ -1,17 +1,79 @@
 自己开发的一些Flutter相关的包。
 License如果不特别标注，都是MIT。
 
-接下来要做的事情是把framework里面的包都拆出去。
+![结构图.jpg](结构图.jpg)
+结构图。
 
-# 目录
-`/framework` 用于快速开发的框架，支持全平台
+添加依赖
+```yaml
+# 框架
+hgs_framework:
+  git:
+    url: https://github.com/humanghosts/flutter_packages.git
+    path: framework
+# 设备信息
+hgs_device_info:
+  git:
+    url: https://github.com/humanghosts/flutter_packages.git
+    path: device_info
+# shared_preferences助手
+hgs_prefs:
+  git:
+    url: https://github.com/humanghosts/flutter_packages.git
+    path: prefs
+# 提示、应用内通知和上下文菜单
+hgs_toast:
+  git:
+    url: https://github.com/humanghosts/flutter_packages.git
+    path: toast
+# 本地通知
+hgs_notification:
+  git:
+    url: https://github.com/humanghosts/flutter_packages.git
+    path: notification
+# 组件
+hgs_components:
+  git:
+    url: https://github.com/humanghosts/flutter_packages.git
+    path: components
+# 实体
+hgs_entity:
+  git:
+    url: https://github.com/humanghosts/flutter_packages.git
+    path: entity
+# 任务处理
+hgs_work:
+  git:
+    url: https://github.com/humanghosts/flutter_packages.git
+    path: work
+# 音频
+hgs_sound:
+  git:
+    url: https://github.com/humanghosts/flutter_packages.git
+    path: sound
+# 设备方向
+hgs_orientation:
+  git:
+    url: https://github.com/humanghosts/flutter_packages.git
+    path: orientation
+# 数据库和orm
+hgs_database_api:
+  git:
+    url: https://github.com/humanghosts/flutter_packages.git
+    path: database/database_api
+hgs_database_sembast:
+  git:
+    url: https://github.com/humanghosts/flutter_packages.git
+    path: database/database_sembast
+# 自定义主题
+hgs_flex_color_theme:
+  git:
+    url: https://github.com/humanghosts/flutter_packages.git
+    path: theme/flex_color_theme
+# iconpark图标库
+hgs_iconpark_svg:
+  git:
+    url: https://github.com/humanghosts/flutter_packages.git
+    path: icon/iconpark_svg
 
-`/icon` 各种开源图标包，支持全平台，目前包括iconpark_svg，iconpark_ttf(失败了，转出来的ttf没有细节)
-
-`/theme` 基于flex_color_scheme的可定制主题，支持全平台
-
-`/entity` 是实体支持包，非代码生成，支持全平台，可集成GetX使用简化代码
-
-`/database` 数据库支持和ORM，支持全平台，基于`entity`。目前只有sembast支持
-
-`/notification` 本地提醒，支持全平台。
+```
