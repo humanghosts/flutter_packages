@@ -14,6 +14,7 @@ export '../cache/export.dart';
 export '../enum/export.dart';
 export '../model/export.dart';
 export '../util/export.dart';
+export '../value/export.dart';
 
 /// 实体助手，用于注册实体构造方法
 class EntityHelper extends AppInitPlugin {
