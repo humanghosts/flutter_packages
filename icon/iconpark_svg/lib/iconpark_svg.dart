@@ -72,8 +72,9 @@ class IconPark extends SvgIcon {
   }
 
   /// 使用指定属性构建，不会影响图标本身的属性
-  Widget buildWithProps({IIconProps? props}) {
-    if (null == props) return build();
+  @override
+  Widget build({IIconProps? props}) {
+    if (null == props) return super.build();
     return SvgPicture.string(
       iconWrapper(props),
       height: props.size?.toDouble(),

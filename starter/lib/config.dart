@@ -10,6 +10,8 @@ class DefaultAppConfig extends AppConfig {
   /// 单例模式代码
   DefaultAppConfig._();
 
+  DefaultAppConfig.create();
+
   static DefaultAppConfig? _instance;
 
   factory DefaultAppConfig() => _instance ??= DefaultAppConfig._();
