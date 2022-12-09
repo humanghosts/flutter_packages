@@ -91,10 +91,10 @@ class ThemeConfig {
   final Map<String, VoidCallback> _themeListener = {};
 
   /// 监听主题更新
-  void listenThemeUpdate(String key, VoidCallback callback) => _themeListener[key] = callback;
+  void addListener(String key, VoidCallback callback) => _themeListener[key] = callback;
 
   /// 移除主题更新监听器
-  void removeThemeUpdateListener(String key) => _themeListener.remove(key);
+  void removeListener(String key) => _themeListener.remove(key);
 
   /// 设置主题
   void setTheme() {

@@ -80,7 +80,7 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
     // 防止不同类型的组件key重复导致回调不正确
     String key = "${this.key}_$runtimeType";
     appLogic.listenRefresh(key, () => update());
-    themeConfig.listenThemeUpdate(key, () => update());
+    themeConfig.addListener(key, () => update());
     appLogic.listenAppLifecycleUpdate(key, (lifecycle) => update());
   }
 
@@ -91,7 +91,7 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
     // 防止不同类型的组件key重复导致回调不正确
     String key = "${this.key}_$runtimeType";
     appLogic.removeRefreshListener(key);
-    themeConfig.removeThemeUpdateListener(key);
+    themeConfig.removeListener(key);
     appLogic.removeAppLifecycleListener(key);
   }
 
