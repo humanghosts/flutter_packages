@@ -31,7 +31,52 @@ IconPark add = IconParks.add;
 Widget widget = IconParks.add.build();
 
 /// 使用指定属性构建图标
-Widget widget =  IconParks.add.buildWithProps(props: const IIconProps(fill:[Colors.blue.icolor]));
+Widget widget =  IconParks.add.build(props: const IIconProps(fill:[Colors.blue.icolor]));
+```
+
+## 集成到framework中
+
+```Dart
+/// IconPark图标助手，用于根据主题更新IconPark的全局设置
+class IconParkHelper extends AppBuildPlugin {
+  IconParkHelper._();
+
+  factory IconParkHelper() => SingletonCache.putIfAbsent(IconParkHelper._());
+
+  @override
+  FutureOr<bool> build(AppConfig config) {
+    updateIconParkConfig();
+    themeConfig.addListener("icon_park", updateIconParkConfig);
+    return true;
+  }
+
+  /// 更新IconPark的全局配置
+  /// themeConfig变量来自于framework
+  void updateIconParkConfig() {
+    Color iconColor = themeConfig.themeData.iconTheme.color ?? themeConfig.themeData.colorScheme.onPrimary;
+    setIconParkConfig(
+      IIconConfig(
+        size: 1,
+        strokeWidth: 4,
+        strokeLinecap: StrokeLinecap.round,
+        strokeLinejoin: StrokeLinejoin.round,
+        prefix: "i",
+        theme: IIconTheme.outline,
+        colors: IIconColors(
+          outline: OutlineColor(fill: iconColor.icolor, background: "transparent"),
+          filled: FilledColor(fill: iconColor.icolor, background: "#FFF"),
+          twoTone: TwoToneColor(fill: iconColor.icolor, twoTone: "#2F88FF"),
+          multiColor: MultiColor(
+            outStrokeColor: iconColor.icolor,
+            outFillColor: '#2F88FF',
+            innerStrokeColor: iconColor.icolor,
+            innerFillColor: '#43CCF8',
+          ),
+        ),
+      ),
+    );
+  }
+}
 ```
 
 # 转换代码java

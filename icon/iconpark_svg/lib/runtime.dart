@@ -35,20 +35,20 @@ const IIconConfig defaultIconParkConfigs = IIconConfig(
 );
 
 /// 图标配置
-IIconConfig currentConfig = defaultIconParkConfigs;
+IIconConfig _currentConfig = defaultIconParkConfigs;
 
-void setIconParkConfig(IIconConfig config) => currentConfig = config;
+void setIconParkConfig(IIconConfig config) => _currentConfig = config;
 
-IIconConfig getIconParkConfig() => currentConfig;
+IIconConfig getIconParkConfig() => _currentConfig;
 
 String _guid() {
   return "icon-${(((1 + Random().nextInt(1)) * 0x100000000) | 0).toRadixString(16).substring(1)}";
 }
 
 /// 属性转换函数
-ISvgIconProps iconConverter({
+ISvgIconProps _iconConverter({
   required String id,
-  required IIconBase icon,
+  required IIcon icon,
   required IIconConfig config,
 }) {
   List<String> fill = icon.fill ?? [];
@@ -57,26 +57,26 @@ ISvgIconProps iconConverter({
 
   switch (theme) {
     case IIconTheme.outline:
-      colors.add(fill.get(0, () => 'currentColor'));
+      colors.add(fill.get(0, () => config.colors.outline.fill));
       colors.add('none');
-      colors.add(fill.get(0, () => 'currentColor'));
+      colors.add(fill.get(0, () => config.colors.outline.fill));
       colors.add('none');
       break;
     case IIconTheme.filled:
-      colors.add(fill.get(0, () => 'currentColor'));
-      colors.add(fill.get(0, () => 'currentColor'));
+      colors.add(fill.get(0, () => config.colors.filled.fill));
+      colors.add(fill.get(0, () => config.colors.filled.fill));
       colors.add('#FFF');
       colors.add('#FFF');
       break;
     case IIconTheme.twoTone:
-      colors.add(fill.get(0, () => 'currentColor'));
+      colors.add(fill.get(0, () => config.colors.twoTone.fill));
 
       colors.add(fill.get(1, () => config.colors.twoTone.twoTone));
-      colors.add(fill.get(0, () => 'currentColor'));
+      colors.add(fill.get(0, () => config.colors.twoTone.fill));
       colors.add(fill.get(1, () => config.colors.twoTone.twoTone));
       break;
     case IIconTheme.multiColor:
-      colors.add(fill.get(0, () => 'currentColor'));
+      colors.add(fill.get(0, () => config.colors.multiColor.outStrokeColor));
       colors.add(fill.get(1, () => config.colors.multiColor.outFillColor));
       colors.add(fill.get(2, () => config.colors.multiColor.innerStrokeColor));
       colors.add(fill.get(3, () => config.colors.multiColor.innerFillColor));
@@ -97,7 +97,7 @@ ISvgIconProps iconConverter({
 IIconWrapper iconWrapper(String name, IconRender render) {
   return (IIconProps props) {
     IIconConfig config = getIconParkConfig();
-    ISvgIconProps svgProps = iconConverter(id: _guid(), icon: props, config: config);
+    ISvgIconProps svgProps = _iconConverter(id: _guid(), icon: props, config: config);
     return render(svgProps);
   };
 }
