@@ -56,7 +56,7 @@ class AppLogic extends GetxController with AppInitPlugin, AppRebuildPlugin, _App
   void listenOnReady(String key, FutureOr<void> Function() callback) => _onReadyCallback[key] = callback;
 
   /// 注册重建完回调，用于为其他组件提供应用构建回调
-  void listenRefresh(String key, FutureOr<void> Function() callback) => _onRefreshCallback[key] = callback;
+  void listenOnRebuild(String key, FutureOr<void> Function() callback) => _onRefreshCallback[key] = callback;
 
   /// 监听销毁
   void listenOnClose(String key, FutureOr<void> Function() callback) => _onCloseCallback[key] = callback;
@@ -65,7 +65,7 @@ class AppLogic extends GetxController with AppInitPlugin, AppRebuildPlugin, _App
   void removeAppInitListener(String key) => _onAppInitCallback.remove(key);
 
   /// 移除重建监听器
-  void removeRefreshListener(String key) => _onRefreshCallback.remove(key);
+  void removeRebuildListener(String key) => _onRefreshCallback.remove(key);
 
   /// 移除构建监听器
   void removeOnReadyListener(String key) => _onReadyCallback.remove(key);

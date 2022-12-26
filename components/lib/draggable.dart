@@ -49,6 +49,8 @@ class DraggableArgs extends ViewArgs {
 
   final Size? resizeAreaSize;
 
+  final Widget? resizeIcon;
+
   const DraggableArgs({
     required this.child,
     this.initPosition,
@@ -59,6 +61,7 @@ class DraggableArgs extends ViewArgs {
     this.constraints,
     this.resizeable = false,
     this.resizeAreaSize,
+    this.resizeIcon,
   });
 }
 
@@ -178,6 +181,7 @@ class DraggableWidget extends View<DraggableLogic> {
             mouseCursor: SystemMouseCursors.resizeUpLeftDownRight,
             onTap: () {},
             onHover: (value) {},
+            child: logic.args.resizeIcon,
           ),
         ),
       ),

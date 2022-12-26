@@ -39,20 +39,26 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
 
   String get key => _key;
 
+  /// 参数
   A get args => _args as A;
 
+  /// 数据源
   D get dataSource => _dataSource as D;
 
+  /// 当前绑定的组件
   View get widget => _widget;
 
+  /// 设置数据源
   set dataSource(D dataSource) => _dataSource = dataSource;
 
+  /// 设置参数
   set args(A args) => _args = args;
 
   /// 控制器标签
   String get tag => _key;
 
   /// 是否全局控制器,如果是全局控制器会先检查控制器是否注册，未注册会自动注册先
+  /// [GetBuilderState.initState]
   bool get global => true;
 
   /// 是否自动移除，如果自动移除，组件dispose的时候会删除这个控制器
@@ -77,39 +83,66 @@ abstract class ViewLogic<A extends ViewArgs, D extends ViewDataSource> extends G
   @override
   void onReady() {
     super.onReady();
-    // 防止不同类型的组件key重复导致回调不正确
-    String key = "${this.key}_$runtimeType";
-    appLogic.listenRefresh(key, () => update());
-    themeConfig.addListener(key, () => update());
-    appLogic.listenAppLifecycleUpdate(key, (lifecycle) => update());
+    appLogic.listenOnRebuild(listenerKey, onAppRebuild);
+    themeConfig.addListener(listenerKey, onThemeUpdate);
+    appLogic.listenAppLifecycleUpdate(listenerKey, onAppLifecycleUpdate);
   }
 
+  /// 监听器key，加[runtimeType]是为了防止不同类型的组件key重复导致回调不正确
+  String get listenerKey => "${key}_$runtimeType";
+
+  /// 应用重建回调[onReady]
+  void onAppRebuild() => update();
+
+  /// 主题更新回调[onReady]
+  void onThemeUpdate() => update();
+
+  /// 应用生命周期变化回调[onReady]
+  void onAppLifecycleUpdate(AppLifecycleState lifecycleState) => update();
+
+  /// 调用地址[DisposableInterface.onInit]
   @mustCallSuper
   @override
   void onClose() {
     super.onClose();
-    // 防止不同类型的组件key重复导致回调不正确
-    String key = "${this.key}_$runtimeType";
-    appLogic.removeRefreshListener(key);
-    themeConfig.removeListener(key);
-    appLogic.removeAppLifecycleListener(key);
+    appLogic.removeRebuildListener(listenerKey);
+    themeConfig.removeListener(listenerKey);
+    appLogic.removeAppLifecycleListener(listenerKey);
   }
 
-  /// 组件构建回调
+  /// [global]调用链
+  /// [GetBuilderState.initState] (非global只需要这一步)
+  /// [GetInstance.find]
+  /// [GetInstance._initDependencies]
+  /// [GetInstance._startController]
+  @override
+  InternalFinalCallback<void> get onStart => super.onStart;
+
+  /// [DisposableInterface.onInit] 主要目的是渲染后调用[onReady]
+  @override
+  void onInit() => super.onInit();
+
+  /// 调用链
+  /// [GetBuilderState.dispose]
+  /// [GetInstance.delete]
+  @override
+  InternalFinalCallback<void> get onDelete => super.onDelete;
+
+  /// 组件构建回调[View.build]
   void onWidgetBuild(BuildContext context) {}
 
-  /// GetStatefulWidget组件Stated的initState回调 等效于
+  /// GetStatefulWidget组件Stated的initState回调 调用地址[GetBuilderState.initState]
   /// 需要注意的是该方法是绑定组件，[onStart]或者[onInit]是绑定控制器，两者的生命周期不一样
   void onWidgetInitState(BuildContext context, GetBuilderState state) {}
 
-  /// GetStatefulWidget组件Stated的didChangeDependencies回调
+  /// GetStatefulWidget组件Stated的didChangeDependencies回调 调用地址[GetBuilderState.didChangeDependencies]
   void onWidgetDidChangeDependencies(BuildContext context, GetBuilderState state) {}
 
-  /// GetStatefulWidget组件Stated的didUpdateWidget回调
+  /// GetStatefulWidget组件Stated的didUpdateWidget回调 调用地址[GetBuilderState.didUpdateWidget]
   /// 调试时hot reload会调用
   void onWidgetDidUpdateWidget(BuildContext context, GetBuilder oldWidget, GetBuilderState state) {}
 
-  /// GetStatefulWidget组件Stated的dispose回调
+  /// GetStatefulWidget组件Stated的dispose回调 调用地址[GetBuilderState.dispose]
   /// 需要注意的是该方法是绑定组件，[onDelete]或[onClose]是绑定控制器，两者的生命周期不一样
   void onWidgetDispose(BuildContext context, GetBuilderState state) {}
 }
