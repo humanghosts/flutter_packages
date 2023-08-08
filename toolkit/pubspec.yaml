@@ -19,6 +19,8 @@ dependencies:
   # 设备信息
   device_info_plus: ^9.0.2
   user_agent_analyzer: ^5.0.0
+  # 数据库
+  sqlite3: ^2.1.0
 
 dev_dependencies:
   flutter_test:
