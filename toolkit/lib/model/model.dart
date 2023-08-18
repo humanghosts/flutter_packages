@@ -22,12 +22,6 @@ abstract class Model<E> {
 
   /// 获取值
   T? get<T>(String key) => attributes.get(key)?.value as T?;
-
-  /// 模型转换为实体
-  E to();
-
-  /// 实体转换为模型
-  void from(E entity);
 }
 
 /// 属性

@@ -10,13 +10,20 @@ class DbUtil {
 
   Database? get database => _database;
 
+  late Sqlite3 sqlite;
+
+  Future<void> init() async {
+    sqlite = sqlite3;
+    openInMemory();
+  }
+
   /// 打开数据库
   void open(String path) {
-    _database = sqlite3.open(path);
+    _database = sqlite.open(path);
   }
 
   /// 打开数据库
   void openInMemory() {
-    _database = sqlite3.openInMemory();
+    _database = sqlite.openInMemory();
   }
 }

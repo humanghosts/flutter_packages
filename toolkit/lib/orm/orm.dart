@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:ohohoo_toolkit/model/model.dart';
 import 'package:ohohoo_toolkit/utils/utils.dart';
