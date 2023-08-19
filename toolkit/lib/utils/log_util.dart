@@ -1,5 +1,7 @@
 part of 'utils.dart';
 
+LogUtil logUtil = LogUtil();
+
 /// 日志助手实现
 class LogUtil {
   LogUtil._();
@@ -17,20 +19,46 @@ class LogUtil {
     _filter.setLevel(levels);
   }
 
-  void verbose(dynamic message, [dynamic error, StackTrace? stackTrace]) => log(Level.verbose, message, error, stackTrace);
+  void debug(
+    dynamic message, {
+    DateTime? time,
+    Object? error,
+    StackTrace? stackTrace,
+  }) =>
+      log(Level.debug, message, error: error, stackTrace: stackTrace, time: time);
 
-  void debug(dynamic message, [dynamic error, StackTrace? stackTrace]) => log(Level.debug, message, error, stackTrace);
+  void info(
+    dynamic message, {
+    DateTime? time,
+    Object? error,
+    StackTrace? stackTrace,
+  }) =>
+      log(Level.info, message, error: error, stackTrace: stackTrace, time: time);
 
-  void info(dynamic message, [dynamic error, StackTrace? stackTrace]) => log(Level.info, message, error, stackTrace);
+  void warning(
+    dynamic message, {
+    DateTime? time,
+    Object? error,
+    StackTrace? stackTrace,
+  }) =>
+      log(Level.warning, message, error: error, stackTrace: stackTrace, time: time);
 
-  void warning(dynamic message, [dynamic error, StackTrace? stackTrace]) => log(Level.warning, message, error, stackTrace);
+  void error(
+    dynamic message, {
+    DateTime? time,
+    Object? error,
+    StackTrace? stackTrace,
+  }) =>
+      log(Level.error, message, error: error, stackTrace: stackTrace, time: time);
 
-  void error(dynamic message, [dynamic error, StackTrace? stackTrace]) => log(Level.error, message, error, stackTrace);
-
-  void terrible(dynamic message, [dynamic error, StackTrace? stackTrace]) => log(Level.wtf, message, error, stackTrace);
-
-  void log(Level level, dynamic message, [dynamic error, StackTrace? stackTrace]) {
-    _logger.log(level, message, error, stackTrace);
+  void log(
+    Level level,
+    dynamic message, {
+    DateTime? time,
+    Object? error,
+    StackTrace? stackTrace,
+  }) {
+    _logger.log(level, message, error: error, stackTrace: stackTrace, time: time);
   }
 }
 
@@ -57,12 +85,10 @@ class _Filter extends LogFilter {
 
 class _Printer extends LogPrinter {
   static final levelColors = {
-    Level.verbose: AnsiColor.fg(AnsiColor.grey(0.5)),
-    Level.debug: AnsiColor.none(),
-    Level.info: AnsiColor.fg(12),
-    Level.warning: AnsiColor.fg(208),
-    Level.error: AnsiColor.fg(196),
-    Level.wtf: AnsiColor.fg(199),
+    Level.debug: const AnsiColor.none(),
+    Level.info: const AnsiColor.fg(12),
+    Level.warning: const AnsiColor.fg(208),
+    Level.error: const AnsiColor.fg(196),
   };
 
   int stackTraceBeginIndex = 0;
@@ -147,7 +173,7 @@ class _Printer extends LogPrinter {
     if (colors) {
       return levelColors[level]!;
     } else {
-      return AnsiColor.none();
+      return const AnsiColor.none();
     }
   }
 

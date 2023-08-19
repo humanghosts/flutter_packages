@@ -1,7 +1,5 @@
-import 'package:ohohoo_toolkit/utils/utils.dart';
-
 /// 模型
-abstract class Model<E> {
+abstract class Model {
   /// 主键
   late final Attribute<String?> id;
 
@@ -9,16 +7,15 @@ abstract class Model<E> {
   late final Attributes attributes;
 
   Model({String? id}) {
-    instanceUtil.creator(runtimeType, create);
     attributes = Attributes(this);
     this.id = attributes.string(name: 'id', value: id);
   }
 
-  /// 构建
-  Model create();
-
   /// 设置值
-  void set(String key, dynamic value) => attributes.get(key)?.value = value;
+  Model set(String key, dynamic value) {
+    attributes.get(key)?.value = value;
+    return this;
+  }
 
   /// 获取值
   T? get<T>(String key) => attributes.get(key)?.value as T?;
@@ -138,85 +135,85 @@ class Attributes {
   Map<String, Attribute> get map => Map.unmodifiable(_map);
 
   /// 整型字段
-  IntegerAttribute<T> integer<T extends int?>({required T value, required String name}) {
+  IntegerAttribute<T> integer<T extends int?>({required String name, required T value}) {
     IntegerAttribute<T> attribute = IntegerAttribute<T>(this, value: value, name: name);
     _map[name] = attribute;
     return attribute;
   }
 
   /// 整型列表
-  IntegerListAttribute<T> integerList<T extends int>({required List<T> value, required String name}) {
-    IntegerListAttribute<T> attribute = IntegerListAttribute<T>(this, value: value, name: name);
+  IntegerListAttribute<T> integerList<T extends int>({required String name, List<T>? value}) {
+    IntegerListAttribute<T> attribute = IntegerListAttribute<T>(this, value: value ?? [], name: name);
     _map[name] = attribute;
     return attribute;
   }
 
   /// 浮点型字段
-  FloatAttribute<T> float<T extends double?>({required T value, required String name}) {
+  FloatAttribute<T> float<T extends double?>({required String name, required T value}) {
     FloatAttribute<T> attribute = FloatAttribute<T>(this, value: value, name: name);
     _map[name] = attribute;
     return attribute;
   }
 
   /// 浮点型列表
-  FloatListAttribute<T> floatList<T extends double>({required List<T> value, required String name}) {
-    FloatListAttribute<T> attribute = FloatListAttribute<T>(this, value: value, name: name);
+  FloatListAttribute<T> floatList<T extends double>({required String name, List<T>? value}) {
+    FloatListAttribute<T> attribute = FloatListAttribute<T>(this, value: value ?? [], name: name);
     _map[name] = attribute;
     return attribute;
   }
 
   /// 字符串字段
-  StringAttribute<T> string<T extends String?>({required T value, required String name}) {
+  StringAttribute<T> string<T extends String?>({required String name, required T value}) {
     StringAttribute<T> attribute = StringAttribute<T>(this, value: value, name: name);
     _map[name] = attribute;
     return attribute;
   }
 
   /// 字符串列表
-  StringListAttribute<T> stringList<T extends String>({required List<T> value, required String name}) {
-    StringListAttribute<T> attribute = StringListAttribute<T>(this, value: value, name: name);
+  StringListAttribute<T> stringList<T extends String>({required String name, List<T>? value}) {
+    StringListAttribute<T> attribute = StringListAttribute<T>(this, value: value ?? [], name: name);
     _map[name] = attribute;
     return attribute;
   }
 
   /// 布尔字段
-  BooleanAttribute<T> boolean<T extends bool?>({required T value, required String name}) {
+  BooleanAttribute<T> boolean<T extends bool?>({required String name, required T value}) {
     BooleanAttribute<T> attribute = BooleanAttribute<T>(this, value: value, name: name);
     _map[name] = attribute;
     return attribute;
   }
 
   /// 布尔列表
-  BooleanListAttribute<T> booleanList<T extends bool>({required List<T> value, required String name}) {
-    BooleanListAttribute<T> attribute = BooleanListAttribute<T>(this, value: value, name: name);
+  BooleanListAttribute<T> booleanList<T extends bool>({required String name, List<T>? value}) {
+    BooleanListAttribute<T> attribute = BooleanListAttribute<T>(this, value: value ?? [], name: name);
     _map[name] = attribute;
     return attribute;
   }
 
   /// 日期时间字段
-  DateTimeAttribute<T> datetime<T extends DateTime?>({required T value, required String name}) {
+  DateTimeAttribute<T> datetime<T extends DateTime?>({required String name, required T value}) {
     DateTimeAttribute<T> attribute = DateTimeAttribute<T>(this, value: value, name: name);
     _map[name] = attribute;
     return attribute;
   }
 
   /// 日期时间列表
-  DateTimeListAttribute<T> datetimeList<T extends DateTime>({required List<T> value, required String name}) {
-    DateTimeListAttribute<T> attribute = DateTimeListAttribute<T>(this, value: value, name: name);
+  DateTimeListAttribute<T> datetimeList<T extends DateTime>({required String name, List<T>? value}) {
+    DateTimeListAttribute<T> attribute = DateTimeListAttribute<T>(this, value: value ?? [], name: name);
     _map[name] = attribute;
     return attribute;
   }
 
   /// 模型字段
-  ModelAttribute<T> model<T extends Model?>({required T value, required String name}) {
+  ModelAttribute<T> model<T extends Model?>({required String name, required T value}) {
     ModelAttribute<T> attribute = ModelAttribute<T>(this, value: value, name: name);
     _map[name] = attribute;
     return attribute;
   }
 
   /// 日期时间列表
-  ModelListAttribute<T> modelList<T extends Model>({required List<T> value, required String name}) {
-    ModelListAttribute<T> attribute = ModelListAttribute<T>(this, value: value, name: name);
+  ModelListAttribute<T> modelList<T extends Model>({required String name, List<T>? value}) {
+    ModelListAttribute<T> attribute = ModelListAttribute<T>(this, value: value ?? [], name: name);
     _map[name] = attribute;
     return attribute;
   }

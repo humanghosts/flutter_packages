@@ -9,7 +9,7 @@ abstract class ViewModel {
 
   const ViewModel({required this.key});
 
-  StatelessView? toView({Key? key});
+  StatelessView toView({Key? key});
 
   ViewManager? getVM() => ViewManager.getVM(this);
 }
@@ -34,27 +34,27 @@ abstract class ViewManager<T extends ViewModel> {
 }
 
 /// 页面组件
-abstract class StatelessView<T extends ViewModel> extends StatelessWidget {
+abstract class StatelessView<T extends ViewModel, M extends ViewManager<T>> extends StatelessWidget {
   const StatelessView(this.vm, {Key? key}) : super(key: key);
 
   /// vm
-  final ViewManager<T> vm;
+  final M vm;
 
   T get model => vm.model;
 }
 
-abstract class StatefulView<T extends ViewModel> extends StatefulWidget {
+abstract class StatefulView<T extends ViewModel, M extends ViewManager<T>> extends StatefulWidget {
   const StatefulView(this.vm, {super.key});
 
   /// vm
-  final ViewManager<T> vm;
+  final M vm;
 
   @override
-  StatefulViewState<T> createState();
+  StatefulViewState<T, M> createState();
 }
 
-abstract class StatefulViewState<T extends ViewModel> extends State<StatefulView<T>> {
+abstract class StatefulViewState<T extends ViewModel, M extends ViewManager<T>> extends State<StatefulView<T, M>> {
   T get model => widget.vm.model;
 
-  ViewManager<T> get vm => widget.vm;
+  M get vm => widget.vm;
 }

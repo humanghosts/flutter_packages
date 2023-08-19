@@ -157,3 +157,20 @@ class ConditionItemBetween extends ConditionItemTernary {
     return '$field between ? and ?';
   }
 }
+
+/// 区间
+class ConditionItemIn extends ConditionItemBinary {
+  ConditionItemIn(String field, List<dynamic> value) : super(field, value);
+
+  @override
+  List<dynamic> get value => super.value;
+
+  @override
+  String get sql => '$field in (${value.join(",")})';
+
+  @override
+  String get preparedSql {
+    _parameters.addAll(value);
+    return '$field (${value.map((e) => "?").join(",")})';
+  }
+}

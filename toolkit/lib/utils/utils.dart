@@ -3,6 +3,8 @@ library util;
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
@@ -19,9 +21,7 @@ part 'instance_util.dart';
 
 part 'log_util.dart';
 
-part 'typedef.dart';
 
-LogUtil logUtil = LogUtil();
-InstanceUtil instanceUtil = InstanceUtil();
-DeviceUtil deviceUtil = DeviceUtil();
-PackageUtil packageUtil = PackageUtil();
+
+
+

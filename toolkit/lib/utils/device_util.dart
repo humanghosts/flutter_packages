@@ -1,5 +1,6 @@
 part of 'utils.dart';
 
+DeviceUtil deviceUtil = DeviceUtil();
 
 /// 设备信息助手
 /// 支持包括web在内所有平台设备信息，基于device_info_plus插件

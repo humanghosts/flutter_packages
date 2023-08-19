@@ -1,5 +1,7 @@
 part of 'utils.dart';
 
+PackageUtil packageUtil = PackageUtil();
+
 /// 包工具
 class PackageUtil {
   PackageUtil._();

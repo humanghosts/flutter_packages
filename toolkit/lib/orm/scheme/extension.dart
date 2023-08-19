@@ -62,6 +62,8 @@ extension QueryStringEx on String {
   Condition equals(dynamic value) => ConditionItemEquals(this, value);
 
   Condition notEquals(dynamic value) => ConditionItemNotEquals(this, value);
+
+  Condition inList(List<dynamic> value) => ConditionItemIn(this, value);
 }
 
 extension CreateAttributeEx on Attribute {
@@ -103,4 +105,6 @@ extension QueryAttributeEx on Attribute {
   Condition equals(dynamic value) => name.equals(value);
 
   Condition notEquals(dynamic value) => name.notEquals(value);
+
+  Condition inList(List<dynamic> value) => name.inList(value);
 }
