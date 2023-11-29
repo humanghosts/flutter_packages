@@ -1,4 +1,4 @@
-part of 'state_manager.dart';
+part of 'state.dart';
 
 extension RxNumExt<T extends num> on Rx<T> {
   num operator *(num other) => value * other;

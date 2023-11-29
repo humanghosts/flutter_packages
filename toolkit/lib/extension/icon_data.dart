@@ -1,4 +1,4 @@
-part of 'widget_extension.dart';
+part of 'extension.dart';
 
 extension IconWidget on IconData {
   Icon toIcon({

@@ -1,4 +1,4 @@
-part of 'state_manager.dart';
+part of 'state.dart';
 
 class RxMap<K, V> extends Rx<Map<K, V>> with MapMixin<K, V> {
   RxMap([Map<K, V> initial = const {}]) : super(Map.from(initial));

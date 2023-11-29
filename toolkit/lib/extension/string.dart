@@ -1,4 +1,4 @@
-part of 'widget_extension.dart';
+part of 'extension.dart';
 
 extension KeyEx on String {
   ValueKey<String> toKey() => ValueKey(this);

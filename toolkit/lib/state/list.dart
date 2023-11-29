@@ -1,4 +1,4 @@
-part of 'state_manager.dart';
+part of 'state.dart';
 
 class RxList<T> extends Rx<List<T>> with ListMixin<T> {
   RxList([List<T> initial = const []]) : super(List.from(initial));
@@ -19,7 +19,8 @@ class RxList<T> extends Rx<List<T>> with ListMixin<T> {
     return RxList(List.of(elements, growable: growable));
   }
 
-  factory RxList.generate(int length, T Function(int index) generator, {bool growable = true}) {
+  factory RxList.generate(int length, T Function(int index) generator,
+      {bool growable = true}) {
     return RxList(List.generate(length, generator, growable: growable));
   }
 
@@ -108,5 +109,3 @@ class RxList<T> extends Rx<List<T>> with ListMixin<T> {
     react();
   }
 }
-
-

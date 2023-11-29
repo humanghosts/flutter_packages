@@ -1,4 +1,4 @@
-part of 'state_manager.dart';
+part of 'state.dart';
 
 class RxSet<T> extends Rx<Set<T>> with SetMixin<T> {
   RxSet([Set<T> initial = const {}]) : super(Set.from(initial));

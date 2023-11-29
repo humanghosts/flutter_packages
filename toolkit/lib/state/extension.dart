@@ -1,4 +1,4 @@
-part of 'state_manager.dart';
+part of 'state.dart';
 
 extension RxString on String {
   Rx<String> get obs => Rx<String>(this);

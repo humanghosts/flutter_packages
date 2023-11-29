@@ -1,18 +1,22 @@
-
-
 # IDEA的Live Template
+
 ```dart
 import 'package:flutter/material.dart';
-import 'package:ohohoo_toolkit/view_manager/view_manager.dart';
+import 'package:ohohoo_toolkit/ohohoo_toolkit.dart';
 
 /// 模型
 @immutable
-class $name$Model extends ViewModel {
-  const $name$Model({required super.key});
+class $name$Model extends ViewModel<$name$Manager> {
+  $name$Model({required super.key});
 
   @override
-  $name$View toView({Key? key}) {
-    return $name$View($name$Manager(this), key: key);
+  $name$View buildView(String key) {
+    return $name$View(this, key: ValueKey(key));
+  }
+
+  @override
+  $name$Manager buildManager() {
+    return $name$Manager(this);
   }
 }
 
